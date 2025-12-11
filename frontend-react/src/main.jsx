@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminPanel from "./pages/AdminPanel";
 import DealDetail from "./pages/DealDetail";
+import MyDeals from "./pages/MyDeals";
 import { AuthProvider, AuthContext } from "./auth/AuthProvider";
 import "./index.css";
 
@@ -31,6 +32,7 @@ createRoot(document.getElementById("root")).render(
               </AdminRoute>
             }
           />
+          <Route path="/my-deals" element={<MyDeals />} />
           <Route path="/deal/:id" element={<DealDetail />} />
           <Route path="/*" element={<App />} />
         </Routes>

@@ -2,59 +2,50 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
 
+const card = "bg-white border border-slate-200 shadow-sm rounded-2xl p-5 space-y-3";
+const input = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200";
+const button = "px-4 py-2 rounded-lg font-semibold text-white shadow hover:shadow-md transition";
+
 export default function AdminPanel() {
   const { authFetch, user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [deals, setDeals] = useState([]);
-  const [services, setServices] = useState([]);
+  const [activeSection, setActiveSection] = useState("overview");
+  const [message, setMessage] = useState("");
+
   const [users, setUsers] = useState([]);
+  const [usersError, setUsersError] = useState("");
+  const [deals, setDeals] = useState([]);
+  const [dealsError, setDealsError] = useState("");
   const [purchases, setPurchases] = useState([]);
-  const dealFormDefaults = {
+  const [purchasesError, setPurchasesError] = useState("");
+  const [services, setServices] = useState([]);
+  const [servicesError, setServicesError] = useState("");
+
+  const [createUserForm, setCreateUserForm] = useState({ email: "", name: "", password: "", role: "user" });
+  const [updateUserForm, setUpdateUserForm] = useState({ userId: "", role: "user", password: "", name: "" });
+  const [grantSubForm, setGrantSubForm] = useState({ userId: "", planId: "", startedAt: "", expiresAt: "" });
+  const [dealForm, setDealForm] = useState({
     id: "",
     title: "",
     partner: "",
     coupon_code: "",
     link: "",
-    type: "coupon",
-    locked_by_default: true,
+    locked_by_default: false,
     featured: false,
-  };
-  const [form, setForm] = useState(() => ({ ...dealFormDefaults }));
-  const [editForm, setEditForm] = useState(() => ({ ...dealFormDefaults }));
-  const [mapForm, setMapForm] = useState({ serviceId: "", dealId: "" });
-  const [unlockForm, setUnlockForm] = useState({ userId: "", dealId: "" });
-  const [createAdminForm, setCreateAdminForm] = useState({ email: "", name: "", password: "" });
-  const [simulateForm, setSimulateForm] = useState({ userId: "", serviceId: "" });
-  const [purchaseForm, setPurchaseForm] = useState({ userId: "", serviceId: "", amount: 0, status: "completed" });
-  const [message, setMessage] = useState("");
-  const fallbackServices = [
-    { id: "service_basic", title: "Standard Plan" },
-    { id: "service_pro", title: "Professional Plan" }
-  ];
-
-  async function loadDeals() {
-    const res = await authFetch("/api/admin/deals");
-    const json = await res.json();
-    setDeals(json.deals || []);
-  }
-
-  async function loadServices() {
-    const res = await authFetch("/api/admin/services");
-    const json = await res.json();
-    setServices(json.services || []);
-  }
-
-  async function loadUsers() {
-    const res = await authFetch("/api/admin/users");
-    const json = await res.json();
-    setUsers(json.users || []);
-  }
-
-  async function loadPurchases() {
-    const res = await authFetch("/api/admin/purchases?limit=200");
-    const json = await res.json();
-    setPurchases(json.purchases || []);
-  }
+    type: ""
+  });
+  const [editingDealId, setEditingDealId] = useState("");
+  const [serviceForm, setServiceForm] = useState({
+    id: "",
+    title: "",
+    description: "",
+    price: "",
+    price_cents: "",
+    billing_interval: "monthly",
+    code: "",
+    is_active: true
+  });
+  const [editingServiceId, setEditingServiceId] = useState("");
 
   useEffect(() => {
     if (!user) return;
@@ -62,421 +53,835 @@ export default function AdminPanel() {
       navigate("/");
       return;
     }
-    loadDeals();
-    loadServices();
     loadUsers();
+    loadDeals();
     loadPurchases();
-  }, [user]);
+    loadServices();
+  }, [user, navigate]);
 
-  async function createDeal(e) {
-    e.preventDefault();
-    setMessage("");
-    const res = await authFetch("/api/admin/deals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-    const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
-    else {
-      setMessage("Saved");
-      setForm({ ...dealFormDefaults });
-      loadDeals();
+  async function loadUsers() {
+    try {
+      setUsersError("");
+      const res = await authFetch("/api/admin/users?includeSubscriptions=true");
+      const json = await res.json();
+      if (!res.ok) {
+        setUsersError(json.error || "Failed to load users");
+        setUsers([]);
+        return;
+      }
+      setUsers(json.users || []);
+    } catch (err) {
+      console.error("loadUsers failed", err);
+      setUsersError("Failed to load users");
+      setUsers([]);
     }
   }
 
-  async function editDeal(e) {
-    e.preventDefault();
-    setMessage("");
-    const res = await authFetch("/api/admin/deals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editForm)
-    });
-    const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
-    else {
-      setMessage("Updated");
-      setEditForm({ ...dealFormDefaults });
-      loadDeals();
+  async function loadDeals() {
+    try {
+      setDealsError("");
+      const res = await authFetch("/api/admin/deals");
+      const json = await res.json();
+      if (!res.ok) {
+        setDealsError(json.error || "Failed to load deals");
+        setDeals([]);
+        return;
+      }
+      setDeals(json.deals || []);
+    } catch (err) {
+      console.error("loadDeals failed", err);
+      setDealsError("Failed to load deals");
+      setDeals([]);
     }
   }
 
-  async function mapService(e) {
-    e.preventDefault();
-    setMessage("");
-    const res = await authFetch("/api/admin/map-service", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mapForm)
-    });
-    const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
-    else {
-      setMessage("Mapped");
-      setMapForm({ serviceId: "", dealId: "" });
+  async function loadPurchases() {
+    try {
+      setPurchasesError("");
+      const res = await authFetch("/api/admin/purchases?limit=200");
+      const json = await res.json();
+      if (!res.ok) {
+        setPurchasesError(json.error || "Failed to load purchases");
+        setPurchases([]);
+        return;
+      }
+      setPurchases(json.purchases || []);
+    } catch (err) {
+      console.error("loadPurchases failed", err);
+      setPurchasesError("Failed to load purchases");
+      setPurchases([]);
     }
   }
 
-  async function manualUnlock(e) {
-    e.preventDefault();
-    setMessage("");
-    const res = await authFetch("/api/admin/unlock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(unlockForm)
-    });
-    const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
-    else {
-      setMessage(json.message === "already_unlocked" ? "Already unlocked" : "Unlocked");
-      setUnlockForm({ userId: "", dealId: "" });
+  async function loadServices() {
+    try {
+      setServicesError("");
+      const res = await authFetch("/api/admin/services");
+      const json = await res.json();
+      if (!res.ok) {
+        setServicesError(json.error || "Failed to load subscriptions");
+        setServices([]);
+        return;
+      }
+      setServices(json.services || []);
+    } catch (err) {
+      console.error("loadServices failed", err);
+      setServicesError("Failed to load subscriptions");
+      setServices([]);
     }
   }
 
-  async function createAdmin(e) {
+  function setFlash(msg) {
+    setMessage(msg);
+    setTimeout(() => setMessage(""), 4000);
+  }
+
+  async function handleCreateUser(e) {
     e.preventDefault();
     setMessage("");
-    const res = await authFetch("/api/admin/create-admin", {
+    const res = await authFetch("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(createAdminForm)
+      body: JSON.stringify(createUserForm)
     });
     const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
+    if (!res.ok) setFlash(json.error || "failed");
     else {
-      setMessage("Admin created");
-      setCreateAdminForm({ email: "", name: "", password: "" });
+      setCreateUserForm({ email: "", name: "", password: "", role: "user" });
+      setFlash("User created");
       loadUsers();
     }
   }
 
-  async function simulatePurchase(e) {
+  async function handleUpdateUser(e) {
+    e.preventDefault();
+    if (!updateUserForm.userId) return;
+    setMessage("");
+    const payload = {};
+    if (updateUserForm.role) payload.role = updateUserForm.role;
+    if (updateUserForm.password) payload.password = updateUserForm.password;
+    if (updateUserForm.name) payload.name = updateUserForm.name;
+
+    const res = await authFetch(`/api/admin/users/${updateUserForm.userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (!res.ok) setFlash(json.error || "failed");
+    else {
+      setUpdateUserForm({ userId: "", role: "user", password: "", name: "" });
+      setFlash("User updated");
+      loadUsers();
+    }
+  }
+
+  async function handleSaveDeal(e) {
     e.preventDefault();
     setMessage("");
-    const res = await authFetch("/api/admin/simulate-purchase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(simulateForm)
-    });
+    const payload = {
+      id: dealForm.id,
+      title: dealForm.title,
+      partner: dealForm.partner,
+      coupon_code: dealForm.coupon_code,
+      link: dealForm.link,
+      locked_by_default: !!dealForm.locked_by_default,
+      featured: !!dealForm.featured,
+      type: dealForm.type || undefined
+    };
+
+    let res;
+    if (editingDealId) {
+      res = await authFetch(`/api/admin/deals/${editingDealId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await authFetch("/api/admin/deals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+
     const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
+    if (!res.ok) setFlash(json.error || "failed");
     else {
-      setMessage("Purchase simulated");
-      setSimulateForm({ userId: "", serviceId: "" });
+      setDealForm({
+        id: "",
+        title: "",
+        partner: "",
+        coupon_code: "",
+        link: "",
+        locked_by_default: false,
+        featured: false,
+        type: ""
+      });
+      setEditingDealId("");
+      setFlash(editingDealId ? "Deal updated" : "Deal saved");
+      loadDeals();
     }
   }
 
-  async function createPurchase(e) {
+  function handleEditDeal(deal) {
+    setDealForm({
+      id: deal.id,
+      title: deal.title || "",
+      partner: deal.partner || "",
+      coupon_code: deal.coupon_code || "",
+      link: deal.link || "",
+      locked_by_default: !!deal.locked_by_default,
+      featured: !!deal.featured,
+      type: deal.type || ""
+    });
+    setEditingDealId(deal.id);
+    setActiveSection("deals");
+  }
+
+  async function handleSaveService(e) {
     e.preventDefault();
     setMessage("");
-    const res = await authFetch("/api/admin/purchase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(purchaseForm)
-    });
+    const payload = {
+      id: serviceForm.id,
+      title: serviceForm.title,
+      description: serviceForm.description,
+      price: serviceForm.price === "" ? undefined : serviceForm.price,
+      price_cents: serviceForm.price_cents === "" ? undefined : serviceForm.price_cents,
+      billing_interval: serviceForm.billing_interval,
+      code: serviceForm.code,
+      is_active: !!serviceForm.is_active
+    };
+
+    let res;
+    if (editingServiceId) {
+      res = await authFetch(`/api/admin/services/${editingServiceId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await authFetch("/api/admin/services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+
     const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
+    if (!res.ok) setFlash(json.error || "failed");
     else {
-      setMessage("Subscription recorded");
-      setPurchaseForm({ userId: "", serviceId: "", amount: 0, status: "completed" });
-      loadPurchases();
+      setServiceForm({
+        id: "",
+        title: "",
+        description: "",
+        price: "",
+        price_cents: "",
+        billing_interval: "monthly",
+        code: "",
+        is_active: true
+      });
+      setEditingServiceId("");
+      setFlash(editingServiceId ? "Subscription updated" : "Subscription plan saved");
+      loadServices();
+      loadUsers();
     }
   }
 
-  async function deletePurchase(id) {
-    setMessage("");
-    const res = await authFetch(`/api/admin/purchase/${id}`, { method: "DELETE" });
+  function handleEditService(service) {
+    setServiceForm({
+      id: service.id,
+      title: service.title || "",
+      description: service.description || "",
+      price: service.price ?? "",
+      price_cents: service.price_cents ?? "",
+      billing_interval: service.billing_interval || "monthly",
+      code: service.code || "",
+      is_active: service.is_active !== undefined ? service.is_active : true
+    });
+    setEditingServiceId(service.id);
+    setActiveSection("subscriptions");
+  }
+
+  async function handleDeleteUser(id) {
+    if (!id) return;
+    const confirmDelete = window.confirm("Delete this user? This cannot be undone.");
+    if (!confirmDelete) return;
+    const res = await authFetch(`/api/admin/users/${id}`, { method: "DELETE" });
     const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
+    if (!res.ok) setFlash(json.error || "failed");
     else {
-      setMessage("Subscription removed");
-      loadPurchases();
+      setFlash("User deleted");
+      loadUsers();
     }
   }
 
-  async function addPresetPurchase(serviceId) {
-    if (!purchaseForm.userId) {
-      setMessage("Select a user first");
-      return;
-    }
-    setMessage("");
-    const res = await authFetch("/api/admin/purchase", {
+  async function handleGrantSubscription(e) {
+    e.preventDefault();
+    if (!grantSubForm.userId || !grantSubForm.planId) return;
+    const payload = {
+      planId: grantSubForm.planId,
+      status: "active",
+      startedAt: grantSubForm.startedAt || undefined,
+      expiresAt: grantSubForm.expiresAt || undefined,
+      source: "admin_grant"
+    };
+    const res = await authFetch(`/api/admin/users/${grantSubForm.userId}/subscriptions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...purchaseForm, serviceId })
+      body: JSON.stringify(payload)
     });
     const json = await res.json();
-    if (!res.ok) setMessage(json.error || "failed");
+    if (!res.ok) setFlash(json.error || "failed");
     else {
-      setMessage("Subscription recorded");
-      loadPurchases();
+      setGrantSubForm({ userId: "", planId: "", startedAt: "", expiresAt: "" });
+      setFlash(json.refreshed ? "Subscription refreshed" : "Subscription granted");
+      loadUsers();
     }
   }
 
   if (!user) return <div className="p-6">Loading...</div>;
   if (user.role !== "admin") return null;
 
-  const cardClass = "bg-white/80 backdrop-blur border border-slate-200 shadow-sm rounded-2xl p-5 space-y-3";
-  const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200";
-  const labelClass = "text-sm font-medium text-slate-700";
-  const buttonBase = "px-4 py-2 rounded-lg font-semibold text-white shadow hover:shadow-md transition";
-  const mergedServices = React.useMemo(() => {
-    const existing = new Set(services.map(s => s.id));
-    const extras = fallbackServices.filter(f => !existing.has(f.id));
-    return [...services, ...extras];
-  }, [services]);
+  const activeNavClass = "flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white font-semibold shadow";
+  const inactiveNavClass = "flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 transition";
+
+  const getActiveSubscription = (u) => {
+    const subs = u.user_subscriptions || u.userSubscriptions || u.UserSubscriptions || [];
+    if (!subs.length) return null;
+    const active = subs.find((s) => s.status === "active") || subs[0];
+    const plan = active.service;
+    return {
+      title: plan?.title || plan?.id || active.plan_id,
+      code: plan?.code || "plan",
+      status: active.status,
+      started: active.started_at ? new Date(active.started_at).toLocaleDateString() : "n/a",
+      expires: active.expires_at ? new Date(active.expires_at).toLocaleDateString() : "open",
+      interval: plan?.billing_interval || "monthly"
+    };
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white py-10 px-4">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <section className="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-800 text-white rounded-3xl p-8 shadow-xl space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-wide text-white/70">Admin console</p>
-              <h1 className="text-3xl font-bold leading-tight">Manage partner deals, unlocks, and users</h1>
-              <p className="text-white/70 text-sm max-w-2xl">
-                Create, edit, and map deals to services, unlock perks for users, and simulate purchases from one place.
-              </p>
-            </div>
-            <div className="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm">
-              <div className="text-white/70">Signed in as</div>
-              <div className="font-semibold">{user.email}</div>
-              <div className="text-white/60">Role: {user.role}</div>
-            </div>
-          </div>
-          {message && <div className="text-sm bg-white/10 border border-white/20 rounded-lg px-3 py-2 inline-block">{message}</div>}
-        </section>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Deals</p>
-              <h2 className="text-lg font-semibold text-slate-900">Add a new deal</h2>
-              <p className="text-sm text-slate-500">Creates a deal in the database so it shows up on the marketplace.</p>
-            </div>
-            <form onSubmit={createDeal} className="grid grid-cols-1 gap-3">
-              <label className={labelClass}>
-                Deal ID
-                <input placeholder="deal_canva_30" value={form.id} onChange={e=>setForm({...form,id:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Title
-                <input placeholder="Title" value={form.title} onChange={e=>setForm({...form,title:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Partner
-                <input placeholder="Partner" value={form.partner} onChange={e=>setForm({...form,partner:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Coupon Code
-                <input placeholder="Coupon code" value={form.coupon_code} onChange={e=>setForm({...form,coupon_code:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Destination link
-                <input placeholder="https://partner.com/redeem" value={form.link} onChange={e=>setForm({...form,link:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Deal type
-                <select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} className={inputClass}>
-                  <option value="coupon">Coupon code</option>
-                  <option value="link">Direct link</option>
-                </select>
-              </label>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-700">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="h-4 w-4" checked={!!form.locked_by_default} onChange={e=>setForm({...form,locked_by_default:e.target.checked})} />
-                  Locked by default (requires unlock)
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="h-4 w-4" checked={!!form.featured} onChange={e=>setForm({...form,featured:e.target.checked})} />
-                  Mark as featured
-                </label>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+          <div className="flex">
+            <aside className="w-64 border-r border-slate-200 bg-slate-50/80">
+              <div className="px-4 py-4 border-b border-slate-200">
+                <p className="text-xs uppercase tracking-wide text-slate-500">Admin</p>
+                <p className="font-semibold">{user.email}</p>
+                <p className="text-xs text-slate-500">Role: {user.role}</p>
               </div>
-              <button className={`${buttonBase} bg-indigo-600`}>Save deal</button>
-            </form>
-          </section>
+              <nav className="p-4 space-y-2">
+                {[
+                  { id: "overview", label: "Overview" },
+                  { id: "users", label: "Users" },
+                  { id: "deals", label: "Deals" },
+                  { id: "purchases", label: "Purchases" },
+                  { id: "subscriptions", label: "Subscriptions" }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    className={activeSection === item.id ? activeNavClass : inactiveNavClass}
+                    onClick={() => setActiveSection(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+            </aside>
 
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Deals</p>
-              <h2 className="text-lg font-semibold text-slate-900">Edit Deal</h2>
-              <p className="text-sm text-slate-500">Update details for an existing deal already stored in the backend.</p>
-            </div>
-            <form onSubmit={editDeal} className="grid grid-cols-1 gap-3">
-              <label className={labelClass}>
-                Deal ID to edit
-                <input placeholder="Deal ID" value={editForm.id} onChange={e=>setEditForm({...editForm,id:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Title
-                <input placeholder="Title" value={editForm.title} onChange={e=>setEditForm({...editForm,title:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Partner
-                <input placeholder="Partner" value={editForm.partner} onChange={e=>setEditForm({...editForm,partner:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Coupon Code
-                <input placeholder="Coupon code" value={editForm.coupon_code} onChange={e=>setEditForm({...editForm,coupon_code:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Destination link
-                <input placeholder="https://partner.com/redeem" value={editForm.link} onChange={e=>setEditForm({...editForm,link:e.target.value})} className={inputClass} />
-              </label>
-              <label className={labelClass}>
-                Deal type
-                <select value={editForm.type} onChange={e=>setEditForm({...editForm,type:e.target.value})} className={inputClass}>
-                  <option value="coupon">Coupon code</option>
-                  <option value="link">Direct link</option>
-                </select>
-              </label>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-700">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="h-4 w-4" checked={!!editForm.locked_by_default} onChange={e=>setEditForm({...editForm,locked_by_default:e.target.checked})} />
-                  Locked by default
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="h-4 w-4" checked={!!editForm.featured} onChange={e=>setEditForm({...editForm,featured:e.target.checked})} />
-                  Featured
-                </label>
-              </div>
-              <button className={`${buttonBase} bg-indigo-500`}>Update Deal</button>
-            </form>
-          </section>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Users</p>
-              <h2 className="text-lg font-semibold text-slate-900">User directory</h2>
-              <p className="text-sm text-slate-500">View all users and their roles.</p>
-            </div>
-            <div className="max-h-72 overflow-auto pr-1 space-y-2">
-              {users.map(u => (
-                <div key={u.id} className="p-3 rounded-lg border border-slate-200 bg-white">
-                  <div className="font-semibold text-slate-900">{u.email}</div>
-                  <div className="text-sm text-slate-600">Name: {u.name || "—"} • Role: {u.role}</div>
-                  <div className="text-xs text-slate-500">Joined: {u.createdAt ? new Date(u.createdAt).toLocaleString() : "—"}</div>
+            <main className="flex-1 p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold">Admin console</h1>
+                  <p className="text-sm text-slate-600">Manage users and their subscriptions.</p>
                 </div>
-              ))}
-              {users.length === 0 && <div className="text-sm text-slate-500">No users found.</div>}
-            </div>
-          </section>
-
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Mapping</p>
-              <h2 className="text-lg font-semibold text-slate-900">Map Services to Deals</h2>
-            </div>
-            <form onSubmit={mapService} className="grid grid-cols-1 gap-3">
-              <select value={mapForm.serviceId} onChange={e=>setMapForm({...mapForm,serviceId:e.target.value})} className={inputClass}>
-                <option value="">Select Service</option>
-                {services.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-              </select>
-              <select value={mapForm.dealId} onChange={e=>setMapForm({...mapForm,dealId:e.target.value})} className={inputClass}>
-                <option value="">Select Deal</option>
-                {deals.map(d => <option key={d.id} value={d.id}>{d.title}</option>)}
-              </select>
-              <button className={`${buttonBase} bg-emerald-600`}>Map Service</button>
-            </form>
-          </section>
-
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Unlocks</p>
-              <h2 className="text-lg font-semibold text-slate-900">Manual Unlock</h2>
-            </div>
-            <form onSubmit={manualUnlock} className="grid grid-cols-1 gap-3">
-              <select value={unlockForm.userId} onChange={e=>setUnlockForm({...unlockForm,userId:e.target.value})} className={inputClass}>
-                <option value="">Select User</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.email}</option>)}
-              </select>
-              <select value={unlockForm.dealId} onChange={e=>setUnlockForm({...unlockForm,dealId:e.target.value})} className={inputClass}>
-                <option value="">Select Deal</option>
-                {deals.map(d => <option key={d.id} value={d.id}>{d.title}</option>)}
-              </select>
-              <button className={`${buttonBase} bg-amber-600`}>Unlock Deal</button>
-            </form>
-          </section>
-
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Admins</p>
-              <h2 className="text-lg font-semibold text-slate-900">Create Admin</h2>
-            </div>
-            <form onSubmit={createAdmin} className="grid grid-cols-1 gap-3">
-              <input placeholder="Email" value={createAdminForm.email} onChange={e=>setCreateAdminForm({...createAdminForm,email:e.target.value})} className={inputClass} />
-              <input placeholder="Name" value={createAdminForm.name} onChange={e=>setCreateAdminForm({...createAdminForm,name:e.target.value})} className={inputClass} />
-              <input type="password" placeholder="Password" value={createAdminForm.password} onChange={e=>setCreateAdminForm({...createAdminForm,password:e.target.value})} className={inputClass} />
-              <button className={`${buttonBase} bg-rose-600`}>Create Admin</button>
-            </form>
-          </section>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Simulate</p>
-              <h2 className="text-lg font-semibold text-slate-900">Simulate Purchase</h2>
-            </div>
-            <form onSubmit={simulatePurchase} className="grid grid-cols-1 gap-3">
-              <select value={simulateForm.userId} onChange={e=>setSimulateForm({...simulateForm,userId:e.target.value})} className={inputClass}>
-                <option value="">Select User</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.email}</option>)}
-              </select>
-              <select value={simulateForm.serviceId} onChange={e=>setSimulateForm({...simulateForm,serviceId:e.target.value})} className={inputClass}>
-                <option value="">Select Service</option>
-                {mergedServices.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-              </select>
-              <button className={`${buttonBase} bg-purple-600`}>Simulate Purchase</button>
-            </form>
-          </section>
-
-          <section className={cardClass}>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Subscriptions</p>
-              <h2 className="text-lg font-semibold text-slate-900">Manage user subscriptions</h2>
-              <p className="text-sm text-slate-500">Add or remove subscriptions manually (no payment capture).</p>
-            </div>
-            <form onSubmit={createPurchase} className="grid grid-cols-1 gap-3">
-              <select value={purchaseForm.userId} onChange={e=>setPurchaseForm({...purchaseForm,userId:e.target.value})} className={inputClass}>
-                <option value="">Select User</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.email}</option>)}
-              </select>
-              <select value={purchaseForm.serviceId} onChange={e=>setPurchaseForm({...purchaseForm,serviceId:e.target.value})} className={inputClass}>
-                <option value="">Select Service</option>
-                {mergedServices.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-              </select>
-              <input type="number" step="0.01" placeholder="Amount (optional)" value={purchaseForm.amount} onChange={e=>setPurchaseForm({...purchaseForm,amount: parseFloat(e.target.value) || 0})} className={inputClass} />
-              <select value={purchaseForm.status} onChange={e=>setPurchaseForm({...purchaseForm,status:e.target.value})} className={inputClass}>
-                <option value="completed">completed</option>
-                <option value="pending">pending</option>
-                <option value="failed">failed</option>
-              </select>
-              <button className={`${buttonBase} bg-emerald-600`}>Add subscription</button>
-            </form>
-            <div className="flex flex-wrap gap-2 text-sm">
-              <button type="button" onClick={()=>addPresetPurchase("service_basic")} className="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white text-slate-700">Add Standard</button>
-              <button type="button" onClick={()=>addPresetPurchase("service_pro")} className="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white text-slate-700">Add Professional</button>
-            </div>
-            <div className="grid gap-3 max-h-64 overflow-auto pr-1">
-              {purchases.map(p => (
-                <div key={p.id} className="p-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between">
-                  <div className="text-sm text-slate-700">
-                    <div className="font-semibold text-slate-900">User: {p.user_id}</div>
-                    <div>Service: {p.service_id} • Status: {p.status}</div>
-                    <div className="text-xs text-slate-500">Amount: {p.amount} • {p.createdAt ? new Date(p.createdAt).toLocaleString() : ""}</div>
+                {message && (
+                  <div className="px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+                    {message}
                   </div>
-                  <button onClick={()=>deletePurchase(p.id)} className="text-sm text-rose-600 hover:underline">Delete</button>
+                )}
+              </div>
+
+              {activeSection === "overview" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <section className={card}>
+                    <h3 className="text-lg font-semibold">Quick stats</h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                        <div className="text-slate-500 text-xs uppercase">Users</div>
+                        <div className="text-xl font-bold">{users.length}</div>
+                      </div>
+                    </div>
+                  </section>
+                  <section className={card}>
+                    <h3 className="text-lg font-semibold">Security notes</h3>
+                    <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1">
+                      <li>Admin endpoints require auth + admin role.</li>
+                      <li>User deletion confirmed explicitly.</li>
+                      <li>Subscriptions granted here are zero-dollar admin grants.</li>
+                    </ul>
+                  </section>
                 </div>
-              ))}
-              {purchases.length === 0 && <div className="text-sm text-slate-500">No subscriptions yet.</div>}
-            </div>
-          </section>
+              )}
+
+              {activeSection === "users" && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <section className={card}>
+                      <h3 className="text-lg font-semibold">Create user</h3>
+                      <form onSubmit={handleCreateUser} className="space-y-3">
+                        <input className={input} placeholder="Email" value={createUserForm.email} onChange={(e) => setCreateUserForm({ ...createUserForm, email: e.target.value })} />
+                        <input className={input} placeholder="Name" value={createUserForm.name} onChange={(e) => setCreateUserForm({ ...createUserForm, name: e.target.value })} />
+                        <input type="password" className={input} placeholder="Password" value={createUserForm.password} onChange={(e) => setCreateUserForm({ ...createUserForm, password: e.target.value })} />
+                        <select className={input} value={createUserForm.role} onChange={(e) => setCreateUserForm({ ...createUserForm, role: e.target.value })}>
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                        <button className={`${button} bg-indigo-600`}>Create user</button>
+                      </form>
+                    </section>
+
+                    <section className={card}>
+                      <h3 className="text-lg font-semibold">Update user / reset password</h3>
+                      <form onSubmit={handleUpdateUser} className="space-y-3">
+                        <select className={input} value={updateUserForm.userId} onChange={(e) => setUpdateUserForm({ ...updateUserForm, userId: e.target.value })}>
+                          <option value="">Select user</option>
+                          {users.map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.email}
+                            </option>
+                          ))}
+                        </select>
+                        <input className={input} placeholder="Name (optional)" value={updateUserForm.name} onChange={(e) => setUpdateUserForm({ ...updateUserForm, name: e.target.value })} />
+                        <select className={input} value={updateUserForm.role} onChange={(e) => setUpdateUserForm({ ...updateUserForm, role: e.target.value })}>
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                        <input type="password" className={input} placeholder="New password (optional)" value={updateUserForm.password} onChange={(e) => setUpdateUserForm({ ...updateUserForm, password: e.target.value })} />
+                        <div className="flex gap-2">
+                          <button className={`${button} bg-indigo-500`} type="submit">Save changes</button>
+                          {updateUserForm.userId && (
+                            <button type="button" className="px-4 py-2 rounded-lg font-semibold text-rose-700 border border-rose-200 bg-rose-50 hover:bg-rose-100" onClick={() => handleDeleteUser(updateUserForm.userId)}>
+                              Delete user
+                            </button>
+                          )}
+                        </div>
+                      </form>
+                    </section>
+                  </div>
+
+                  <section className={card}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">User list</h3>
+                      <button className="text-sm text-indigo-700 underline" type="button" onClick={() => loadUsers()}>
+                        Refresh
+                      </button>
+                    </div>
+                    {usersError && (
+                      <div className="mb-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                        {usersError}
+                      </div>
+                    )}
+                    <div className="overflow-auto">
+                      <table className="min-w-full text-sm">
+                        <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+                          <tr>
+                            <th className="px-3 py-2">Email</th>
+                            <th className="px-3 py-2">Name</th>
+                            <th className="px-3 py-2">Role</th>
+                            <th className="px-3 py-2">Created</th>
+                            <th className="px-3 py-2">Subscription</th>
+                            <th className="px-3 py-2 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {users.map((u) => {
+                            const sub = getActiveSubscription(u);
+                            return (
+                              <tr key={u.id} className="border-b border-slate-100">
+                                <td className="px-3 py-2 font-semibold text-slate-900">{u.email}</td>
+                                <td className="px-3 py-2 text-slate-700">{u.name || "?"}</td>
+                                <td className="px-3 py-2 text-slate-700">{u.role}</td>
+                                <td className="px-3 py-2 text-slate-600">{u.createdAt ? new Date(u.createdAt).toLocaleString() : "n/a"}</td>
+                                <td className="px-3 py-2 text-slate-700">
+                                  {sub ? (
+                                    <div className="text-xs space-y-1">
+                                      <div className="font-semibold">{sub.title} ({sub.code})</div>
+                                      <div>Status: {sub.status}</div>
+                                      <div>Start: {sub.started} | Exp: {sub.expires}</div>
+                                      <div>Interval: {sub.interval}</div>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-slate-500">No subscription</span>
+                                  )}
+                                </td>
+                                <td className="px-3 py-2 text-right">
+                                  <button className="text-xs text-rose-600 underline" onClick={() => handleDeleteUser(u.id)}>
+                                    Delete
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                          {users.length === 0 && (
+                            <tr>
+                              <td colSpan="6" className="px-3 py-3 text-slate-500">
+                                No users found.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                </div>
+              )}
+
+              {activeSection === "deals" && (
+                <div className="space-y-4">
+                  <section className={card}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">{editingDealId ? "Edit deal" : "Create deal"}</h3>
+                      <button className="text-sm text-indigo-700 underline" type="button" onClick={() => loadDeals()}>
+                        Refresh
+                      </button>
+                    </div>
+                    {dealsError && (
+                      <div className="mb-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                        {dealsError}
+                      </div>
+                    )}
+                    <form onSubmit={handleSaveDeal} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <input className={input} placeholder="ID (unique)" value={dealForm.id} onChange={(e) => setDealForm({ ...dealForm, id: e.target.value })} required={!editingDealId} />
+                      <input className={input} placeholder="Title" value={dealForm.title} onChange={(e) => setDealForm({ ...dealForm, title: e.target.value })} />
+                      <input className={input} placeholder="Partner" value={dealForm.partner} onChange={(e) => setDealForm({ ...dealForm, partner: e.target.value })} />
+                      <input className={input} placeholder="Coupon code" value={dealForm.coupon_code} onChange={(e) => setDealForm({ ...dealForm, coupon_code: e.target.value })} />
+                      <input className={input} placeholder="Link" value={dealForm.link} onChange={(e) => setDealForm({ ...dealForm, link: e.target.value })} />
+                      <input className={input} placeholder="Type (e.g., standard/professional)" value={dealForm.type} onChange={(e) => setDealForm({ ...dealForm, type: e.target.value })} />
+                      <label className="flex items-center gap-2 text-sm text-slate-700">
+                        <input type="checkbox" checked={dealForm.locked_by_default} onChange={(e) => setDealForm({ ...dealForm, locked_by_default: e.target.checked })} />
+                        Locked by default
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-slate-700">
+                        <input type="checkbox" checked={dealForm.featured} onChange={(e) => setDealForm({ ...dealForm, featured: e.target.checked })} />
+                        Featured
+                      </label>
+                      <div className="md:col-span-2 flex gap-2">
+                        <button className={`${button} bg-indigo-600`} type="submit">
+                          {editingDealId ? "Update deal" : "Save deal"}
+                        </button>
+                        {editingDealId && (
+                          <button
+                            type="button"
+                            className="px-4 py-2 rounded-lg font-semibold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50"
+                            onClick={() => {
+                              setDealForm({
+                                id: "",
+                                title: "",
+                                partner: "",
+                                coupon_code: "",
+                                link: "",
+                                locked_by_default: false,
+                                featured: false,
+                                type: ""
+                              });
+                              setEditingDealId("");
+                            }}
+                          >
+                            Cancel edit
+                          </button>
+                        )}
+                      </div>
+                    </form>
+                  </section>
+
+                  <section className={card}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Deals list</h3>
+                      <button className="text-sm text-indigo-700 underline" type="button" onClick={() => loadDeals()}>
+                        Refresh
+                      </button>
+                    </div>
+                    <div className="overflow-auto">
+                      <table className="min-w-full text-sm">
+                        <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+                          <tr>
+                            <th className="px-3 py-2">ID</th>
+                            <th className="px-3 py-2">Title</th>
+                            <th className="px-3 py-2">Partner</th>
+                            <th className="px-3 py-2">Featured</th>
+                            <th className="px-3 py-2">Locked</th>
+                            <th className="px-3 py-2">Type</th>
+                            <th className="px-3 py-2 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {deals.map((d) => (
+                            <tr key={d.id} className="border-b border-slate-100">
+                              <td className="px-3 py-2 text-slate-700">{d.id}</td>
+                              <td className="px-3 py-2 font-semibold text-slate-900">{d.title}</td>
+                              <td className="px-3 py-2 text-slate-700">{d.partner || "-"}</td>
+                              <td className="px-3 py-2 text-slate-700">{d.featured ? "Yes" : "No"}</td>
+                              <td className="px-3 py-2 text-slate-700">{d.locked_by_default ? "Yes" : "No"}</td>
+                              <td className="px-3 py-2 text-slate-700">{d.type || "-"}</td>
+                              <td className="px-3 py-2 text-right">
+                                <button className="text-xs text-indigo-700 underline" onClick={() => handleEditDeal(d)}>
+                                  Edit
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                          {deals.length === 0 && (
+                            <tr>
+                              <td colSpan="7" className="px-3 py-3 text-slate-500">
+                                No deals found.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {activeSection === "purchases" && (
+                <div className="space-y-4">
+                  <section className={card}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Purchases</h3>
+                      <button className="text-sm text-indigo-700 underline" type="button" onClick={() => loadPurchases()}>
+                        Refresh
+                      </button>
+                    </div>
+                    {purchasesError && (
+                      <div className="mb-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                        {purchasesError}
+                      </div>
+                    )}
+                    <div className="overflow-auto">
+                      <table className="min-w-full text-sm">
+                        <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+                          <tr>
+                            <th className="px-3 py-2">User</th>
+                            <th className="px-3 py-2">Service/Plan</th>
+                            <th className="px-3 py-2">Amount</th>
+                            <th className="px-3 py-2">Status</th>
+                            <th className="px-3 py-2">Provider</th>
+                            <th className="px-3 py-2">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {purchases.map((p) => (
+                            <tr key={p.id} className="border-b border-slate-100">
+                              <td className="px-3 py-2 text-slate-700">{p.user_id}</td>
+                              <td className="px-3 py-2 text-slate-700">{p.service_id || p.plan_id || "-"}</td>
+                              <td className="px-3 py-2 text-slate-700">{typeof p.amount === "number" ? `INR ${p.amount}` : "-"}</td>
+                              <td className="px-3 py-2 text-slate-700">{p.status}</td>
+                              <td className="px-3 py-2 text-slate-700">{p.provider || "-"}</td>
+                              <td className="px-3 py-2 text-slate-600">{p.createdAt ? new Date(p.createdAt).toLocaleString() : "n/a"}</td>
+                            </tr>
+                          ))}
+                          {purchases.length === 0 && (
+                            <tr>
+                              <td colSpan="6" className="px-3 py-3 text-slate-500">
+                                No purchases yet.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {activeSection === "subscriptions" && (
+                <div className="space-y-4">
+                  <section className={card}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">{editingServiceId ? "Edit subscription plan" : "Add subscription plan"}</h3>
+                      <button className="text-sm text-indigo-700 underline" type="button" onClick={() => loadServices()}>
+                        Refresh
+                      </button>
+                    </div>
+                    {servicesError && (
+                      <div className="mb-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                        {servicesError}
+                      </div>
+                    )}
+                    <form onSubmit={handleSaveService} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <input className={input} placeholder="Plan ID (unique)" value={serviceForm.id} onChange={(e) => setServiceForm({ ...serviceForm, id: e.target.value })} required={!editingServiceId} />
+                      <input className={input} placeholder="Title" value={serviceForm.title} onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })} />
+                      <input className={input} placeholder="Display code (optional)" value={serviceForm.code} onChange={(e) => setServiceForm({ ...serviceForm, code: e.target.value })} />
+                      <select className={input} value={serviceForm.billing_interval} onChange={(e) => setServiceForm({ ...serviceForm, billing_interval: e.target.value })}>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                      </select>
+                      <input type="number" className={input} placeholder="Price" value={serviceForm.price} onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })} />
+                      <input type="number" className={input} placeholder="Price (cents)" value={serviceForm.price_cents} onChange={(e) => setServiceForm({ ...serviceForm, price_cents: e.target.value })} />
+                      <textarea className={`${input} min-h-[90px]`} placeholder="Description / validity notes" value={serviceForm.description} onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })} />
+                      <label className="flex items-center gap-2 text-sm text-slate-700">
+                        <input type="checkbox" checked={serviceForm.is_active} onChange={(e) => setServiceForm({ ...serviceForm, is_active: e.target.checked })} />
+                        Active
+                      </label>
+                      <div className="md:col-span-2 flex gap-2">
+                        <button className={`${button} bg-indigo-600`} type="submit">
+                          {editingServiceId ? "Update plan" : "Save plan"}
+                        </button>
+                        {editingServiceId && (
+                          <button
+                            type="button"
+                            className="px-4 py-2 rounded-lg font-semibold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50"
+                            onClick={() => {
+                              setServiceForm({
+                                id: "",
+                                title: "",
+                                description: "",
+                                price: "",
+                                price_cents: "",
+                                billing_interval: "monthly",
+                                code: "",
+                                is_active: true
+                              });
+                              setEditingServiceId("");
+                            }}
+                          >
+                            Cancel edit
+                          </button>
+                        )}
+                      </div>
+                    </form>
+                  </section>
+
+                  <section className={card}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Subscription plans</h3>
+                      <button className="text-sm text-indigo-700 underline" type="button" onClick={() => loadServices()}>
+                        Refresh
+                      </button>
+                    </div>
+                    <div className="overflow-auto">
+                      <table className="min-w-full text-sm">
+                        <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+                          <tr>
+                            <th className="px-3 py-2">ID</th>
+                            <th className="px-3 py-2">Title</th>
+                            <th className="px-3 py-2">Interval</th>
+                            <th className="px-3 py-2">Price</th>
+                            <th className="px-3 py-2">Active</th>
+                            <th className="px-3 py-2">Description</th>
+                            <th className="px-3 py-2 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {services.map((s) => (
+                            <tr key={s.id} className="border-b border-slate-100">
+                              <td className="px-3 py-2 text-slate-700">{s.id}</td>
+                              <td className="px-3 py-2 font-semibold text-slate-900">{s.title}</td>
+                              <td className="px-3 py-2 text-slate-700">{s.billing_interval || "-"}</td>
+                              <td className="px-3 py-2 text-slate-700">
+                                {s.price !== undefined && s.price !== null ? `INR ${s.price}` : s.price_cents !== undefined && s.price_cents !== null ? `${s.price_cents} cents` : "-"}
+                              </td>
+                              <td className="px-3 py-2 text-slate-700">{s.is_active ? "Yes" : "No"}</td>
+                              <td className="px-3 py-2 text-slate-700 max-w-xs truncate">{s.description || "-"}</td>
+                              <td className="px-3 py-2 text-right">
+                                <button className="text-xs text-indigo-700 underline" onClick={() => handleEditService(s)}>
+                                  Edit
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                          {services.length === 0 && (
+                            <tr>
+                              <td colSpan="7" className="px-3 py-3 text-slate-500">
+                                No subscription plans yet.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  <section className={card}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Subscriptions overview</h3>
+                      <button className="text-sm text-indigo-700 underline" type="button" onClick={() => loadUsers()}>
+                        Refresh
+                      </button>
+                    </div>
+                    <div className="overflow-auto">
+                      <table className="min-w-full text-sm">
+                        <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+                          <tr>
+                            <th className="px-3 py-2">User</th>
+                            <th className="px-3 py-2">Plan</th>
+                            <th className="px-3 py-2">Status</th>
+                            <th className="px-3 py-2">Start</th>
+                            <th className="px-3 py-2">Expires</th>
+                            <th className="px-3 py-2">Source</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {users.flatMap((u) => {
+                            const subs = u.user_subscriptions || u.userSubscriptions || u.UserSubscriptions || [];
+                            if (!subs.length) return [];
+                            return subs.map((s) => (
+                              <tr key={`${u.id}-${s.id}`} className="border-b border-slate-100">
+                                <td className="px-3 py-2 text-slate-700">{u.email}</td>
+                                <td className="px-3 py-2 text-slate-700">{s.service?.title || s.plan_id}</td>
+                                <td className="px-3 py-2 text-slate-700">{s.status}</td>
+                                <td className="px-3 py-2 text-slate-600">{s.started_at ? new Date(s.started_at).toLocaleDateString() : "n/a"}</td>
+                                <td className="px-3 py-2 text-slate-600">{s.expires_at ? new Date(s.expires_at).toLocaleDateString() : "open"}</td>
+                                <td className="px-3 py-2 text-slate-700">{s.source || "-"}</td>
+                              </tr>
+                            ));
+                          })}
+                          {users.every((u) => {
+                            const subs = u.user_subscriptions || u.userSubscriptions || u.UserSubscriptions || [];
+                            return subs.length === 0;
+                          }) && (
+                            <tr>
+                              <td colSpan="6" className="px-3 py-3 text-slate-500">
+                                No subscriptions yet.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  <section className={card}>
+                    <h3 className="text-lg font-semibold">Grant subscription (zero-cost)</h3>
+                    <form onSubmit={handleGrantSubscription} className="space-y-3">
+                      <select className={input} value={grantSubForm.userId} onChange={(e) => setGrantSubForm({ ...grantSubForm, userId: e.target.value })}>
+                        <option value="">Select user</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.email}
+                          </option>
+                        ))}
+                      </select>
+                      <input className={input} placeholder="Plan ID" value={grantSubForm.planId} onChange={(e) => setGrantSubForm({ ...grantSubForm, planId: e.target.value })} />
+                      <input type="date" className={input} value={grantSubForm.startedAt} onChange={(e) => setGrantSubForm({ ...grantSubForm, startedAt: e.target.value })} />
+                      <input type="date" className={input} value={grantSubForm.expiresAt} onChange={(e) => setGrantSubForm({ ...grantSubForm, expiresAt: e.target.value })} />
+                      <button className={`${button} bg-emerald-600`}>Grant/Refresh subscription</button>
+                    </form>
+                    <p className="text-xs text-slate-500">Subscriptions here are treated as $0 admin grants.</p>
+                  </section>
+                </div>
+              )}
+
+            </main>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+

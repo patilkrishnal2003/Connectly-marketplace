@@ -14,7 +14,7 @@ const FEATURED_CATALOG = [
     logo: "https://cdn.worldvectorlogo.com/logos/notion-logo-1.svg",
     category: "Productivity",
     isUnlocked: true,
-    featured: true,
+    featured: true
   },
   {
     id: "bf-stripe",
@@ -26,7 +26,7 @@ const FEATURED_CATALOG = [
     logo: "https://cdn.worldvectorlogo.com/logos/stripe-4.svg",
     category: "Finance",
     isUnlocked: true,
-    featured: true,
+    featured: true
   },
   {
     id: "bf-brevo",
@@ -37,7 +37,7 @@ const FEATURED_CATALOG = [
     description: "Engage customers with omnichannel marketing automation, transactional email, and SMS.",
     logo: "https://seeklogo.com/images/S/sendinblue-logo-A3F9C3D160-seeklogo.com.png",
     category: "Marketing",
-    isUnlocked: true,
+    isUnlocked: true
   },
   {
     id: "bf-linear",
@@ -48,7 +48,7 @@ const FEATURED_CATALOG = [
     description: "Ship faster with streamlined issue tracking, product roadmaps, and lightning-fast UI.",
     logo: "https://assets-global.website-files.com/5f0a720cd4e6e217c0c08c5d/5f1a5238ba4ee726c2c65f00_linear-logo.svg",
     category: "Productivity",
-    isUnlocked: true,
+    isUnlocked: true
   },
   {
     id: "bf-postman",
@@ -59,7 +59,7 @@ const FEATURED_CATALOG = [
     description: "Design, mock, document, and test APIs with the collaboration platform used by 25M developers.",
     logo: "https://cdn.worldvectorlogo.com/logos/postman.svg",
     category: "DevTools",
-    isUnlocked: true,
+    isUnlocked: true
   },
   {
     id: "bf-miro",
@@ -68,9 +68,9 @@ const FEATURED_CATALOG = [
     subtitle: "Visual collaboration whiteboard",
     discount: "Startup plan credits",
     description: "Run workshops, brainstorm, and align teams on an infinite canvas with templates for every workflow.",
-    logo: "https://cdn.worldvectorlogo.com/logos/miro-2.svg",
+    logo: "https://connecttly.com/wp-content/uploads/2023/06/miro-logo.png",
     category: "Productivity",
-    isUnlocked: true,
+    isUnlocked: true
   },
   {
     id: "bf-digitalocean",
@@ -81,7 +81,7 @@ const FEATURED_CATALOG = [
     description: "Spin up droplets, managed databases, and Kubernetes with predictable pricing and simple UX.",
     logo: "https://cdn.worldvectorlogo.com/logos/digitalocean-logo-1.svg",
     category: "DevTools",
-    isUnlocked: true,
+    isUnlocked: true
   },
   {
     id: "bf-mixpanel",
@@ -92,7 +92,7 @@ const FEATURED_CATALOG = [
     description: "Answer your product questions instantly with self-serve funnels, retention, and engagement analysis.",
     logo: "https://cdn.worldvectorlogo.com/logos/mixpanel-1.svg",
     category: "Analytics",
-    isUnlocked: true,
+    isUnlocked: true
   },
   {
     id: "bf-canva",
@@ -103,12 +103,12 @@ const FEATURED_CATALOG = [
     description: "Create marketing assets, social posts, and pitch decks with templates and brand kits.",
     logo: "https://cdn.worldvectorlogo.com/logos/canva-1.svg",
     category: "Design",
-    isUnlocked: true,
-  },
+    isUnlocked: true
+  }
 ];
 
 export default function App() {
-  const { user, logout, authFetch, setToken } = useContext(AuthContext);
+  const { user, logout, authFetch } = useContext(AuthContext);
   const navigate = useNavigate();
   const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:4000").replace(/\/$/, "");
   const heroGradient = user
@@ -122,15 +122,6 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedDealId, setSelectedDealId] = useState(null);
-  const [showClaimModal, setShowClaimModal] = useState(false);
-  const [claimEmail, setClaimEmail] = useState(user?.email || "");
-  const [claimPassword, setClaimPassword] = useState("");
-  const [claimChecking, setClaimChecking] = useState(false);
-  const [claimResult, setClaimResult] = useState(null);
-  const [pendingDeal, setPendingDeal] = useState(null);
-  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
-  const [upgradeDeal, setUpgradeDeal] = useState(null);
-  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   const userQuery = user?.userId ? `?userId=${encodeURIComponent(user.userId)}` : "";
 
@@ -166,8 +157,12 @@ export default function App() {
         ...meta,
         ...deal,
         featured: deal.featured || meta.featured,
-        // default to locked unless explicitly unlocked
-        isUnlocked: typeof deal.isUnlocked === "boolean" ? deal.isUnlocked : (typeof meta.isUnlocked === "boolean" ? meta.isUnlocked : false),
+        isUnlocked:
+          typeof deal.isUnlocked === "boolean"
+            ? deal.isUnlocked
+            : typeof meta.isUnlocked === "boolean"
+            ? meta.isUnlocked
+            : false
       };
     });
     return withMeta;
@@ -193,94 +188,13 @@ export default function App() {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const handleViewDetails = async (deal) => {
-    if (!user) {
-      setShowClaimModal(true);
-      setClaimResult(null);
-      setPendingDeal(deal);
-      setClaimPassword("");
-      setClaimEmail(deal?.email || claimEmail || "");
-      return;
-    }
-    // if locked, check subscription; only allow if subscription exists, else prompt plans
-    if (!deal.isUnlocked) {
-      try {
-        setUpgradeLoading(true);
-        const res = await fetch(`${API_BASE}/api/auth/claim-check`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: (user.email || "").toLowerCase() })
-        });
-        const data = await res.json();
-        const hasSubscription = res.ok && data?.subscription;
-        if (hasSubscription) {
-          setSelectedDealId(deal.id);
-          navigate(`/deal/${deal.id}`, { state: { deal: { ...deal, isUnlocked: true } } });
-        } else {
-          setUpgradeDeal(deal);
-          setUpgradeModalOpen(true);
-        }
-      } catch (err) {
-        console.error("Subscription check failed", err);
-        setUpgradeDeal(deal);
-        setUpgradeModalOpen(true);
-      } finally {
-        setUpgradeLoading(false);
-      }
-      return;
-    }
+  const handleViewDetails = (deal) => {
     setSelectedDealId(deal.id);
     navigate(`/deal/${deal.id}`, { state: { deal } });
   };
 
-  async function handleClaimSubmit(e) {
-    e.preventDefault();
-    if (!claimEmail || !claimPassword) return;
-    setClaimChecking(true);
-    setClaimResult(null);
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: claimEmail.trim().toLowerCase(), password: claimPassword })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 401 || data.error === "invalid_credentials") {
-          setClaimResult({ status: "no-account", message: "No account found or password incorrect. Register to continue." });
-        } else {
-          setClaimResult({ status: "error", message: data.error || "Unable to log in right now. Please try again." });
-        }
-        return;
-      }
-      if (data.token) {
-        setToken(data.token);
-      }
-      setClaimResult({ status: "plan", message: "Login successful. Redirecting to deal..." });
-      setTimeout(() => {
-        setShowClaimModal(false);
-        setClaimPassword("");
-        setClaimEmail(data.user?.email || claimEmail);
-        if (pendingDeal) {
-          navigate(`/deal/${pendingDeal.id}`, { state: { deal: pendingDeal } });
-          setPendingDeal(null);
-        }
-      }, 500);
-    } catch (err) {
-      console.error(err);
-      setClaimResult({ status: "error", message: "We couldn't verify your email right now. Please try again." });
-    } finally {
-      setClaimChecking(false);
-    }
-  }
-
-  const claimPlans = [
-    { id: "standard", name: "Standard", price: "$99", cadence: "per month" },
-    { id: "professional", name: "Professional", price: "$199", cadence: "per month" },
-  ];
-
   async function sendPlanConfirmation(planId) {
-    const suggested = (user?.email || claimEmail || "").toLowerCase();
+    const suggested = (user?.email || "").toLowerCase();
     const email = window.prompt("Enter your email to confirm this plan:", suggested);
     if (!email) return false;
     const trimmed = email.trim().toLowerCase();
@@ -301,29 +215,6 @@ export default function App() {
       console.error("plan confirm failed", err);
       alert("We couldn't send the confirmation. Please try again.");
       return false;
-    }
-  }
-
-  async function handlePlanPurchase(planId) {
-    if (!user?.userId || !upgradeDeal) return;
-    setUpgradeLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/simulate-purchase`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.userId, serviceId: "service_basic" })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "purchase_failed");
-      // Assume unlock succeeded; navigate to detail
-      setUpgradeModalOpen(false);
-      navigate(`/deal/${upgradeDeal.id}`, { state: { deal: { ...upgradeDeal, isUnlocked: true } } });
-      setUpgradeDeal(null);
-    } catch (err) {
-      console.error(err);
-      setClaimResult({ status: "error", message: "Could not activate plan. Try again." });
-    } finally {
-      setUpgradeLoading(false);
     }
   }
 
@@ -374,6 +265,9 @@ export default function App() {
                 <span className="px-3 py-2 rounded-lg bg-white/10 border border-white/10">
                   {user.email} ({user.role})
                 </span>
+                <Link to="/my-deals" className="btn-bubble btn-bubble--outline">
+                  My deals
+                </Link>
                 <button className="btn-bubble btn-bubble--white text-indigo-900" onClick={logout}>
                   Logout
                 </button>
@@ -410,7 +304,7 @@ export default function App() {
                 {user ? "Your perks are active" : "Partner perks updated live"}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                {user ? "Welcome back—see what’s unlocked for you." : "Unlock curated partner deals for your startup community."}
+                {user ? "Welcome back—see what's unlocked for you." : "Unlock curated partner deals for your startup community."}
               </h1>
               <p className="text-lg text-white/80 max-w-2xl">
                 {user
@@ -422,20 +316,16 @@ export default function App() {
                   {user ? "View your perks" : "Get deal"}
                 </a>
                 {user ? (
-                  <Link to="/deal/deal_canva_30" className="btn-bubble btn-bubble--ghost">
+                  <Link to="/my-deals" className="btn-bubble btn-bubble--ghost">
                     Continue exploring →
                   </Link>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowClaimModal(true);
-                      setClaimResult(null);
-                    }}
+                  <Link
+                    to="/login"
                     className="btn-bubble btn-bubble--ghost"
                   >
                     Sign in to claim ->
-                  </button>
+                  </Link>
                 )}
               </div>
               <div className="flex flex-wrap gap-4 text-sm text-white/80">
@@ -588,9 +478,9 @@ export default function App() {
                 features: [
                   "Unlock all Standard-tier deals",
                   "Up to $5,000 in partner value",
-                  "Email support",
+                  "Email support"
                 ],
-                cta: "Choose Standard",
+                cta: "Choose Standard"
               },
               {
                 id: "professional",
@@ -603,10 +493,10 @@ export default function App() {
                   "Everything in Standard",
                   "Exclusive Professional-tier deals",
                   "Priority partner support",
-                  "Early access to new perks",
+                  "Early access to new perks"
                 ],
-                cta: "Choose Professional",
-              },
+                cta: "Choose Professional"
+              }
             ].map((plan) => (
               <div
                 key={plan.id}
@@ -656,181 +546,6 @@ export default function App() {
         </div>
       </section>
 
-      {showClaimModal && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm px-4"
-          onClick={() => setShowClaimModal(false)}
-        >
-          <div
-            className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 space-y-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm uppercase tracking-wide text-slate-500">Claim this deal</p>
-                <h3 className="text-xl font-semibold text-slate-900">Sign in with your email</h3>
-                <p className="text-sm text-slate-600">We'll check your account and subscription to continue.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowClaimModal(false)}
-                className="text-slate-400 hover:text-slate-600"
-                aria-label="Close"
-              >
-                x
-              </button>
-            </div>
-
-            <form className="space-y-4" onSubmit={handleClaimSubmit}>
-              <label className="block text-sm font-medium text-slate-700">
-                Email address
-                <input
-                  type="email"
-                  required
-                  value={claimEmail}
-                  onChange={(e) => setClaimEmail(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                  placeholder="you@example.com"
-                />
-              </label>
-              <label className="block text-sm font-medium text-slate-700">
-                Password
-                <input
-                  type="password"
-                  required
-                  value={claimPassword}
-                  onChange={(e) => setClaimPassword(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                  placeholder="••••••••"
-                />
-              </label>
-              <button
-                type="submit"
-                disabled={!claimEmail || !claimPassword || claimChecking}
-                className="w-full btn-bubble btn-bubble--indigo justify-center"
-              >
-                {claimChecking ? "Checking..." : "Continue"}
-              </button>
-            </form>
-
-            {claimResult && (
-              <div
-                className={`rounded-xl border p-4 text-sm ${
-                  claimResult.status === "plan"
-                    ? "bg-emerald-50 border-emerald-100 text-emerald-800"
-                    : claimResult.status === "error"
-                    ? "bg-rose-50 border-rose-100 text-rose-700"
-                    : claimResult.status === "prompt"
-                    ? "bg-indigo-50 border-indigo-100 text-indigo-800"
-                    : "bg-slate-50 border-slate-200 text-slate-800"
-                }`}
-              >
-                <p className="font-semibold mb-2">{claimResult.message}</p>
-
-                {claimResult.status === "plan" && (
-                  <div className="text-slate-700">You're all set. Continue with your existing plan to claim this offer.</div>
-                )}
-
-                {claimResult.status === "no-plan" && (
-                  <div className="space-y-3">
-                    <p className="text-slate-700">Pick a subscription to proceed:</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {claimPlans.map((plan) => (
-                        <button
-                          key={plan.id}
-                          type="button"
-                          className="btn-bubble btn-bubble--indigo text-left"
-                          onClick={async () => {
-                            await sendPlanConfirmation(plan.id);
-                          }}
-                        >
-                          <div className="text-sm font-semibold text-slate-900">{plan.name}</div>
-                          <div className="text-indigo-700 text-sm font-semibold">{plan.price}</div>
-                          <div className="text-xs text-slate-600">{plan.cadence}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {claimResult.status === "no-account" && (
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <span>Looks like you need an account.</span>
-                    <Link to="/register" className="text-indigo-700 font-semibold underline">
-                      Register now
-                    </Link>
-                  </div>
-                )}
-
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {upgradeModalOpen && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm px-4"
-          onClick={() => setUpgradeModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl p-6 space-y-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm uppercase tracking-wide text-slate-500">Unlock this deal</p>
-                <h3 className="text-xl font-semibold text-slate-900">Choose a plan to continue</h3>
-                <p className="text-sm text-slate-600">
-                  {upgradeDeal?.title ? `Access ${upgradeDeal.title} by picking a plan below.` : "Select a plan to unlock this deal."}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setUpgradeModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
-                aria-label="Close"
-              >
-                x
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {claimPlans.map((plan) => (
-                <div key={plan.id} className="rounded-xl border border-indigo-100 bg-white px-4 py-4 shadow-sm space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold text-slate-900">{plan.name} plan</div>
-                    <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
-                      Popular
-                    </span>
-                  </div>
-                  <div className="text-indigo-700 text-lg font-bold">{plan.price}</div>
-                  <div className="text-xs text-slate-600">{plan.cadence}</div>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (upgradeLoading) return;
-                      const ok = await sendPlanConfirmation(plan.id);
-                      if (ok) {
-                        await handlePlanPurchase(plan.id);
-                      }
-                    }}
-                    className="w-full mt-2 btn-bubble btn-bubble--indigo justify-center"
-                    disabled={upgradeLoading}
-                  >
-                    {upgradeLoading ? "Processing..." : `Choose ${plan.name}`}
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-xs text-slate-500">
-              Plans unlock mapped deals. You can manage purchases from your account settings later.
-            </div>
-          </div>
-        </div>
-      )}
-
       <footer className={`bg-gradient-to-r ${footerGradient} text-white mt-16 transition-colors`}>
         <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -864,9 +579,7 @@ export default function App() {
               <div className="flex flex-col gap-2 text-white/80 text-sm">
                 <Link to="/login" className="hover:text-white">Log in</Link>
                 <Link to="/register" className="hover:text-white">Register</Link>
-                <a href="https://connecttly.com/" target="_blank" rel="noreferrer" className="hover:text-white">
-                  Book a demo
-                </a>
+                <Link to="/my-deals" className="hover:text-white">My deals</Link>
               </div>
             </div>
             <div className="space-y-3">

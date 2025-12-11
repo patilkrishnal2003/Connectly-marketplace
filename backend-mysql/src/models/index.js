@@ -1,10 +1,13 @@
-﻿const { Sequelize } = require("sequelize");
+const { Sequelize, DataTypes } = require("sequelize");
 const UserModel = require("./user");
 const ServiceModel = require("./service");
 const DealModel = require("./deal");
 const UnlockModel = require("./unlock");
 const PurchaseModel = require("./purchase");
 const AuditLogModel = require("./audit_log");
+const UserSubscriptionModel = require("./user_subscription");
+const DealClaimModel = require("./deal_claim");
+const UserDealExceptionModel = require("./user_deal_exception");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -37,6 +40,9 @@ const Deal = DealModel(sequelize);
 const Unlock = UnlockModel(sequelize);
 const Purchase = PurchaseModel(sequelize);
 const AuditLog = AuditLogModel(sequelize);
+const UserSubscription = UserSubscriptionModel(sequelize, DataTypes);
+const DealClaim = DealClaimModel(sequelize, DataTypes);
+const UserDealException = UserDealExceptionModel(sequelize, DataTypes);
 
 // Relationships
 const ServiceDeal = sequelize.define("service_deal", {}, { timestamps: false });
@@ -48,6 +54,12 @@ User.hasMany(Purchase, { foreignKey: "user_id" });
 Purchase.belongsTo(User, { foreignKey: "user_id" });
 AuditLog.belongsTo(User, { foreignKey: "user_id" });
 
+User.hasMany(UserSubscription, { foreignKey: "user_id" });
+UserSubscription.belongsTo(User, { foreignKey: "user_id" });
+
+Service.hasMany(UserSubscription, { foreignKey: "plan_id" });
+UserSubscription.belongsTo(Service, { foreignKey: "plan_id" });
+
 User.hasMany(Unlock, { foreignKey: "user_id" });
 Unlock.belongsTo(User, { foreignKey: "user_id" });
 
@@ -57,6 +69,18 @@ Unlock.belongsTo(Deal, { foreignKey: "deal_id" });
 Deal.hasMany(AuditLog, { foreignKey: "deal_id" });
 AuditLog.belongsTo(Deal, { foreignKey: "deal_id" });
 
+User.hasMany(DealClaim, { foreignKey: "user_id" });
+DealClaim.belongsTo(User, { foreignKey: "user_id" });
+
+Deal.hasMany(DealClaim, { foreignKey: "deal_id" });
+DealClaim.belongsTo(Deal, { foreignKey: "deal_id" });
+
+User.hasMany(UserDealException, { foreignKey: "user_id", as: "dealExceptions" });
+UserDealException.belongsTo(User, { foreignKey: "user_id" });
+
+Deal.hasMany(UserDealException, { foreignKey: "deal_id" });
+UserDealException.belongsTo(Deal, { foreignKey: "deal_id" });
+
 module.exports = {
   sequelize,
   User,
@@ -65,5 +89,8 @@ module.exports = {
   Unlock,
   Purchase,
   AuditLog,
+  UserSubscription,
+  DealClaim,
+  UserDealException,
   ServiceDeal
 };
