@@ -239,6 +239,34 @@ export default function AdminPanel() {
     setActiveSection("deals");
   }
 
+  async function handleDeleteDeal(id) {
+    if (!id) return;
+    const confirmDelete = window.confirm("Delete this deal? This cannot be undone.");
+    if (!confirmDelete) return;
+    setMessage("");
+
+    const res = await authFetch(`/api/admin/deals/${id}`, { method: "DELETE" });
+    const json = await res.json();
+    if (!res.ok) setFlash(json.error || "failed");
+    else {
+      if (editingDealId === id) {
+        setDealForm({
+          id: "",
+          title: "",
+          partner: "",
+          coupon_code: "",
+          link: "",
+          locked_by_default: false,
+          featured: false,
+          type: ""
+        });
+        setEditingDealId("");
+      }
+      setFlash("Deal deleted");
+      loadDeals();
+    }
+  }
+
   async function handleSaveService(e) {
     e.preventDefault();
     setMessage("");
@@ -346,6 +374,11 @@ export default function AdminPanel() {
   const activeNavClass = "flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white font-semibold shadow";
   const inactiveNavClass = "flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 transition";
 
+  const handleNavClick = (id) => {
+    setActiveSection(id);
+    if (id === "deals") loadDeals();
+  };
+
   const getActiveSubscription = (u) => {
     const subs = u.user_subscriptions || u.userSubscriptions || u.UserSubscriptions || [];
     if (!subs.length) return null;
@@ -383,7 +416,7 @@ export default function AdminPanel() {
                   <button
                     key={item.id}
                     className={activeSection === item.id ? activeNavClass : inactiveNavClass}
-                    onClick={() => setActiveSection(item.id)}
+                    onClick={() => handleNavClick(item.id)}
                   >
                     {item.label}
                   </button>
@@ -628,9 +661,14 @@ export default function AdminPanel() {
                               <td className="px-3 py-2 text-slate-700">{d.locked_by_default ? "Yes" : "No"}</td>
                               <td className="px-3 py-2 text-slate-700">{d.type || "-"}</td>
                               <td className="px-3 py-2 text-right">
-                                <button className="text-xs text-indigo-700 underline" onClick={() => handleEditDeal(d)}>
-                                  Edit
-                                </button>
+                                <div className="flex items-center gap-2 justify-end">
+                                  <button className="text-xs text-indigo-700 underline" onClick={() => handleEditDeal(d)}>
+                                    Edit
+                                  </button>
+                                  <button className="text-xs text-rose-700 underline" onClick={() => handleDeleteDeal(d.id)}>
+                                    Delete
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}

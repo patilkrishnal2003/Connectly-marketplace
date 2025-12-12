@@ -2,7 +2,17 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { Deal, Service, User, Unlock, Purchase, UserSubscription, DealClaim, UserDealException } = require("../models");
+const {
+  Deal,
+  Service,
+  User,
+  Unlock,
+  Purchase,
+  UserSubscription,
+  DealClaim,
+  UserDealException,
+  ServiceDeal
+} = require("../models");
 
 // GET /api/admin/deals
 router.get("/deals", async (req, res) => {
@@ -161,6 +171,26 @@ router.post("/map-service", async (req, res) => {
     await service.addDeal(deal);
     res.json({ ok: true });
   } catch (err) { console.error(err); res.status(500).json({ error: "failed" }); }
+});
+
+// DELETE /api/admin/deals/:id
+router.delete("/deals/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deal = await Deal.findByPk(id);
+    if (!deal) return res.status(404).json({ error: "deal_not_found" });
+
+    await ServiceDeal.destroy({ where: { deal_id: id } });
+    await Unlock.destroy({ where: { deal_id: id } });
+    await DealClaim.destroy({ where: { deal_id: id } });
+    await UserDealException.destroy({ where: { deal_id: id } });
+
+    await deal.destroy();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed" });
+  }
 });
 
 // GET /api/admin/users
