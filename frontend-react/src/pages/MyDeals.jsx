@@ -17,7 +17,7 @@ export default function MyDeals() {
     async function loadUnlocked() {
       try {
         setLoading(true);
-        const res = await authFetch(`/api/deals?userId=${encodeURIComponent(user.userId)}`);
+        const res = await authFetch(`/api/deals`);
         const json = await res.json();
         setDeals((json.deals || []).filter((d) => d.isUnlocked));
       } catch (err) {

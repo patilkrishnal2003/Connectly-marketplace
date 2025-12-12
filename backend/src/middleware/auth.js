@@ -1,4 +1,4 @@
-﻿const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
@@ -17,6 +17,22 @@ function authMiddleware(req, res, next) {
   }
 }
 
+// optionalAuthMiddleware: decode token when present without forcing authentication
+function optionalAuthMiddleware(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth) return next();
+  if (!auth.startsWith("Bearer ")) return res.status(401).json({ error: "invalid_token" });
+
+  const token = auth.split(" ")[1];
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = { id: payload.userId, role: payload.role, email: payload.email };
+  } catch (err) {
+    return res.status(401).json({ error: "invalid_token" });
+  }
+  return next();
+}
+
 // requireRole(role): returns middleware that checks req.user.role
 function requireRole(role) {
   return (req, res, next) => {
@@ -26,4 +42,4 @@ function requireRole(role) {
   };
 }
 
-module.exports = { authMiddleware, requireRole };
+module.exports = { authMiddleware, optionalAuthMiddleware, requireRole };
