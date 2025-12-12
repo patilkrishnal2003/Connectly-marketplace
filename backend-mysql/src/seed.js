@@ -14,11 +14,11 @@ async function seed() {
   // create demo service
   const [service] = await Service.findOrCreate({
     where: { id: "service_basic" },
-    defaults: { title: "Starter Plan", price: 199 }
+    defaults: { title: "Starter Plan", price: 199, code: "standard" }
   });
   await Service.findOrCreate({
     where: { id: "service_pro" },
-    defaults: { title: "Professional Plan", price: 399 }
+    defaults: { title: "Professional Plan", price: 399, code: "professional" }
   });
 
   // create deals (inspired by popular startup perks)
@@ -30,6 +30,7 @@ async function seed() {
       type: "link",
       link: "https://www.canva.com/",
       locked_by_default: false,
+      tier: "standard",
       featured: true
     },
     {
@@ -39,6 +40,7 @@ async function seed() {
       type: "link",
       link: "https://www.notion.so/startups",
       locked_by_default: false,
+      tier: "standard",
       featured: true
     },
     {
@@ -48,6 +50,7 @@ async function seed() {
       type: "link",
       link: "https://stripe.com/atlas",
       locked_by_default: true,
+      tier: "professional",
       featured: true
     },
     {
@@ -57,6 +60,7 @@ async function seed() {
       type: "link",
       link: "https://linear.app/",
       locked_by_default: true,
+      tier: "standard",
       featured: false
     },
     {
@@ -66,6 +70,7 @@ async function seed() {
       type: "link",
       link: "https://www.postman.com/",
       locked_by_default: true,
+      tier: "standard",
       featured: false
     },
     {
@@ -75,6 +80,7 @@ async function seed() {
       type: "link",
       link: "https://miro.com/",
       locked_by_default: false,
+      tier: "standard",
       featured: false
     },
     {
@@ -84,6 +90,7 @@ async function seed() {
       type: "link",
       link: "https://www.digitalocean.com/",
       locked_by_default: true,
+      tier: "professional",
       featured: false
     },
     {
@@ -93,6 +100,7 @@ async function seed() {
       type: "link",
       link: "https://mixpanel.com/startups/",
       locked_by_default: true,
+      tier: "professional",
       featured: false
     }
   ];

@@ -25,6 +25,14 @@ async function getActiveSubscriptionForUser(userId) {
   return subscription || null;
 }
 
+function normalizeTier(value) {
+  const str = (value || "").toString().toLowerCase();
+  if (!str) return null;
+  if (["pro", "professional", "premium"].some((token) => str.includes(token))) return "professional";
+  if (["standard", "basic", "starter"].some((token) => str.includes(token))) return "standard";
+  return str;
+}
+
 async function checkDealAccessForUser(userId, dealId, deal = null) {
   const now = new Date();
 
@@ -65,6 +73,7 @@ async function checkDealAccessForUser(userId, dealId, deal = null) {
 
   const activeSubscription = await getActiveSubscriptionForUser(userId);
   const plan = activeSubscription ? activeSubscription.service : null;
+  const planTier = normalizeTier(plan?.code || plan?.id);
 
   if (!activeSubscription || !plan) {
     return {
@@ -73,6 +82,31 @@ async function checkDealAccessForUser(userId, dealId, deal = null) {
       activeSubscription: null,
       plan: null
     };
+  }
+
+  const dealTier = normalizeTier(deal?.tier || deal?.type);
+  const tierRank = { standard: 1, professional: 2 };
+  if (dealTier) {
+    const planLevel = tierRank[planTier] || 0;
+    const requiredLevel = tierRank[dealTier] || 0;
+
+    if (requiredLevel > 0 && planLevel < requiredLevel) {
+      return {
+        hasAccess: false,
+        reason: "plan_mismatch",
+        activeSubscription,
+        plan
+      };
+    }
+
+    if (requiredLevel > 0) {
+      return {
+        hasAccess: true,
+        reason: "ok",
+        activeSubscription,
+        plan
+      };
+    }
   }
 
   const planWithDeal = await Service.findByPk(plan.id, {

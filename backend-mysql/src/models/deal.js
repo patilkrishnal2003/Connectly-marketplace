@@ -8,6 +8,11 @@
     coupon_code: { type: DataTypes.STRING, allowNull: true }, // store real coupon (be careful)
     link: { type: DataTypes.STRING, allowNull: true },
     locked_by_default: { type: DataTypes.BOOLEAN, defaultValue: true },
-    featured: { type: DataTypes.BOOLEAN, defaultValue: false }
+    featured: { type: DataTypes.BOOLEAN, defaultValue: false },
+    tier: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "standard"
+    }
   });
 };
