@@ -79,6 +79,11 @@ export default function DealDetail() {
       return;
     }
 
+    if (!deal) {
+      setClaimResult({ status: "error", message: "Deal is still loading. Please try again in a moment." });
+      return;
+    }
+
     // Static Black Friday / showcase deals don't exist in the backend. Treat them as
     // instantly unlocked so the CTA works without hitting the claim API and failing
     // with a 404.
@@ -92,7 +97,19 @@ export default function DealDetail() {
     setClaimResult(null);
     try {
       const res = await authFetch(`/api/deals/${id}/claim`, { method: "POST" });
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.warn("Failed to parse claim response", parseErr);
+        data = {};
+      }
+
+      if (res.status === 401) {
+        navigate("/login");
+        return;
+      }
+
       if (res.status === 403) {
         setClaimResult({
           status: "blocked",
@@ -105,18 +122,28 @@ export default function DealDetail() {
         });
         return;
       }
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "claim_failed");
+
+      if (!res.ok || data.ok === false) {
+        const backendMessage = data.message || data.error;
+        const friendlyMessage =
+          backendMessage && backendMessage !== "failed_to_claim"
+            ? backendMessage
+            : "Could not claim this deal. Please try again.";
+        throw new Error(friendlyMessage);
       }
+
       setDeal((prev) => ({ ...(prev || {}), ...(data.deal || {}), isUnlocked: true }));
       setClaimResult({
         status: "success",
         reason: data.claim?.reason || "ok",
-        message: "Deal claimed successfully."
+        message: data.message || "Deal claimed successfully."
       });
     } catch (err) {
       console.error(err);
-      setClaimResult({ status: "error", message: "Could not claim this deal. Please try again." });
+      setClaimResult({
+        status: "error",
+        message: err?.message || "Could not claim this deal. Please try again."
+      });
     } finally {
       setClaiming(false);
     }
@@ -135,6 +162,8 @@ export default function DealDetail() {
 
   const hasAccess = claimResult?.status === "success" || (deal?.isUnlocked && claimResult?.status !== "blocked");
   const redemptionLink = hasAccess ? getRedemptionLink(deal) : "";
+
+  const claimDisabled = claiming || loading || !deal;
 
   return (
     <>
@@ -179,9 +208,9 @@ export default function DealDetail() {
                     type="button"
                     onClick={handleClaimClick}
                     className="px-5 py-3 rounded-xl bg-white text-indigo-900 font-semibold shadow-md hover:shadow-lg disabled:opacity-60"
-                    disabled={claiming}
+                    disabled={claimDisabled}
                   >
-                    {claiming ? "Claiming..." : "Claim this deal"}
+                    {claiming ? "Claiming..." : loading || !deal ? "Loading..." : "Claim this deal"}
                   </button>
                   {hasAccess && redemptionLink && (
                     <a

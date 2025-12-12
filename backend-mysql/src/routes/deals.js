@@ -67,7 +67,17 @@ router.post("/:id/claim", authMiddleware, async (req, res) => {
     const deal = await Deal.findByPk(dealId);
     if (!deal) return res.status(404).json({ error: "deal_not_found" });
 
-    const access = await checkDealAccessForUser(userId, dealId);
+    let access;
+    try {
+      access = await checkDealAccessForUser(userId, dealId, deal);
+    } catch (accessErr) {
+      console.error("deal access check failed", accessErr);
+      return res.status(503).json({
+        ok: false,
+        reason: "access_check_failed",
+        message: "Could not verify your subscription for this deal. Please try again."
+      });
+    }
     if (!access.hasAccess) {
       const status =
         access.reason === "plan_mismatch" ? "blocked_plan_mismatch" : "blocked_no_subscription";
@@ -115,7 +125,11 @@ router.post("/:id/claim", authMiddleware, async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "failed_to_claim" });
+    res.status(500).json({
+      ok: false,
+      error: "failed_to_claim",
+      message: "Could not claim this deal. Please try again."
+    });
   }
 });
 
