@@ -25,8 +25,22 @@ async function getActiveSubscriptionForUser(userId) {
   return subscription || null;
 }
 
-async function checkDealAccessForUser(userId, dealId) {
+async function checkDealAccessForUser(userId, dealId, deal = null) {
   const now = new Date();
+
+  if (!deal) {
+    deal = await Deal.findByPk(dealId, { attributes: ["id", "locked_by_default"] });
+  }
+
+  // Open deals (locked_by_default = false) don't require a subscription.
+  if (deal && deal.locked_by_default === false) {
+    return {
+      hasAccess: true,
+      reason: "open",
+      activeSubscription: null,
+      plan: null
+    };
+  }
 
   const exception = await UserDealException.findOne({
     where: {
