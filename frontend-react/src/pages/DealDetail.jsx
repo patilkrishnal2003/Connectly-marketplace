@@ -178,7 +178,7 @@ export default function DealDetail() {
                   <button
                     type="button"
                     onClick={handleClaimClick}
-                    className="px-5 py-3 rounded-xl bg-white text-indigo-900 font-semibold shadow-md hover:shadow-lg disabled:opacity-60"
+                    className="px-5 py-3 rounded-xl bg-blue-500 text-white font-semibold shadow-md hover:bg-blue-600 hover:shadow-lg disabled:opacity-60"
                     disabled={claiming}
                   >
                     {claiming ? "Claiming..." : "Claim this deal"}
