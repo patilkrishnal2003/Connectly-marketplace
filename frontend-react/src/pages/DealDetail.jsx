@@ -17,7 +17,6 @@ export default function DealDetail() {
   const [error, setError] = useState("");
   const [claimResult, setClaimResult] = useState(null);
   const [claiming, setClaiming] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
 
   const defaultRedemptionLinks = {
     "bf-canva": "https://www.canva.com/",
@@ -91,21 +90,6 @@ export default function DealDetail() {
     if ((deal?.id || "").startsWith("bf-")) {
       setDeal((prev) => ({ ...(prev || {}), isUnlocked: true }));
       setClaimResult({ status: "success", reason: "exception", message: "Deal claimed successfully." });
-      const link = getRedemptionLink({ ...(deal || {}), isUnlocked: true });
-      setModalContent({
-        type: "success",
-        title: "Deal claimed successfully",
-        message: "You can redeem this offer right away.",
-        primaryAction: link
-          ? () => {
-              window.open(link, "_blank", "noreferrer");
-              setModalContent(null);
-            }
-          : null,
-        primaryLabel: link ? "Redeem offer" : null,
-        secondaryLabel: "Close",
-        secondaryAction: () => setModalContent(null)
-      });
       return;
     }
 
@@ -136,43 +120,6 @@ export default function DealDetail() {
               ? "This deal is only available on a higher plan."
               : "You need an active subscription to claim this deal.")
         });
-        if (data.reason === "no_subscription") {
-          setModalContent({
-            type: "blocked",
-            title: "Subscription required",
-            message: "You need an active subscription to claim this deal.",
-            subtext: "You need an active subscription. Visit your plans page to upgrade.",
-            primaryLabel: "Visit plans",
-            primaryAction: () => {
-              setModalContent(null);
-              navigate("/#plans");
-            },
-            secondaryLabel: "Close",
-            secondaryAction: () => setModalContent(null)
-          });
-        } else if (data.reason === "plan_mismatch") {
-          setModalContent({
-            type: "blocked",
-            title: "Upgrade required",
-            message: "This perk is mapped to a higher plan.",
-            subtext: "Upgrade your subscription to continue.",
-            primaryLabel: "Visit plans",
-            primaryAction: () => {
-              setModalContent(null);
-              navigate("/#plans");
-            },
-            secondaryLabel: "Close",
-            secondaryAction: () => setModalContent(null)
-          });
-        } else {
-          setModalContent({
-            type: "blocked",
-            title: "Unable to claim deal",
-            message: data.message || "We couldn't claim this deal right now.",
-            primaryLabel: "Close",
-            primaryAction: () => setModalContent(null)
-          });
-        }
         return;
       }
 
@@ -187,33 +134,11 @@ export default function DealDetail() {
         reason: data.claim?.reason || "ok",
         message: data.message || "Deal claimed successfully."
       });
-      const link = getRedemptionLink({ ...(deal || {}), ...(data.deal || {}), isUnlocked: true });
-      setModalContent({
-        type: "success",
-        title: "Deal claimed successfully",
-        message: "You can now redeem this offer and enjoy the perks.",
-        primaryLabel: link ? "Redeem offer" : null,
-        primaryAction: link
-          ? () => {
-              window.open(link, "_blank", "noreferrer");
-              setModalContent(null);
-            }
-          : null,
-        secondaryLabel: "Close",
-        secondaryAction: () => setModalContent(null)
-      });
     } catch (err) {
       console.error(err);
       setClaimResult({
         status: "error",
         message: err?.message || "Could not claim this deal. Please try again."
-      });
-      setModalContent({
-        type: "error",
-        title: "Could not claim deal",
-        message: err?.message || "Please try again.",
-        primaryLabel: "Close",
-        primaryAction: () => setModalContent(null)
       });
     } finally {
       setClaiming(false);
@@ -294,6 +219,29 @@ export default function DealDetail() {
                     </a>
                   )}
                 </div>
+                {claimResult && (
+                  <div
+                    className={`rounded-xl border p-4 text-sm ${
+                      claimResult.status === "success"
+                        ? "bg-emerald-50 border-emerald-100 text-emerald-800"
+                        : claimResult.status === "blocked"
+                        ? "bg-amber-50 border-amber-100 text-amber-800"
+                        : "bg-rose-50 border-rose-100 text-rose-700"
+                    }`}
+                  >
+                    <div className="font-semibold">{claimResult.message}</div>
+                    {claimResult.status === "blocked" && claimResult.reason === "no_subscription" && (
+                      <div className="text-xs mt-1 text-amber-700">
+                        You need an active subscription. Visit your plans page to upgrade.
+                      </div>
+                    )}
+                    {claimResult.status === "blocked" && claimResult.reason === "plan_mismatch" && (
+                      <div className="text-xs mt-1 text-amber-700">
+                        This perk is mapped to a higher plan. Upgrade your subscription to continue.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -347,61 +295,7 @@ export default function DealDetail() {
           </section>
         </main>
 
-        {modalContent && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-            <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                    {modalContent.type === "success"
-                      ? "Deal ready"
-                      : modalContent.type === "blocked"
-                      ? "Subscription"
-                      : "Status"}
-                  </p>
-                  <h3 className="text-xl font-semibold text-slate-900">{modalContent.title}</h3>
-                </div>
-                <button
-                  onClick={() => setModalContent(null)}
-                  className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
-                  aria-label="Close dialog"
-                >
-                  <span aria-hidden>×</span>
-                </button>
-              </div>
-              <div className="mt-4 space-y-2 text-slate-600">
-                <p>{modalContent.message}</p>
-                {modalContent.subtext && <p className="text-sm text-slate-500">{modalContent.subtext}</p>}
-              </div>
-              <div className="mt-6 flex justify-end gap-3">
-                {modalContent.secondaryAction && modalContent.secondaryLabel && (
-                  <button
-                    onClick={modalContent.secondaryAction}
-                    className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    {modalContent.secondaryLabel}
-                  </button>
-                )}
-                {modalContent.primaryAction && modalContent.primaryLabel && (
-                  <button
-                    onClick={modalContent.primaryAction}
-                    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow ${
-                      modalContent.type === "success"
-                        ? "bg-emerald-600 hover:bg-emerald-700"
-                        : modalContent.type === "blocked"
-                        ? "bg-indigo-600 hover:bg-indigo-700"
-                        : "bg-rose-600 hover:bg-rose-700"
-                    }`}
-                  >
-                    {modalContent.primaryLabel}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <footer className={`bg-gradient-to-r ${footerGradient} text-white transition-colors`}>
+      <footer className={`bg-gradient-to-r ${footerGradient} text-white transition-colors`}>
           <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
