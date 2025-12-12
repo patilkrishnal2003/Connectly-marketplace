@@ -78,6 +78,16 @@ export default function DealDetail() {
       navigate("/login");
       return;
     }
+
+    // Static Black Friday / showcase deals don't exist in the backend. Treat them as
+    // instantly unlocked so the CTA works without hitting the claim API and failing
+    // with a 404.
+    if ((deal?.id || "").startsWith("bf-")) {
+      setDeal((prev) => ({ ...(prev || {}), isUnlocked: true }));
+      setClaimResult({ status: "success", reason: "exception", message: "Deal claimed successfully." });
+      return;
+    }
+
     setClaiming(true);
     setClaimResult(null);
     try {
