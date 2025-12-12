@@ -97,7 +97,19 @@ export default function DealDetail() {
     setClaimResult(null);
     try {
       const res = await authFetch(`/api/deals/${id}/claim`, { method: "POST" });
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.warn("Failed to parse claim response", parseErr);
+        data = {};
+      }
+
+      if (res.status === 401) {
+        navigate("/login");
+        return;
+      }
+
       if (res.status === 403) {
         setClaimResult({
           status: "blocked",
@@ -110,18 +122,24 @@ export default function DealDetail() {
         });
         return;
       }
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "claim_failed");
+
+      if (!res.ok || data.ok === false) {
+        const backendMessage = data.message || data.error;
+        throw new Error(backendMessage || "claim_failed");
       }
+
       setDeal((prev) => ({ ...(prev || {}), ...(data.deal || {}), isUnlocked: true }));
       setClaimResult({
         status: "success",
         reason: data.claim?.reason || "ok",
-        message: "Deal claimed successfully."
+        message: data.message || "Deal claimed successfully."
       });
     } catch (err) {
       console.error(err);
-      setClaimResult({ status: "error", message: "Could not claim this deal. Please try again." });
+      setClaimResult({
+        status: "error",
+        message: err?.message || "Could not claim this deal. Please try again."
+      });
     } finally {
       setClaiming(false);
     }
