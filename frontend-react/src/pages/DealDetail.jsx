@@ -79,6 +79,11 @@ export default function DealDetail() {
       return;
     }
 
+    if (!deal) {
+      setClaimResult({ status: "error", message: "Deal is still loading. Please try again in a moment." });
+      return;
+    }
+
     // Static Black Friday / showcase deals don't exist in the backend. Treat them as
     // instantly unlocked so the CTA works without hitting the claim API and failing
     // with a 404.
@@ -136,6 +141,8 @@ export default function DealDetail() {
   const hasAccess = claimResult?.status === "success" || (deal?.isUnlocked && claimResult?.status !== "blocked");
   const redemptionLink = hasAccess ? getRedemptionLink(deal) : "";
 
+  const claimDisabled = claiming || loading || !deal;
+
   return (
     <>
       <div className={`min-h-screen bg-gradient-to-b ${pageBg} text-slate-900`}>
@@ -179,9 +186,9 @@ export default function DealDetail() {
                     type="button"
                     onClick={handleClaimClick}
                     className="px-5 py-3 rounded-xl bg-white text-indigo-900 font-semibold shadow-md hover:shadow-lg disabled:opacity-60"
-                    disabled={claiming}
+                    disabled={claimDisabled}
                   >
-                    {claiming ? "Claiming..." : "Claim this deal"}
+                    {claiming ? "Claiming..." : loading || !deal ? "Loading..." : "Claim this deal"}
                   </button>
                   {hasAccess && redemptionLink && (
                     <a
