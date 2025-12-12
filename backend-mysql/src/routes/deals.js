@@ -67,7 +67,7 @@ router.post("/:id/claim", authMiddleware, async (req, res) => {
     const deal = await Deal.findByPk(dealId);
     if (!deal) return res.status(404).json({ error: "deal_not_found" });
 
-    const access = await checkDealAccessForUser(userId, dealId);
+    const access = await checkDealAccessForUser(userId, dealId, deal);
     if (!access.hasAccess) {
       const status =
         access.reason === "plan_mismatch" ? "blocked_plan_mismatch" : "blocked_no_subscription";
