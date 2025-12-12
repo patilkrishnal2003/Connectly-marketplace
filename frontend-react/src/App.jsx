@@ -123,11 +123,13 @@ export default function App() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedDealId, setSelectedDealId] = useState(null);
 
+  const userQuery = user?.userId ? `?userId=${encodeURIComponent(user.userId)}` : "";
+
   useEffect(() => {
     async function loadDeals() {
       try {
         setLoading(true);
-        const res = await authFetch(`/api/deals`);
+        const res = await authFetch(`/api/deals${userQuery}`);
         const json = await res.json();
         setDeals(json.deals || []);
       } catch (err) {
@@ -138,7 +140,7 @@ export default function App() {
     }
 
     loadDeals();
-  }, [user, authFetch]);
+  }, [user, authFetch, userQuery]);
 
   const featuredMap = useMemo(() => {
     const map = {};
