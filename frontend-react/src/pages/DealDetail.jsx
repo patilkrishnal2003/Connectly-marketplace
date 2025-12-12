@@ -7,7 +7,6 @@ export default function DealDetail() {
   const location = useLocation();
   const navigate = useNavigate();
   const { authFetch, user } = useContext(AuthContext);
-  const userQuery = user?.userId ? `?userId=${encodeURIComponent(user.userId)}` : "";
   const heroGradient = user ? "from-emerald-900 via-teal-900 to-sky-900" : "from-slate-900 via-indigo-900 to-purple-800";
   const pageBg = user ? "from-emerald-50 via-teal-50 to-sky-50" : "from-sky-50 via-slate-50 to-white";
   const footerGradient = user ? "from-emerald-900 via-teal-900 to-sky-900" : "from-slate-900 via-indigo-900 to-purple-800";
@@ -17,6 +16,7 @@ export default function DealDetail() {
   const [error, setError] = useState("");
   const [claimResult, setClaimResult] = useState(null);
   const [claiming, setClaiming] = useState(false);
+  const [autoClaimTriggered, setAutoClaimTriggered] = useState(false);
 
   const defaultRedemptionLinks = {
     "bf-canva": "https://www.canva.com/",
@@ -51,7 +51,7 @@ export default function DealDetail() {
       }
       try {
         setLoading(true);
-        const res = await authFetch(`/api/deals/${id}${userQuery}`);
+        const res = await authFetch(`/api/deals/${id}`);
         if (!res.ok) throw new Error("Failed to load deal");
         const data = await res.json();
         if (!ignore) {
@@ -71,11 +71,22 @@ export default function DealDetail() {
     return () => {
       ignore = true;
     };
-  }, [id, userQuery, authFetch, location.state]);
+  }, [id, authFetch, location.state]);
+
+  useEffect(() => {
+    if (!user) return;
+    const pending = sessionStorage.getItem("pendingClaimDealId") || location.state?.pendingClaimDealId;
+    if (pending === id && !autoClaimTriggered) {
+      sessionStorage.removeItem("pendingClaimDealId");
+      setAutoClaimTriggered(true);
+      handleClaimClick();
+    }
+  }, [user, id, location.state, autoClaimTriggered]);
 
   async function handleClaimClick() {
     if (!user) {
-      navigate("/login");
+      sessionStorage.setItem("pendingClaimDealId", id);
+      navigate("/login", { state: { redirectTo: `/deal/${id}`, pendingClaimDealId: id } });
       return;
     }
     setClaiming(true);

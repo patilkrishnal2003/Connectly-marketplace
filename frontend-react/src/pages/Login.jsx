@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
 
 export default function Login() {
@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const { setToken } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState("");
 
   async function submit(e) {
@@ -24,8 +25,17 @@ export default function Login() {
       setToken(json.token);
       // redirect to admin if admin, else homepage
       const payload = JSON.parse(atob(json.token.split(".")[1]));
-      if (payload.role === "admin") navigate("/admin");
-      else navigate("/");
+      const redirectTo = location.state?.redirectTo;
+      const pendingClaimDealId = location.state?.pendingClaimDealId;
+      if (pendingClaimDealId) sessionStorage.setItem("pendingClaimDealId", pendingClaimDealId);
+
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true, state: location.state });
+      } else if (payload.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError("Network error");
     }
