@@ -14,6 +14,14 @@ const {
   ServiceDeal
 } = require("../models");
 
+function normalizeTier(value) {
+  const str = (value || "").toString().toLowerCase();
+  if (!str) return null;
+  if (["pro", "professional", "premium"].some((token) => str.includes(token))) return "professional";
+  if (["standard", "basic", "starter"].some((token) => str.includes(token))) return "standard";
+  return str;
+}
+
 // GET /api/admin/deals
 router.get("/deals", async (req, res) => {
   try {
@@ -33,24 +41,40 @@ router.post("/deals", async (req, res) => {
       link,
       locked_by_default,
       featured,
-      type
+      type,
+      tier
     } = req.body || {};
     if (!id || !title) return res.status(400).json({ error: "id,title required" });
 
-    const defaults = { title, partner, coupon_code, link };
-    if (locked_by_default !== undefined) defaults.locked_by_default = !!locked_by_default;
-    if (featured !== undefined) defaults.featured = !!featured;
-    if (type) defaults.type = type;
+    const normalizedTier = normalizeTier(tier);
+    const normalizedType = type ? type.toString().toLowerCase() : null;
+
+    const defaults = {
+      title,
+      partner: partner || null,
+      coupon_code: coupon_code || null,
+      link: link || null,
+      locked_by_default: locked_by_default !== undefined ? !!locked_by_default : true,
+      featured: featured !== undefined ? !!featured : false
+    };
+    if (normalizedType) defaults.type = normalizedType;
+    if (normalizedTier) defaults.tier = normalizedTier;
 
     const [deal, created] = await Deal.findOrCreate({
       where: { id },
       defaults
     });
     if (!created) {
-      const updates = { title, partner, coupon_code, link };
+      const updates = {
+        title,
+        partner: partner || null,
+        coupon_code: coupon_code || null,
+        link: link || null
+      };
       if (locked_by_default !== undefined) updates.locked_by_default = !!locked_by_default;
       if (featured !== undefined) updates.featured = !!featured;
-      if (type) updates.type = type;
+      if (normalizedType) updates.type = normalizedType;
+      if (normalizedTier) updates.tier = normalizedTier;
       await deal.update(updates);
     }
     res.json({ deal });
@@ -61,12 +85,55 @@ router.post("/deals", async (req, res) => {
 router.put("/deals/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const payload = req.body || {};
     const deal = await Deal.findByPk(id);
     if (!deal) return res.status(404).json({ error: "deal_not_found" });
-    await deal.update(payload);
+
+    const {
+      title,
+      partner,
+      coupon_code,
+      link,
+      locked_by_default,
+      featured,
+      type,
+      tier
+    } = req.body || {};
+
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (partner !== undefined) updates.partner = partner || null;
+    if (coupon_code !== undefined) updates.coupon_code = coupon_code || null;
+    if (link !== undefined) updates.link = link || null;
+    if (locked_by_default !== undefined) updates.locked_by_default = !!locked_by_default;
+    if (featured !== undefined) updates.featured = !!featured;
+
+    const normalizedType = type ? type.toString().toLowerCase() : null;
+    const normalizedTier = normalizeTier(tier);
+    if (normalizedType) updates.type = normalizedType;
+    if (normalizedTier) updates.tier = normalizedTier;
+
+    await deal.update(updates);
     res.json({ deal });
   } catch (err) { console.error(err); res.status(500).json({ error: "failed" }); }
+});
+
+// DELETE /api/admin/deals/:id
+router.delete("/deals/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deal = await Deal.findByPk(id);
+    if (!deal) return res.status(404).json({ error: "deal_not_found" });
+
+    await Unlock.destroy({ where: { deal_id: id } });
+    await DealClaim.destroy({ where: { deal_id: id } });
+    await ServiceDeal.destroy({ where: { deal_id: id } });
+    await deal.destroy();
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed" });
+  }
 });
 
 // GET /api/admin/services
@@ -86,9 +153,10 @@ router.post("/services", async (req, res) => {
       price,
       price_cents,
       description,
-      code,
       billing_interval,
-      is_active
+      is_active,
+      code,
+      tier
     } = req.body || {};
     if (!id || !title) return res.status(400).json({ error: "id,title required" });
 
@@ -101,7 +169,13 @@ router.post("/services", async (req, res) => {
     if (billing_interval && allowedIntervals.includes(billing_interval)) {
       payload.billing_interval = billing_interval;
     }
-    if (code) payload.code = code;
+    const normalizedTier = normalizeTier(tier || code || id);
+    if (code !== undefined && code !== null && code !== "") {
+      payload.code = code.toString().toLowerCase();
+    } else if (normalizedTier) {
+      payload.code = normalizedTier;
+    }
+    if (normalizedTier) payload.tier = normalizedTier;
     if (price !== undefined && price !== null && price !== "") payload.price = Number(price) || 0;
     if (price_cents !== undefined && price_cents !== null && price_cents !== "") {
       payload.price_cents = Number(price_cents);
@@ -134,15 +208,15 @@ router.put("/services/:id", async (req, res) => {
       price,
       price_cents,
       description,
-      code,
       billing_interval,
-      is_active
+      is_active,
+      code,
+      tier
     } = req.body || {};
 
     const updates = {};
     if (title !== undefined) updates.title = title;
     if (description !== undefined) updates.description = description;
-    if (code !== undefined) updates.code = code;
     if (billing_interval !== undefined && ["monthly", "yearly"].includes(billing_interval)) {
       updates.billing_interval = billing_interval;
     }
@@ -151,6 +225,9 @@ router.put("/services/:id", async (req, res) => {
       updates.price_cents = Number(price_cents);
     }
     if (is_active !== undefined) updates.is_active = !!is_active;
+    const normalizedTier = normalizeTier(tier || code);
+    if (code !== undefined && code !== null && code !== "") updates.code = code.toString().toLowerCase();
+    if (normalizedTier) updates.tier = normalizedTier;
 
     await service.update(updates);
     res.json({ service });
@@ -208,7 +285,7 @@ router.get("/users", async (req, res) => {
               include: [
                 {
                   model: Service,
-                  attributes: ["id", "title"]
+                  attributes: ["id", "title", "code", "tier", "billing_interval"]
                 }
               ]
             }

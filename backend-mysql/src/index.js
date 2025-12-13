@@ -1,7 +1,8 @@
 ﻿require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { sequelize, User } = require("./models");
+const { Op } = require("sequelize");
+const { sequelize, User, Service } = require("./models");
 const bcrypt = require("bcrypt");
 
 const authRoutes = require("./routes/auth");
@@ -24,6 +25,12 @@ app.use(
   })
 );
 app.use(express.json({ limit: "1mb" }));
+// Handle preflight requests before auth guards so browser fetches with Authorization work in dev/prod
+app.options("*", cors());
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 
 // Basic security headers
 app.use((req, res, next) => {
@@ -83,18 +90,42 @@ app.post("/api/plan/confirm", strictLimiter, async (req, res) => {
   }
 });
 
-app.get("/confirm", (req, res) => {
+app.get("/confirm", async (req, res) => {
   const plan = req.query.plan || req.query.planId || "your plan";
   const email = req.query.email || "your email";
   const razorpayLink = process.env.PAYMENT_RAZORPAY_LINK;
   const stripeCheckout = process.env.PAYMENT_STRIPE_LINK;
   const upiId = process.env.PAYMENT_UPI_ID || "connecttly@okaxis";
 
-  const appendParams = (base) => {
+  let amountPaise = null;
+  try {
+    const service = await Service.findOne({
+      where: {
+        [Op.or]: [{ id: plan }, { code: plan }, { tier: plan }]
+      }
+    });
+    if (service) {
+      const cents =
+        Number.isFinite(service.price_cents) && service.price_cents > 0
+          ? service.price_cents
+          : Math.round((Number(service.price) || 0) * 100);
+      if (cents > 0) amountPaise = cents;
+    }
+  } catch (err) {
+    console.error("Failed to load plan amount", err);
+  }
+
+  const appendParams = (base, { includeAmount } = {}) => {
     try {
       const u = new URL(base);
       u.searchParams.set("plan", plan);
       u.searchParams.set("email", email);
+      if (includeAmount && amountPaise) {
+        u.searchParams.set("amount", String(amountPaise));
+        if (!u.searchParams.get("currency")) {
+          u.searchParams.set("currency", "INR");
+        }
+      }
       return u.toString();
     } catch (err) {
       return base;
@@ -103,7 +134,7 @@ app.get("/confirm", (req, res) => {
 
   // If a gateway link is configured, redirect straight there
   if (razorpayLink) {
-    return res.redirect(appendParams(razorpayLink));
+    return res.redirect(appendParams(razorpayLink, { includeAmount: true }));
   }
   if (stripeCheckout) {
     return res.redirect(appendParams(stripeCheckout));
@@ -128,8 +159,9 @@ async function start() {
       await sequelize.authenticate();
       console.log("Database connected.");
 
-      await sequelize.sync();
-      console.log("Models synced.");
+      // Keep schema in sync with models so admin panel sees latest tables/columns
+      await sequelize.sync({ alter: true });
+      console.log("Models synced (altered).");
 
       // CREATE DEFAULT ADMIN IF NOT EXISTS
       const adminEmail = "admin@connecttly.local";

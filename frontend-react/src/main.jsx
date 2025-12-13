@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import AdminPanel from "./pages/AdminPanel";
 import DealDetail from "./pages/DealDetail";
 import MyDeals from "./pages/MyDeals";
+import Payment from "./pages/Payment";
 import { AuthProvider, AuthContext } from "./auth/AuthProvider";
 import "./index.css";
 
@@ -24,6 +25,8 @@ createRoot(document.getElementById("root")).render(
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/payment/success" element={<Payment />} />
           <Route
             path="/admin"
             element={

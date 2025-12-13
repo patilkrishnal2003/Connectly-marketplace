@@ -1,8 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const { Deal, Unlock, DealClaim } = require("../models");
-const { authMiddleware } = require("../middleware/auth");
+const { authMiddleware, requireRole } = require("../middleware/auth");
 const { checkDealAccessForUser } = require("../utils/subscriptionAccess");
+
+function normalizeTier(value) {
+  const str = (value || "").toString().toLowerCase();
+  if (!str) return null;
+  if (["pro", "professional", "premium"].some((token) => str.includes(token))) return "professional";
+  if (["standard", "basic", "starter"].some((token) => str.includes(token))) return "standard";
+  return str;
+}
 
 // GET /api/deals?userId=...
 router.get("/", async (req, res) => {
@@ -16,15 +24,134 @@ router.get("/", async (req, res) => {
     const annotated = deals.map((d) => ({
       id: d.id,
       title: d.title,
-      partner: d.partner,
+      partner: d.partner || "",
       isUnlocked: unlockedSet.has(d.id),
       featured: d.featured,
-      createdAt: d.createdAt
+      locked_by_default: d.locked_by_default,
+      tier: d.tier,
+      type: d.type,
+      link: d.link,
+      coupon_code: d.coupon_code,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt
     }));
     res.json({ deals: annotated });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "failed to fetch deals" });
+  }
+});
+
+// POST /api/deals (admin only)
+router.post("/", authMiddleware, requireRole("admin"), async (req, res) => {
+  try {
+    const {
+      id,
+      title,
+      partner,
+      coupon_code,
+      link,
+      locked_by_default,
+      featured,
+      type,
+      tier
+    } = req.body || {};
+    if (!id || !title) return res.status(400).json({ error: "id,title required" });
+
+    const normalizedTier = normalizeTier(tier);
+    const normalizedType = type ? type.toString().toLowerCase() : null;
+
+    const defaults = {
+      title,
+      partner: partner || null,
+      coupon_code: coupon_code || null,
+      link: link || null,
+      locked_by_default: locked_by_default !== undefined ? !!locked_by_default : true,
+      featured: featured !== undefined ? !!featured : false
+    };
+    if (normalizedType) defaults.type = normalizedType;
+    if (normalizedTier) defaults.tier = normalizedTier;
+
+    const [deal, created] = await Deal.findOrCreate({
+      where: { id },
+      defaults
+    });
+
+    if (!created) {
+      const updates = {
+        title,
+        partner: partner || null,
+        coupon_code: coupon_code || null,
+        link: link || null
+      };
+      if (locked_by_default !== undefined) updates.locked_by_default = !!locked_by_default;
+      if (featured !== undefined) updates.featured = !!featured;
+      if (normalizedType) updates.type = normalizedType;
+      if (normalizedTier) updates.tier = normalizedTier;
+      await deal.update(updates);
+    }
+
+    res.json({ deal });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed" });
+  }
+});
+
+// PUT /api/deals/:id (admin only)
+router.put("/:id", authMiddleware, requireRole("admin"), async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deal = await Deal.findByPk(id);
+    if (!deal) return res.status(404).json({ error: "deal_not_found" });
+
+    const {
+      title,
+      partner,
+      coupon_code,
+      link,
+      locked_by_default,
+      featured,
+      type,
+      tier
+    } = req.body || {};
+
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (partner !== undefined) updates.partner = partner || null;
+    if (coupon_code !== undefined) updates.coupon_code = coupon_code || null;
+    if (link !== undefined) updates.link = link || null;
+    if (locked_by_default !== undefined) updates.locked_by_default = !!locked_by_default;
+    if (featured !== undefined) updates.featured = !!featured;
+
+    const normalizedType = type ? type.toString().toLowerCase() : null;
+    const normalizedTier = normalizeTier(tier);
+    if (normalizedType) updates.type = normalizedType;
+    if (normalizedTier) updates.tier = normalizedTier;
+
+    await deal.update(updates);
+    res.json({ deal });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed" });
+  }
+});
+
+// DELETE /api/deals/:id (admin only)
+router.delete("/:id", authMiddleware, requireRole("admin"), async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deal = await Deal.findByPk(id);
+    if (!deal) return res.status(404).json({ error: "deal_not_found" });
+
+    await Unlock.destroy({ where: { deal_id: id } });
+    await DealClaim.destroy({ where: { deal_id: id } });
+    await deal.destroy();
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed" });
   }
 });
 

@@ -41,8 +41,8 @@ export default function MyDeals() {
               View everything you've unlocked and jump back into a deal.
             </p>
           </div>
-          <Link to="/" className="btn-bubble btn-bubble--outline">
-            Back to marketplace
+          <Link to="/" className="btn-bubble btn-bubble--white text-slate-900">
+            My account
           </Link>
         </div>
 

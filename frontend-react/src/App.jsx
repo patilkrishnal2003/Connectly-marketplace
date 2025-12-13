@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+﻿import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./auth/AuthProvider";
 import DealCard from "./component/DealCard";
@@ -111,19 +111,42 @@ export default function App() {
   const { user, logout, authFetch } = useContext(AuthContext);
   const navigate = useNavigate();
   const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:4000").replace(/\/$/, "");
-  const heroGradient = user
-    ? "from-emerald-900 via-teal-900 to-sky-900"
-    : "from-slate-900 via-indigo-900 to-purple-800";
-  const pageBg = user ? "from-emerald-50 via-teal-50 to-sky-50" : "from-sky-50 via-slate-50 to-white";
-  const footerGradient = user ? "from-emerald-900 via-teal-900 to-sky-900" : "from-slate-900 via-indigo-900 to-purple-800";
+  const paymentGatewayBase = import.meta.env.VITE_PAYMENT_URL || "/payment";
+  const [hasSubscription, setHasSubscription] = useState(false);
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedDealId, setSelectedDealId] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState({
+    notifications: true,
+    productUpdates: true,
+    darkMode: false,
+    twoFactor: false,
+    language: "en"
+  });
+  const profileRef = useRef(null);
 
   const userQuery = user?.userId ? `?userId=${encodeURIComponent(user.userId)}` : "";
+  const isDark = settings.darkMode;
+  const heroGradient = isDark
+    ? "from-slate-900 via-slate-950 to-black"
+    : user
+    ? "from-emerald-900 via-teal-900 to-sky-900"
+    : "from-slate-900 via-indigo-900 to-purple-800";
+  const pageBg = isDark
+    ? "from-slate-950 via-slate-900 to-slate-800"
+    : user
+    ? "from-emerald-50 via-teal-50 to-sky-50"
+    : "from-sky-50 via-slate-50 to-white";
+  const footerGradient = isDark
+    ? "from-black via-slate-950 to-slate-900"
+    : user
+    ? "from-emerald-900 via-teal-900 to-sky-900"
+    : "from-slate-900 via-indigo-900 to-purple-800";
 
   useEffect(() => {
     async function loadDeals() {
@@ -132,6 +155,13 @@ export default function App() {
         const res = await authFetch(`/api/deals${userQuery}`);
         const json = await res.json();
         setDeals(json.deals || []);
+        const purchaseRes = user ? await authFetch(`/api/admin/purchases?limit=1`) : null;
+        if (purchaseRes && purchaseRes.ok) {
+          const purchaseJson = await purchaseRes.json();
+          setHasSubscription((purchaseJson.purchases || []).some((p) => p.status === "completed"));
+        } else {
+          setHasSubscription(false);
+        }
       } catch (err) {
         console.error("Failed to load deals", err);
       } finally {
@@ -177,9 +207,12 @@ export default function App() {
   const professionalDeals = useMemo(() => mergedDeals.filter((d) => d.tier === "professional"), [mergedDeals]);
 
   const filteredDeals = mergedDeals.filter((deal) => {
+    const titleText = (deal.title || "").toLowerCase();
+    const partnerText = (deal.partner || "").toLowerCase();
+    const searchText = (search || "").toLowerCase();
     const matchesSearch =
-      deal.title.toLowerCase().includes(search.toLowerCase()) ||
-      deal.partner.toLowerCase().includes(search.toLowerCase());
+      titleText.includes(searchText) ||
+      partnerText.includes(searchText);
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "unlocked" && deal.isUnlocked) ||
@@ -193,29 +226,32 @@ export default function App() {
     navigate(`/deal/${deal.id}`, { state: { deal } });
   };
 
-  async function sendPlanConfirmation(planId) {
-    const suggested = (user?.email || "").toLowerCase();
-    const email = window.prompt("Enter your email to confirm this plan:", suggested);
-    if (!email) return false;
-    const trimmed = email.trim().toLowerCase();
-    try {
-      const res = await fetch(`${API_BASE}/api/plan/confirm`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, planId })
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        alert(data.error || "Could not send confirmation email. Please try again.");
-        return false;
-      }
-      alert("Confirmation email sent! Check your inbox.");
-      return true;
-    } catch (err) {
-      console.error("plan confirm failed", err);
-      alert("We couldn't send the confirmation. Please try again.");
-      return false;
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (!profileRef.current) return;
+      if (!profileRef.current.contains(e.target)) setProfileOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  useEffect(() => {
+    if (isDark) {
+      document.body.style.backgroundColor = "#0f172a";
+      document.body.style.color = "#e2e8f0";
+    } else {
+      document.body.style.backgroundColor = "";
+      document.body.style.color = "";
     }
+  }, [isDark]);
+
+  const userInitial = (user?.name || user?.email || "U").charAt(0).toUpperCase();
+
+  async function sendPlanConfirmation(planId) {
+    if (!planId) return false;
+    const target = `${paymentGatewayBase}?planId=${encodeURIComponent(planId)}`;
+    navigate(target);
+    return true;
   }
 
   const renderSection = (title, list) => {
@@ -242,14 +278,14 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${pageBg} text-slate-900`}>
+    <div className={`min-h-screen bg-gradient-to-b ${pageBg} ${isDark ? "text-slate-100" : "text-slate-900"}`}>
       <section className={`relative overflow-hidden bg-gradient-to-br ${heroGradient} text-white transition-colors`}>
         <div className="pointer-events-none absolute inset-0 opacity-60">
           <div className="absolute -top-24 -left-10 h-72 w-72 bg-indigo-500 rounded-full mix-blend-overlay blur-3xl"></div>
           <div className="absolute -bottom-20 -right-16 h-80 w-80 bg-purple-500 rounded-full mix-blend-overlay blur-3xl"></div>
         </div>
 
-        <nav className="relative z-10 max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+        <nav className="relative z-20 max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center font-bold text-lg">
               C
@@ -260,31 +296,6 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            {user ? (
-              <>
-                <span className="px-3 py-2 rounded-lg bg-white/10 border border-white/10">
-                  {user.email} ({user.role})
-                </span>
-                <Link to="/my-deals" className="btn-bubble btn-bubble--outline">
-                  My deals
-                </Link>
-                <button className="btn-bubble btn-bubble--white text-indigo-900" onClick={logout}>
-                  Logout
-                </button>
-                {user.role === "admin" && (
-                  <Link to="/admin" className="btn-bubble btn-bubble--outline">
-                    Admin
-                  </Link>
-                )}
-              </>
-            ) : (
-              <Link
-                to="/login"
-                className="btn-bubble btn-bubble--outline"
-              >
-                Login to unlock more
-              </Link>
-            )}
             <a
               href="https://connecttly.com/"
               target="_blank"
@@ -293,18 +304,86 @@ export default function App() {
             >
               Connecttly.com
             </a>
+            {user ? (
+              <div className="relative" ref={profileRef}>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen((v) => !v)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition"
+                >
+                  <span className="h-8 w-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center font-semibold uppercase">
+                    {userInitial}
+                  </span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {profileOpen && (
+                  <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden z-40">
+                    <div className="px-4 py-3 border-b border-slate-100">
+                      <p className="text-xs uppercase tracking-wide text-slate-500">Profile</p>
+                      <p className="text-sm font-semibold text-slate-900 truncate">{user.name || "Member"}</p>
+                      {user.email && <p className="text-xs text-slate-500 truncate">{user.email}</p>}
+                      <p className="text-[11px] text-slate-500">{user.role}</p>
+                    </div>
+                    <div className="py-2">
+                      <Link
+                        to="/my-deals"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <span>My deals</span>
+                      </Link>
+                      <button
+                        type="button"
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 text-left"
+                        onClick={() => {
+                          setProfileOpen(false);
+                          setSettingsOpen(true);
+                        }}
+                      >
+                        <span>Settings</span>
+                      </button>
+                      {user.role === "admin" && (
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <span>Admin</span>
+                        </Link>
+                      )}
+                      <button
+                        type="button"
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-rose-700 hover:bg-rose-50"
+                        onClick={() => {
+                          setProfileOpen(false);
+                          logout();
+                        }}
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/login" className="btn-bubble btn-bubble--outline">
+                Sign in
+              </Link>
+            )}
           </div>
         </nav>
 
         <header className="relative z-10 max-w-6xl mx-auto px-6 pb-20 pt-10 md:pt-16">
           <div className="grid md:grid-cols-5 gap-10 items-center">
-            <div className="md:col-span-3 space-y-6">
+                        <div className="md:col-span-3 space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/20 text-sm">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 {user ? "Your perks are active" : "Partner perks updated live"}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                {user ? "Welcome back—see what's unlocked for you." : "Unlock curated partner deals for your startup community."}
+                {user ? "Welcome back — see what's unlocked for you." : "Unlock curated partner deals for your startup community."}
               </h1>
               <p className="text-lg text-white/80 max-w-2xl">
                 {user
@@ -313,20 +392,13 @@ export default function App() {
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <a href="#deals" className="btn-bubble btn-bubble--emerald">
-                  {user ? "View your perks" : "Get deal"}
+                  {user ? "View your perks" : "Browse deals"}
                 </a>
                 {user ? (
                   <Link to="/my-deals" className="btn-bubble btn-bubble--ghost">
                     Continue exploring →
                   </Link>
-                ) : (
-                  <Link
-                    to="/login"
-                    className="btn-bubble btn-bubble--ghost"
-                  >
-                    Sign in to claim ->
-                  </Link>
-                )}
+                ) : null}
               </div>
               <div className="flex flex-wrap gap-4 text-sm text-white/80">
                 <span className="px-3 py-2 rounded-lg bg-white/10 border border-white/10">{user ? "Unlocked for you" : "All partner deals"}</span>
@@ -336,23 +408,7 @@ export default function App() {
                 <span className="px-3 py-2 rounded-lg bg-white/10 border border-white/10">Click to view coupon details</span>
               </div>
             </div>
-            <div className="md:col-span-2 flex justify-center md:justify-end">
-              <div className="relative h-full flex items-center">
-                <div className="h-72 w-40 md:w-48 rounded-3xl bg-white/10 border border-white/20 shadow-2xl backdrop-blur flex items-center justify-center overflow-hidden">
-                  <img
-                    src="https://connecttly.com/wp-content/uploads/2023/08/Connecttly-Logo-Vertical.png"
-                    alt="Connecttly logo"
-                    className="h-full w-full object-contain"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-2xl bg-white/5">
-                    Connecttly
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="md:col-span-2"></div>
           </div>
         </header>
       </section>
@@ -360,10 +416,14 @@ export default function App() {
       <main id="deals" className="max-w-6xl mx-auto px-6 pb-16 pt-12 space-y-8">
         <section
           id="filters"
-          className="border border-slate-200 shadow-sm rounded-2xl p-5 space-y-4"
+          className={`border shadow-sm rounded-2xl p-5 space-y-4 ${isDark ? "border-slate-700 bg-slate-900/70" : "border-slate-200 bg-white"}`}
           style={{
             background: user
-              ? "linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(14, 165, 233, 0.08))"
+              ? isDark
+                ? "linear-gradient(135deg, rgba(16,185,129,0.06), rgba(14,165,233,0.06))"
+                : "linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(14, 165, 233, 0.08))"
+              : isDark
+              ? "rgba(15,23,42,0.6)"
               : "#ffffff"
           }}
         >
@@ -454,97 +514,174 @@ export default function App() {
         )}
       </main>
 
-      <section className="max-w-6xl mx-auto px-6 pb-16">
-        <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-8 md:p-10 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <p className="text-sm uppercase tracking-wide text-slate-500">Plans</p>
-              <h2 className="text-3xl font-semibold text-slate-900">Choose the access that fits you</h2>
-              <p className="text-sm text-slate-600">
-                Compare the Standard and Professional plans to unlock more partner perks.
-              </p>
+      {settingsOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-500">Settings</p>
+                <h3 className="text-lg font-semibold text-slate-900">Personalize your experience</h3>
+              </div>
+              <button
+                type="button"
+                className="text-slate-500 hover:text-slate-800"
+                onClick={() => setSettingsOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <SettingToggle
+                label="Notifications"
+                desc="Get alerts for new deals and updates."
+                checked={settings.notifications}
+                onChange={(v) => setSettings((s) => ({ ...s, notifications: v }))}
+              />
+              <SettingToggle
+                label="Product updates"
+                desc="Stay in the loop about new perks and releases."
+                checked={settings.productUpdates}
+                onChange={(v) => setSettings((s) => ({ ...s, productUpdates: v }))}
+              />
+              <SettingToggle
+                label="Two-factor authentication"
+                desc="Add an extra layer of security to your account."
+                checked={settings.twoFactor}
+                onChange={(v) => setSettings((s) => ({ ...s, twoFactor: v }))}
+              />
+              <SettingToggle
+                label="Dark mode"
+                desc="Switch between light and dark themes."
+                checked={settings.darkMode}
+                onChange={(v) => setSettings((s) => ({ ...s, darkMode: v }))}
+              />
+              <div className="px-4 py-3 rounded-xl border border-slate-200 bg-white">
+                <p className="text-sm font-semibold text-slate-900">Language</p>
+                <p className="text-xs text-slate-500 mb-2">Choose your preferred language.</p>
+                <select
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  value={settings.language}
+                  onChange={(e) => setSettings((s) => ({ ...s, language: e.target.value }))}
+                >
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                </select>
+              </div>
+            </div>
+            <div className="px-5 py-4 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50">
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-white"
+                onClick={() => setSettingsOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700"
+                onClick={() => setSettingsOpen(false)}
+              >
+                Save changes
+              </button>
             </div>
           </div>
+        </div>
+      )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                id: "standard",
-                name: "Standard",
-                price: "$99",
-                cadence: "per month",
-                tone: "from-slate-900/90 to-slate-800/90",
-                text: "Access curated partner perks to get started.",
-                features: [
-                  "Unlock all Standard-tier deals",
-                  "Up to $5,000 in partner value",
-                  "Email support"
-                ],
-                cta: "Choose Standard"
-              },
-              {
-                id: "professional",
-                name: "Professional",
-                price: "$199",
-                cadence: "per month",
-                tone: "from-indigo-700/90 to-purple-700/90",
-                text: "Expanded perks and premium access for teams ready to scale.",
-                features: [
-                  "Everything in Standard",
-                  "Exclusive Professional-tier deals",
-                  "Priority partner support",
-                  "Early access to new perks"
-                ],
-                cta: "Choose Professional"
-              }
-            ].map((plan) => (
-              <div
-                key={plan.id}
-                className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md"
-              >
-                <div className={`absolute inset-0 opacity-5 bg-gradient-to-br ${plan.tone}`} aria-hidden="true" />
-                <div className="relative p-6 flex flex-col h-full">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm uppercase tracking-wide text-slate-500">{plan.name} plan</p>
-                      <p className="text-3xl font-semibold text-slate-900">{plan.name}</p>
+      {!hasSubscription && (
+        <section id="plans" className="max-w-6xl mx-auto px-6 pb-16">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-8 md:p-10 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div>
+                <p className="text-sm uppercase tracking-wide text-slate-500">Plans</p>
+                <h2 className="text-3xl font-semibold text-slate-900">Choose the access that fits you</h2>
+                <p className="text-sm text-slate-600">
+                  Compare the Standard and Professional plans to unlock more partner perks.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  id: "standard",
+                  name: "Standard",
+                  price: "$99",
+                  cadence: "per month",
+                  tone: "from-slate-900/90 to-slate-800/90",
+                  text: "Access curated partner perks to get started.",
+                  features: [
+                    "Unlock all Standard-tier deals",
+                    "Up to $5,000 in partner value",
+                    "Email support"
+                  ],
+                  cta: "Choose Standard"
+                },
+                {
+                  id: "professional",
+                  name: "Professional",
+                  price: "$199",
+                  cadence: "per month",
+                  tone: "from-indigo-700/90 to-purple-700/90",
+                  text: "Expanded perks and premium access for teams ready to scale.",
+                  features: [
+                    "Everything in Standard",
+                    "Exclusive Professional-tier deals",
+                    "Priority partner support",
+                    "Early access to new perks"
+                  ],
+                  cta: "Choose Professional"
+                }
+              ].map((plan) => (
+                <div
+                  key={plan.id}
+                  className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md"
+                >
+                  <div className={`absolute inset-0 opacity-5 bg-gradient-to-br ${plan.tone}`} aria-hidden="true" />
+                  <div className="relative p-6 flex flex-col h-full">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm uppercase tracking-wide text-slate-500">{plan.name} plan</p>
+                        <p className="text-3xl font-semibold text-slate-900">{plan.name}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-4xl font-bold text-slate-900">{plan.price}</div>
+                        <div className="text-xs text-slate-500">{plan.cadence}</div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-4xl font-bold text-slate-900">{plan.price}</div>
-                      <div className="text-xs text-slate-500">{plan.cadence}</div>
+
+                    <p className="mt-4 text-sm text-slate-600">{plan.text}</p>
+
+                    <hr className="my-5 border-slate-200" />
+
+                    <ul className="space-y-3 text-slate-800 text-sm flex-1">
+                      {plan.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-2">
+                          <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500"></span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-6">
+                      <button
+                        type="button"
+                        className="w-full btn-bubble btn-bubble--dark justify-center"
+                        onClick={async () => {
+                          await sendPlanConfirmation(plan.id);
+                        }}
+                      >
+                        {plan.cta}
+                      </button>
                     </div>
-                  </div>
-
-                  <p className="mt-4 text-sm text-slate-600">{plan.text}</p>
-
-                  <hr className="my-5 border-slate-200" />
-
-                  <ul className="space-y-3 text-slate-800 text-sm flex-1">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2">
-                        <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500"></span>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-6">
-                    <button
-                      type="button"
-                      className="w-full btn-bubble btn-bubble--dark justify-center"
-                      onClick={async () => {
-                        await sendPlanConfirmation(plan.id);
-                      }}
-                    >
-                      {plan.cta}
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <footer className={`bg-gradient-to-r ${footerGradient} text-white mt-16 transition-colors`}>
         <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
@@ -605,5 +742,17 @@ export default function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function SettingToggle({ label, desc, checked, onChange }) {
+  return (
+    <label className="flex items-start justify-between gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-white hover:border-indigo-100">
+      <div>
+        <p className="text-sm font-semibold text-slate-900">{label}</p>
+        {desc && <p className="text-xs text-slate-500 mt-1">{desc}</p>}
+      </div>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 h-4 w-4" />
+    </label>
   );
 }

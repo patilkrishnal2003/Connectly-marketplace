@@ -13,7 +13,7 @@ async function getActiveSubscriptionForUser(userId) {
     include: [
       {
         model: Service,
-        attributes: ["id", "title", "code", "billing_interval"]
+        attributes: ["id", "title", "code", "tier", "billing_interval"]
       }
     ],
     order: [
@@ -73,7 +73,7 @@ async function checkDealAccessForUser(userId, dealId, deal = null) {
 
   const activeSubscription = await getActiveSubscriptionForUser(userId);
   const plan = activeSubscription ? activeSubscription.service : null;
-  const planTier = normalizeTier(plan?.code || plan?.id);
+  const planTier = normalizeTier(plan?.tier || plan?.code || plan?.id);
 
   if (!activeSubscription || !plan) {
     return {
@@ -87,19 +87,20 @@ async function checkDealAccessForUser(userId, dealId, deal = null) {
   const dealTier = normalizeTier(deal?.tier || deal?.type);
   const tierRank = { standard: 1, professional: 2 };
   if (dealTier) {
-    const planLevel = tierRank[planTier] || 0;
     const requiredLevel = tierRank[dealTier] || 0;
+    const planLevel = tierRank[planTier];
 
-    if (requiredLevel > 0 && planLevel < requiredLevel) {
-      return {
-        hasAccess: false,
-        reason: "plan_mismatch",
-        activeSubscription,
-        plan
-      };
-    }
+    // Only enforce tier comparison if we recognize the plan tier.
+    if (requiredLevel > 0 && planLevel !== undefined) {
+      if (planLevel < requiredLevel) {
+        return {
+          hasAccess: false,
+          reason: "plan_mismatch",
+          activeSubscription,
+          plan
+        };
+      }
 
-    if (requiredLevel > 0) {
       return {
         hasAccess: true,
         reason: "ok",
