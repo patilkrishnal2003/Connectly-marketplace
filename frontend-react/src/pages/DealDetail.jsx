@@ -19,6 +19,7 @@ export default function DealDetail() {
   const [error, setError] = useState("");
   const [claimResult, setClaimResult] = useState(null);
   const [claiming, setClaiming] = useState(false);
+<<<<<<< HEAD
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [checkingSubscription, setCheckingSubscription] = useState(false);
@@ -29,6 +30,9 @@ export default function DealDetail() {
   useEffect(() => {
     if (claimResult) setShowClaimModal(true);
   }, [claimResult]);
+=======
+  const [modalContent, setModalContent] = useState(null);
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
 
   const defaultRedemptionLinks = {
     "bf-canva": "https://www.canva.com/",
@@ -196,7 +200,25 @@ export default function DealDetail() {
     if ((deal?.id || "").startsWith("bf-")) {
       setDeal((prev) => ({ ...(prev || {}), isUnlocked: true }));
       setClaimResult({ status: "success", reason: "exception", message: "Deal claimed successfully." });
+<<<<<<< HEAD
       setShowClaimModal(true);
+=======
+      const link = getRedemptionLink({ ...(deal || {}), isUnlocked: true });
+      setModalContent({
+        type: "success",
+        title: "Deal claimed successfully",
+        message: "You can redeem this offer right away.",
+        primaryAction: link
+          ? () => {
+              window.open(link, "_blank", "noreferrer");
+              setModalContent(null);
+            }
+          : null,
+        primaryLabel: link ? "Redeem offer" : null,
+        secondaryLabel: "Close",
+        secondaryAction: () => setModalContent(null)
+      });
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
       return;
     }
 
@@ -252,7 +274,47 @@ export default function DealDetail() {
               ? `${currentPlan || "Starter"} is active. This deal requires the ${requiredPlanName} plan.`
               : "Choose a plan below to continue."
         });
+<<<<<<< HEAD
         setClaiming(false);
+=======
+        if (data.reason === "no_subscription") {
+          setModalContent({
+            type: "blocked",
+            title: "Subscription required",
+            message: "You need an active subscription to claim this deal.",
+            subtext: "You need an active subscription. Visit your plans page to upgrade.",
+            primaryLabel: "Visit plans",
+            primaryAction: () => {
+              setModalContent(null);
+              navigate("/#plans");
+            },
+            secondaryLabel: "Close",
+            secondaryAction: () => setModalContent(null)
+          });
+        } else if (data.reason === "plan_mismatch") {
+          setModalContent({
+            type: "blocked",
+            title: "Upgrade required",
+            message: "This perk is mapped to a higher plan.",
+            subtext: "Upgrade your subscription to continue.",
+            primaryLabel: "Visit plans",
+            primaryAction: () => {
+              setModalContent(null);
+              navigate("/#plans");
+            },
+            secondaryLabel: "Close",
+            secondaryAction: () => setModalContent(null)
+          });
+        } else {
+          setModalContent({
+            type: "blocked",
+            title: "Unable to claim deal",
+            message: data.message || "We couldn't claim this deal right now.",
+            primaryLabel: "Close",
+            primaryAction: () => setModalContent(null)
+          });
+        }
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
         return;
       }
 
@@ -267,14 +329,42 @@ export default function DealDetail() {
         reason: data.claim?.reason || "ok",
         message: data.message || "Deal claimed successfully."
       });
+<<<<<<< HEAD
       setShowClaimModal(true);
+=======
+      const link = getRedemptionLink({ ...(deal || {}), ...(data.deal || {}), isUnlocked: true });
+      setModalContent({
+        type: "success",
+        title: "Deal claimed successfully",
+        message: "You can now redeem this offer and enjoy the perks.",
+        primaryLabel: link ? "Redeem offer" : null,
+        primaryAction: link
+          ? () => {
+              window.open(link, "_blank", "noreferrer");
+              setModalContent(null);
+            }
+          : null,
+        secondaryLabel: "Close",
+        secondaryAction: () => setModalContent(null)
+      });
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
     } catch (err) {
       console.error(err);
       setClaimResult({
         status: "error",
         message: err?.message || "Could not claim this deal. Please try again."
       });
+<<<<<<< HEAD
       setShowClaimModal(true);
+=======
+      setModalContent({
+        type: "error",
+        title: "Could not claim deal",
+        message: err?.message || "Please try again.",
+        primaryLabel: "Close",
+        primaryAction: () => setModalContent(null)
+      });
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
     } finally {
       setClaiming(false);
     }
@@ -369,6 +459,7 @@ export default function DealDetail() {
                     </div>
                   )}
                 </div>
+<<<<<<< HEAD
                 {claimResult && (
                   <div
                     className={`rounded-xl border p-4 text-sm ${
@@ -395,6 +486,8 @@ export default function DealDetail() {
                     )}
                   </div>
                 )}
+=======
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
               </div>
             )}
           </div>
@@ -448,6 +541,7 @@ export default function DealDetail() {
           </section>
         </main>
 
+<<<<<<< HEAD
         {planModal?.open && user && (
           <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-5">
@@ -631,11 +725,67 @@ export default function DealDetail() {
                   </button>
                 </div>
               )}
+=======
+        {modalContent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                    {modalContent.type === "success"
+                      ? "Deal ready"
+                      : modalContent.type === "blocked"
+                      ? "Subscription"
+                      : "Status"}
+                  </p>
+                  <h3 className="text-xl font-semibold text-slate-900">{modalContent.title}</h3>
+                </div>
+                <button
+                  onClick={() => setModalContent(null)}
+                  className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
+                  aria-label="Close dialog"
+                >
+                  <span aria-hidden>×</span>
+                </button>
+              </div>
+              <div className="mt-4 space-y-2 text-slate-600">
+                <p>{modalContent.message}</p>
+                {modalContent.subtext && <p className="text-sm text-slate-500">{modalContent.subtext}</p>}
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                {modalContent.secondaryAction && modalContent.secondaryLabel && (
+                  <button
+                    onClick={modalContent.secondaryAction}
+                    className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    {modalContent.secondaryLabel}
+                  </button>
+                )}
+                {modalContent.primaryAction && modalContent.primaryLabel && (
+                  <button
+                    onClick={modalContent.primaryAction}
+                    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow ${
+                      modalContent.type === "success"
+                        ? "bg-emerald-600 hover:bg-emerald-700"
+                        : modalContent.type === "blocked"
+                        ? "bg-indigo-600 hover:bg-indigo-700"
+                        : "bg-rose-600 hover:bg-rose-700"
+                    }`}
+                  >
+                    {modalContent.primaryLabel}
+                  </button>
+                )}
+              </div>
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
             </div>
           </div>
         )}
 
+<<<<<<< HEAD
       <footer className={`bg-gradient-to-r ${footerGradient} text-white transition-colors`}>
+=======
+        <footer className={`bg-gradient-to-r ${footerGradient} text-white transition-colors`}>
+>>>>>>> be61a5da9932e7e359ba8fabdf3d280c6d264e83
           <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
