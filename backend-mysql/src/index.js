@@ -159,9 +159,16 @@ async function start() {
       await sequelize.authenticate();
       console.log("Database connected.");
 
-      // Keep schema in sync without altering existing indexes to avoid host limits
-      await sequelize.sync();
-      console.log("Models synced.");
+      // Keep schema in sync with models so admin panel sees latest tables/columns.
+      // Default avoids ALTER because some hosts hit "Too many keys" limits; opt-in via DB_SYNC_ALTER=true.
+      const useAlter = process.env.DB_SYNC_ALTER === "true";
+      if (useAlter) {
+        await sequelize.sync({ alter: true });
+        console.log("Models synced (altered).");
+      } else {
+        await sequelize.sync();
+        console.log("Models synced.");
+      }
 
       // CREATE DEFAULT ADMIN IF NOT EXISTS
       const adminEmail = "admin@connecttly.local";

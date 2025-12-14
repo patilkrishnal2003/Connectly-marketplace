@@ -44,42 +44,159 @@ const UserSubscription = UserSubscriptionModel(sequelize, DataTypes);
 const DealClaim = DealClaimModel(sequelize, DataTypes);
 const UserDealException = UserDealExceptionModel(sequelize, DataTypes);
 
-// Relationships
+// ============================================================================
+// RELATIONSHIPS - Optimized to prevent duplicate indexes
+// ============================================================================
+// Key principle: Define belongsTo (creates FK) and hasMany (for queries) separately
+// Use constraints: false on hasMany to prevent duplicate index creation
+// ============================================================================
+
+// Service <-> Deal (Many-to-Many through junction table)
 const ServiceDeal = sequelize.define("service_deal", {}, { timestamps: false });
 
-Service.belongsToMany(Deal, { through: ServiceDeal, foreignKey: "service_id" });
-Deal.belongsToMany(Service, { through: ServiceDeal, foreignKey: "deal_id" });
+Service.belongsToMany(Deal, { 
+  through: ServiceDeal, 
+  foreignKey: "service_id",
+  otherKey: "deal_id"
+});
+Deal.belongsToMany(Service, { 
+  through: ServiceDeal, 
+  foreignKey: "deal_id",
+  otherKey: "service_id"
+});
 
-User.hasMany(Purchase, { foreignKey: "user_id" });
-Purchase.belongsTo(User, { foreignKey: "user_id" });
-AuditLog.belongsTo(User, { foreignKey: "user_id" });
+// Purchase -> User (Many-to-One)
+Purchase.belongsTo(User, { 
+  foreignKey: "user_id",
+  targetKey: "id"
+});
+// User -> Purchase (One-to-Many, for queries only, no duplicate FK)
+User.hasMany(Purchase, { 
+  foreignKey: "user_id",
+  sourceKey: "id",
+  constraints: false  // Prevents duplicate index since belongsTo already creates it
+});
 
-User.hasMany(UserSubscription, { foreignKey: "user_id" });
-UserSubscription.belongsTo(User, { foreignKey: "user_id" });
+// AuditLog -> User (Many-to-One)
+AuditLog.belongsTo(User, { 
+  foreignKey: "user_id",
+  targetKey: "id"
+});
+// User -> AuditLog (One-to-Many, for queries only)
+User.hasMany(AuditLog, { 
+  foreignKey: "user_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-Service.hasMany(UserSubscription, { foreignKey: "plan_id" });
-UserSubscription.belongsTo(Service, { foreignKey: "plan_id" });
+// AuditLog -> Deal (Many-to-One)
+AuditLog.belongsTo(Deal, { 
+  foreignKey: "deal_id",
+  targetKey: "id"
+});
+// Deal -> AuditLog (One-to-Many, for queries only)
+Deal.hasMany(AuditLog, { 
+  foreignKey: "deal_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-User.hasMany(Unlock, { foreignKey: "user_id" });
-Unlock.belongsTo(User, { foreignKey: "user_id" });
+// UserSubscription -> User (Many-to-One)
+UserSubscription.belongsTo(User, { 
+  foreignKey: "user_id",
+  targetKey: "id"
+});
+// User -> UserSubscription (One-to-Many, for queries only)
+User.hasMany(UserSubscription, { 
+  foreignKey: "user_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-Deal.hasMany(Unlock, { foreignKey: "deal_id" });
-Unlock.belongsTo(Deal, { foreignKey: "deal_id" });
+// UserSubscription -> Service (Many-to-One)
+UserSubscription.belongsTo(Service, { 
+  foreignKey: "plan_id",
+  targetKey: "id"
+});
+// Service -> UserSubscription (One-to-Many, for queries only)
+Service.hasMany(UserSubscription, { 
+  foreignKey: "plan_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-Deal.hasMany(AuditLog, { foreignKey: "deal_id" });
-AuditLog.belongsTo(Deal, { foreignKey: "deal_id" });
+// Unlock -> User (Many-to-One)
+Unlock.belongsTo(User, { 
+  foreignKey: "user_id",
+  targetKey: "id"
+});
+// User -> Unlock (One-to-Many, for queries only)
+User.hasMany(Unlock, { 
+  foreignKey: "user_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-User.hasMany(DealClaim, { foreignKey: "user_id" });
-DealClaim.belongsTo(User, { foreignKey: "user_id" });
+// Unlock -> Deal (Many-to-One)
+Unlock.belongsTo(Deal, { 
+  foreignKey: "deal_id",
+  targetKey: "id"
+});
+// Deal -> Unlock (One-to-Many, for queries only)
+Deal.hasMany(Unlock, { 
+  foreignKey: "deal_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-Deal.hasMany(DealClaim, { foreignKey: "deal_id" });
-DealClaim.belongsTo(Deal, { foreignKey: "deal_id" });
+// DealClaim -> User (Many-to-One)
+DealClaim.belongsTo(User, { 
+  foreignKey: "user_id",
+  targetKey: "id"
+});
+// User -> DealClaim (One-to-Many, for queries only)
+User.hasMany(DealClaim, { 
+  foreignKey: "user_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-User.hasMany(UserDealException, { foreignKey: "user_id", as: "dealExceptions" });
-UserDealException.belongsTo(User, { foreignKey: "user_id" });
+// DealClaim -> Deal (Many-to-One)
+DealClaim.belongsTo(Deal, { 
+  foreignKey: "deal_id",
+  targetKey: "id"
+});
+// Deal -> DealClaim (One-to-Many, for queries only)
+Deal.hasMany(DealClaim, { 
+  foreignKey: "deal_id",
+  sourceKey: "id",
+  constraints: false
+});
 
-Deal.hasMany(UserDealException, { foreignKey: "deal_id" });
-UserDealException.belongsTo(Deal, { foreignKey: "deal_id" });
+// UserDealException -> User (Many-to-One)
+UserDealException.belongsTo(User, { 
+  foreignKey: "user_id",
+  targetKey: "id"
+});
+// User -> UserDealException (One-to-Many, for queries only, with alias)
+User.hasMany(UserDealException, { 
+  foreignKey: "user_id",
+  sourceKey: "id",
+  as: "dealExceptions",
+  constraints: false
+});
+
+// UserDealException -> Deal (Many-to-One)
+UserDealException.belongsTo(Deal, { 
+  foreignKey: "deal_id",
+  targetKey: "id"
+});
+// Deal -> UserDealException (One-to-Many, for queries only)
+Deal.hasMany(UserDealException, { 
+  foreignKey: "deal_id",
+  sourceKey: "id",
+  constraints: false
+});
 
 module.exports = {
   sequelize,

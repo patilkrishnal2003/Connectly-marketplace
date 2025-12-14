@@ -237,6 +237,26 @@ router.put("/services/:id", async (req, res) => {
   }
 });
 
+// DELETE /api/admin/services/:id
+router.delete("/services/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const service = await Service.findByPk(id);
+    if (!service) return res.status(404).json({ error: "service_not_found" });
+
+    // Clean related records to avoid orphan references in admin views
+    await ServiceDeal.destroy({ where: { service_id: id } });
+    await UserSubscription.destroy({ where: { plan_id: id } });
+    await Purchase.destroy({ where: { service_id: id } });
+
+    await service.destroy();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed" });
+  }
+});
+
 // POST /api/admin/map-service  body: { serviceId, dealId }
 router.post("/map-service", async (req, res) => {
   try {

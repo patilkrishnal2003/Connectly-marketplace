@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # Subscription Plan Page Fixes
 
 ## Completed Tasks
@@ -15,3 +16,53 @@
 ## Next Steps
 - Restart the backend server to apply the new endpoint
 - Test the subscription page with different user accounts to verify correct status display
+
+---
+
+# Fix MySQL "Too many keys specified" Error
+
+## Steps to Complete:
+
+- [x] Backup current models/index.js
+- [x] Update models/index.js to remove duplicate relationships and optimize indexes
+- [ ] Test database connection
+- [ ] Verify all routes still work correctly
+- [ ] Test admin panel functionality
+- [ ] Test deal claiming with subscription checks
+- [ ] Verify production readiness
+
+## Current Status:
+- Fixed models/index.js - Added `constraints: false` to all hasMany relationships to prevent duplicate index creation
+=======
+# Fix MySQL "Too many keys specified" Error
+
+## Steps to Complete:
+
+- [x] Backup current models/index.js
+- [x] Update models/index.js to remove duplicate relationships and optimize indexes
+- [ ] Test database connection
+- [ ] Verify all routes still work correctly
+- [ ] Test admin panel functionality
+- [ ] Test deal claiming with subscription checks
+- [ ] Verify production readiness
+
+## Current Status:
+✅ Fixed models/index.js - Added `constraints: false` to all hasMany relationships to prevent duplicate index creation
+>>>>>>> Stashed changes
+
+## Changes Made:
+1. Reorganized relationship definitions for clarity
+2. Added `constraints: false` to all `hasMany` relationships
+3. Kept `belongsTo` relationships with full constraints (creates necessary foreign keys)
+4. Added explicit `targetKey` and `sourceKey` parameters for better control
+<<<<<<< Updated upstream
+5. Added comments explaining the optimization strategy
+
+## Next Step:
+- Testing database connection...
+=======
+5. Added comprehensive comments explaining the optimization strategy
+
+## Next Step:
+Testing database connection...
+>>>>>>> Stashed changes

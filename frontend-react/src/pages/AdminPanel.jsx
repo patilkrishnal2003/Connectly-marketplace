@@ -54,6 +54,7 @@ export default function AdminPanel() {
     price: "",
     price_cents: "",
     billing_interval: "monthly",
+    tier: "standard",
     is_active: true
   });
 
@@ -338,6 +339,7 @@ export default function AdminPanel() {
         price: service.price ?? "",
         price_cents: service.price_cents ?? "",
         billing_interval: service.billing_interval || "monthly",
+        tier: service.tier || "standard",
         is_active: service.is_active !== undefined ? service.is_active : true
       }
     }));
@@ -370,6 +372,7 @@ export default function AdminPanel() {
       price: newServiceForm.price === "" ? undefined : Number(newServiceForm.price),
       price_cents: newServiceForm.price_cents === "" ? undefined : Number(newServiceForm.price_cents),
       billing_interval: newServiceForm.billing_interval,
+      tier: newServiceForm.tier || undefined,
       is_active: !!newServiceForm.is_active
     };
     const res = await authFetch("/api/admin/services", {
@@ -381,15 +384,16 @@ export default function AdminPanel() {
     const json = await res.json();
     if (!res.ok) setFlash(json.error || "failed");
     else {
-      setNewServiceForm({
-        id: "",
-        title: "",
-        description: "",
-        price: "",
-        price_cents: "",
-        billing_interval: "monthly",
-        is_active: true
-      });
+    setNewServiceForm({
+      id: "",
+      title: "",
+      description: "",
+      price: "",
+      price_cents: "",
+      billing_interval: "monthly",
+      tier: "standard",
+      is_active: true
+    });
       setFlash("Subscription plan created");
       loadServices();
       loadUsers();
@@ -411,6 +415,7 @@ export default function AdminPanel() {
       price: draft.price === "" ? undefined : Number(draft.price),
       price_cents: draft.price_cents === "" ? undefined : Number(draft.price_cents),
       billing_interval: draft.billing_interval,
+      tier: draft.tier || undefined,
       is_active: !!draft.is_active
     };
 
@@ -1145,6 +1150,7 @@ export default function AdminPanel() {
                           <tr>
                             <th className="px-3 py-2">ID</th>
                             <th className="px-3 py-2">Title</th>
+                            <th className="px-3 py-2">Tier</th>
                             <th className="px-3 py-2">Interval</th>
                             <th className="px-3 py-2">Price</th>
                             <th className="px-3 py-2">Active</th>
@@ -1159,6 +1165,12 @@ export default function AdminPanel() {
                             </td>
                             <td className="px-3 py-3">
                               <input className={input} placeholder="Title" value={newServiceForm.title} onChange={(e) => setNewServiceForm({ ...newServiceForm, title: e.target.value })} />
+                            </td>
+                            <td className="px-3 py-3">
+                              <select className={input} value={newServiceForm.tier} onChange={(e) => setNewServiceForm({ ...newServiceForm, tier: e.target.value })}>
+                                <option value="standard">Standard</option>
+                                <option value="professional">Professional</option>
+                              </select>
                             </td>
                             <td className="px-3 py-3">
                               <select className={input} value={newServiceForm.billing_interval} onChange={(e) => setNewServiceForm({ ...newServiceForm, billing_interval: e.target.value })}>
@@ -1192,6 +1204,7 @@ export default function AdminPanel() {
                             const priceValue = draft.price !== undefined ? draft.price : s.price ?? "";
                             const priceCentsValue = draft.price_cents !== undefined ? draft.price_cents : s.price_cents ?? "";
                             const descValue = draft.description !== undefined ? draft.description : s.description || "";
+                            const tierValue = draft.tier !== undefined ? draft.tier : s.tier || "standard";
                             const activeValue = draft.is_active !== undefined ? draft.is_active : s.is_active !== undefined ? s.is_active : true;
                             return (
                               <tr key={s.id} className="border-b border-slate-100">
@@ -1201,6 +1214,16 @@ export default function AdminPanel() {
                                     <input className={input} value={titleValue} onChange={(e) => updateServiceDraft(s.id, "title", e.target.value)} />
                                   ) : (
                                     titleValue || "-"
+                                  )}
+                                </td>
+                                <td className="px-3 py-2 text-slate-700">
+                                  {isEditing ? (
+                                    <select className={input} value={tierValue} onChange={(e) => updateServiceDraft(s.id, "tier", e.target.value)}>
+                                      <option value="standard">Standard</option>
+                                      <option value="professional">Professional</option>
+                                    </select>
+                                  ) : (
+                                    tierValue || "-"
                                   )}
                                 </td>
                                 <td className="px-3 py-2 text-slate-700">
@@ -1329,7 +1352,7 @@ export default function AdminPanel() {
                           })}
                           {services.length === 0 && (
                             <tr>
-                              <td colSpan="7" className="px-3 py-3 text-slate-500">
+                              <td colSpan="8" className="px-3 py-3 text-slate-500">
                                 No subscription plans yet.
                               </td>
                             </tr>
