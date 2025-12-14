@@ -334,6 +334,13 @@ export default function App() {
                       >
                         <span>My deals</span>
                       </Link>
+                      <Link
+                        to="/subscription-plans"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <span>Subscription Plans</span>
+                      </Link>
                       <button
                         type="button"
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 text-left"

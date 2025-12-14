@@ -2,7 +2,7 @@
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
+const { User, UserSubscription } = require("../models");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -49,6 +49,51 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "login_failed" });
+  }
+});
+
+// POST /api/auth/claim-check
+// Body: { email }
+// If user exists, return token + latest subscription info. Otherwise exists:false.
+router.post("/claim-check", async (req, res) => {
+  try {
+    const normalizedEmail = (req.body?.email || "").toLowerCase().trim();
+    if (!normalizedEmail) return res.status(400).json({ error: "email required" });
+
+    const user = await User.findOne({ where: { email: normalizedEmail } });
+    if (!user) return res.json({ exists: false });
+
+    const latestSubscription = await UserSubscription.findOne({
+      where: { user_id: user.id },
+      order: [["started_at", "DESC"]]
+    });
+
+    let subscription = null;
+    if (latestSubscription) {
+      const planId = latestSubscription.plan_id;
+      let title = "";
+      if (planId === "standard") title = "Starter";
+      else if (planId === "professional") title = "Professional";
+      else title = planId;
+      subscription = {
+        serviceId: planId,
+        title: title,
+        status: latestSubscription.status,
+        purchasedAt: latestSubscription.started_at
+      };
+    }
+
+    const token = jwt.sign({ userId: user.id, role: user.role, email: user.email }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
+    res.json({
+      exists: true,
+      token,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      subscription
+    });
+  } catch (err) {
+    console.error("claim-check failed", err);
+    // Soft-fail so the UI can prompt for registration instead of hard error
+    res.json({ exists: false, error: "claim_check_failed" });
   }
 });
 

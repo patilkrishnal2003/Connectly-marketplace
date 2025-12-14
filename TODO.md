@@ -1,18 +1,17 @@
-# Marketplace Project TODO
+# Subscription Plan Page Fixes
 
-## Frontend Tasks
-- [x] Create Register.jsx page for user registration
-- [x] Add /register route in main.jsx
-- [x] Add register link in Login.jsx
-- [x] Enhance AdminPanel: add edit deals form
-- [x] Enhance AdminPanel: add map services to deals form
-- [x] Enhance AdminPanel: add manual unlock deals for users form
-- [x] Update App.jsx to fetch and display deals using DealCard
+## Completed Tasks
+- [x] Added missing `/api/auth/claim-check` endpoint to `backend-mysql/src/routes/auth.js` to fetch user-specific subscription data
+- [x] Updated frontend `SubscriptionPlans.jsx` to consider subscription status when determining active plans
+- [x] Modified hero section status display to show plan name and status (e.g., "Starter (active)")
+- [x] Updated card button labels: "Purchase Starter"/"Purchase Professional" when no plan, "Unlocked" for active plan, "Upgrade" for professional when starter is active
 
-## Backend Tasks
-- [x] Add manual admin creation endpoint in admin.js (POST /admin/create-admin)
-- [x] Add simulate purchase endpoint in admin.js (POST /admin/simulate-purchase)
+## Issues Fixed
+- **Same status for every user**: Resolved by implementing user-specific subscription fetching in the backend
+- **No subscription display**: Both cards now correctly show "Purchase Starter" and "Purchase Professional" when user has no active plan
+- **Starter plan display**: Starter card shows as "Unlocked", Professional as "Upgrade"
+- **Hero section status**: Now displays accurate plan status including active/inactive state
 
-## Testing and Running
-- [ ] Test end-to-end: register, login, view deals, admin actions
-- [ ] Run the project (backend and frontend)
+## Next Steps
+- Restart the backend server to apply the new endpoint
+- Test the subscription page with different user accounts to verify correct status display

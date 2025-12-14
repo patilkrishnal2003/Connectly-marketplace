@@ -8,6 +8,7 @@ import AdminPanel from "./pages/AdminPanel";
 import DealDetail from "./pages/DealDetail";
 import MyDeals from "./pages/MyDeals";
 import Payment from "./pages/Payment";
+import SubscriptionPlans from "./pages/SubscriptionPlans";
 import { AuthProvider, AuthContext } from "./auth/AuthProvider";
 import "./index.css";
 
@@ -36,6 +37,7 @@ createRoot(document.getElementById("root")).render(
             }
           />
           <Route path="/my-deals" element={<MyDeals />} />
+          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
           <Route path="/deal/:id" element={<DealDetail />} />
           <Route path="/*" element={<App />} />
         </Routes>
