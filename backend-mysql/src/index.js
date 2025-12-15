@@ -9,7 +9,7 @@ const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const dealsRoutes = require("./routes/deals");
 const { authMiddleware, requireRole } = require("./middleware/auth");
-const { sendPlanConfirmationEmail } = require("./utils/mailer");
+const { sendPlanConfirmationEmail, sendContactEmail } = require("./utils/mailer");
 
 const app = express();
 app.disable("x-powered-by");
@@ -86,6 +86,22 @@ app.post("/api/plan/confirm", strictLimiter, async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error("plan confirm email failed", err);
+    res.status(500).json({ error: "email_failed", detail: err.message });
+  }
+});
+
+// CONTACT FORM EMAIL
+app.post("/api/contact", strictLimiter, async (req, res) => {
+  const { name, email, message } = req.body || {};
+  if (!name || !email || !message) return res.status(400).json({ error: "name_email_message_required" });
+  try {
+    const result = await sendContactEmail({ name, email, message });
+    if (result?.skipped) {
+      return res.status(400).json({ error: result.reason || "smtp_not_configured" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("contact email failed", err);
     res.status(500).json({ error: "email_failed", detail: err.message });
   }
 });

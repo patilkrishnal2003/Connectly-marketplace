@@ -125,7 +125,7 @@ export default function App() {
     notifications: true,
     productUpdates: true,
     darkMode: false,
-    twoFactor: false,
+    twoFactor: fal3se,
     language: "en"
   });
   const profileRef = useRef(null);
@@ -729,9 +729,15 @@ export default function App() {
             <div className="space-y-3">
               <h4 className="text-sm uppercase tracking-wide text-white/60">Company</h4>
               <div className="flex flex-col gap-2 text-white/80 text-sm">
-                <a href="https://connecttly.com/privacy" target="_blank" rel="noreferrer" className="hover:text-white">
+                <Link to="/about" className="hover:text-white">
+                  About
+                </Link>
+                <Link to="/contact" className="hover:text-white">
+                  Contact
+                </Link>
+                <Link to="/privacy-policy" className="hover:text-white">
                   Privacy Policy
-                </a>
+                </Link>
                 <a href="https://connecttly.com/terms" target="_blank" rel="noreferrer" className="hover:text-white">
                   Terms &amp; Conditions
                 </a>

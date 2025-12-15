@@ -9,6 +9,9 @@ import DealDetail from "./pages/DealDetail";
 import MyDeals from "./pages/MyDeals";
 import Payment from "./pages/Payment";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { AuthProvider, AuthContext } from "./auth/AuthProvider";
 import "./index.css";
 
@@ -38,6 +41,9 @@ createRoot(document.getElementById("root")).render(
           />
           <Route path="/my-deals" element={<MyDeals />} />
           <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/deal/:id" element={<DealDetail />} />
           <Route path="/*" element={<App />} />
         </Routes>
