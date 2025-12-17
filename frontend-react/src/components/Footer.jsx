@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-800 text-white mt-16 transition-colors">
+    <footer className="bg-[#031430] text-white mt-16 transition-colors">
       <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-3">
@@ -12,14 +12,22 @@ export default function Footer() {
               Explore partner perks, or talk to us about curating a marketplace for your community.
             </p>
           </div>
-          <a
-            href="https://connecttly.com/"
-            target="_blank"
-            rel="noreferrer"
-            className="btn-bubble btn-bubble--white text-black px-6"
-          >
-            Book a demo
-          </a>
+          <div className="flex flex-wrap gap-3 items-center">
+            <a
+              href="https://connecttly.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-bubble btn-bubble--white text-black px-6"
+            >
+              Book a demo
+            </a>
+            <Link
+              to="/faq"
+              className="btn-bubble btn-bubble--ghost text-white px-6"
+            >
+              Visit FAQ
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-white/10 pt-6">
@@ -29,6 +37,7 @@ export default function Footer() {
               <Link to="/" className="hover:text-white">Home</Link>
               <Link to="/" className="hover:text-white">Marketplace</Link>
               <Link to="/" className="hover:text-white">Search deals</Link>
+              <Link to="/faq" className="hover:text-white">FAQ</Link>
             </div>
           </div>
           <div className="space-y-3">
@@ -45,9 +54,9 @@ export default function Footer() {
               <Link to="/about" className="hover:text-white">About</Link>
               <Link to="/contact" className="hover:text-white">Contact</Link>
               <Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
-              <a href="https://connecttly.com/terms" target="_blank" rel="noreferrer" className="hover:text-white">
+              <Link to="/terms" className="hover:text-white">
                 Terms &amp; Conditions
-              </a>
+              </Link>
             </div>
           </div>
         </div>

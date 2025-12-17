@@ -75,6 +75,26 @@ router.get("/users", async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: "failed" }); }
 });
 
+// DELETE /api/admin/users/:id
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ error: "user_not_found" });
+
+    // Delete related records
+    await Unlock.destroy({ where: { user_id: id } });
+    await Purchase.destroy({ where: { user_id: id } });
+    await AuditLog.destroy({ where: { user_id: id } });
+    await user.destroy();
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed" });
+  }
+});
+
 // POST /api/admin/unlock (manually unlock a deal for a user) body: { userId, dealId }
 router.post("/unlock", async (req, res) => {
   try {

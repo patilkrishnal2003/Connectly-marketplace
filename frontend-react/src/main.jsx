@@ -12,12 +12,14 @@ import SubscriptionPlans from "./pages/SubscriptionPlans";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
+import FAQ from "./pages/FAQ";
 import { AuthProvider, AuthContext } from "./auth/AuthProvider";
 import "./index.css";
 
 function AdminRoute({ children }) {
   const { user, token } = useContext(AuthContext);
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/" replace />;
   if (!user || user.role !== "admin") return <Navigate to="/" replace />;
   return children;
 }
@@ -44,7 +46,9 @@ createRoot(document.getElementById("root")).render(
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/deal/:id" element={<DealDetail />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/deal/:dealId" element={<DealDetail />} />
           <Route path="/*" element={<App />} />
         </Routes>
       </BrowserRouter>

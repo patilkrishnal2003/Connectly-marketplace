@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
+import BackToHomeButton from "../components/BackToHomeButton";
 
 const planOptions = [
   {
@@ -131,6 +132,9 @@ export default function SubscriptionPlans() {
           <div className="absolute -bottom-28 -right-16 h-80 w-80 bg-indigo-500 rounded-full mix-blend-overlay blur-3xl"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-10 space-y-6">
+          <div className="absolute top-6 right-6">
+            <BackToHomeButton />
+          </div>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="space-y-2">
               <p className="text-sm uppercase tracking-[0.22em] text-white/60">Your subscription</p>

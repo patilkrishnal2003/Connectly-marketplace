@@ -1,17 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Footer from "../component/Footer";
+import Footer from "../components/Footer";
+import BackToHomeButton from "../components/BackToHomeButton";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-emerald-50">
       {/* Header */}
-      <header className="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-800 text-white">
-        <div className="max-w-6xl mx-auto px-6 py-16">
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] text-slate-900">
+        <div className="absolute -top-10 right-6 h-60 w-60 rounded-full bg-[#a5b4fc]/70 blur-3xl" />
+        <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-[#fcd34d]/70 blur-3xl" />
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="absolute top-6 right-6">
+            <BackToHomeButton />
+          </div>
           <div className="text-center space-y-4">
-            <p className="text-sm uppercase tracking-wide text-white/70">Legal</p>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">Privacy Policy</h1>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Legal</p>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">Privacy Policy</h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Your privacy is important to us. Learn how we collect, use, and protect your personal information.
             </p>
           </div>

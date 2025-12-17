@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Footer from "../component/Footer";
+import Footer from "../components/Footer";
+import BackToHomeButton from "../components/BackToHomeButton";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -44,12 +45,17 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-800 text-white">
-        <div className="max-w-6xl mx-auto px-6 py-16">
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] text-slate-900">
+        <div className="absolute -top-10 -right-10 h-56 w-56 rounded-full bg-[#c4b5fd]/70 blur-3xl" />
+        <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-[#fde68a]/70 blur-3xl" />
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="absolute top-6 right-6">
+            <BackToHomeButton />
+          </div>
           <div className="text-center space-y-4">
-            <p className="text-sm uppercase tracking-wide text-white/70">Get in Touch</p>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">Contact Us</h1>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Get in Touch</p>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900">Contact Us</h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Have questions about partner perks or need help with your account? We're here to help.
             </p>
           </div>

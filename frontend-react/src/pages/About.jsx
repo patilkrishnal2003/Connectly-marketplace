@@ -1,17 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Footer from "../component/Footer";
+import Footer from "../components/Footer";
+import BackToHomeButton from "../components/BackToHomeButton";
 
 export default function About() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-800 text-white">
-        <div className="max-w-6xl mx-auto px-6 py-16">
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] text-slate-900">
+        <div className="absolute -top-10 -right-10 h-60 w-60 rounded-full bg-[#c4b5fd]/70 blur-3xl" />
+        <div className="absolute bottom-6 left-6 h-64 w-64 rounded-full bg-[#fcd34d]/70 blur-3xl" />
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="absolute top-6 right-6">
+            <BackToHomeButton />
+          </div>
           <div className="text-center space-y-4">
-            <p className="text-sm uppercase tracking-wide text-white/70">About Us</p>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">Empowering Startups with Partner Perks</h1>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-500">About Us</p>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900">
+              Empowering Startups with Partner Perks
+            </h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Connecttly is the premier marketplace for curated partner deals, designed to accelerate startup growth through exclusive perks and resources.
             </p>
           </div>
