@@ -448,6 +448,13 @@ body {
     background-image: var(--gradient-primary);
   }
 
+  .bg-gradient-hero {
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.12), transparent 32%),
+      radial-gradient(circle at 80% 0%, rgba(79, 70, 229, 0.1), transparent 30%),
+      linear-gradient(180deg, #f7f9ff 0%, #f9fbff 45%, #ffffff 100%);
+  }
+
   .shadow-soft {
     box-shadow: 0 25px 45px rgba(15, 23, 42, 0.08), 0 10px 35px rgba(15, 23, 42, 0.12);
   }

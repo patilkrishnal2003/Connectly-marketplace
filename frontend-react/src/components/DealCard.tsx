@@ -98,7 +98,7 @@ const DealCard = ({ deal, onClaim }: DealCardProps) => {
               <Button
                 size="sm"
                 onClick={handleClaimClick}
-                className="group/btn bg-gradient-primary text-primary-foreground shadow-soft transition-all duration-200 hover:shadow-lg"
+                className="group/btn min-w-[122px] justify-center gap-2 bg-gradient-primary text-primary-foreground shadow-soft transition-all duration-200 hover:shadow-lg"
               >
               {buttonLabel}
               <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />

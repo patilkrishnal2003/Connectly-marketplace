@@ -367,51 +367,58 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {PLAN_OPTIONS.map((plan) => (
-                <article
-                  key={plan.id}
-                  className={`rounded-2xl border p-6 space-y-4 bg-white transition-all duration-300 ${
-                    plan.dark
-                      ? "border-primary bg-[#061437] shadow-[0_25px_60px_rgba(15,23,42,0.2)] text-white"
-                      : "border-border hover:shadow-[0_20px_45px_rgba(51,105,253,0.15)] hover:-translate-y-1"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      {plan.label && (
-                        <p className={`text-xs uppercase tracking-[0.3em] ${plan.dark ? "text-blue-100" : "text-slate-500"}`}>{plan.label} plan</p>
-                      )}
-                      <p className={`text-2xl font-bold ${plan.dark ? "text-white" : "text-foreground"}`}>{plan.name}</p>
+              {PLAN_OPTIONS.map((plan) => {
+                const isDarkPlan = plan.dark;
+                const cardClasses = isDarkPlan
+                  ? "border-[#3d5cff]/70 bg-gradient-to-b from-[#0d1d49] via-[#0f275f] to-[#16357c] shadow-[0_25px_60px_rgba(13,29,73,0.35)] text-white"
+                  : "bg-white border-border hover:shadow-[0_20px_45px_rgba(51,105,253,0.15)] hover:-translate-y-1";
+                const labelClass = isDarkPlan ? "text-white/70" : "text-slate-500";
+                const headingClass = isDarkPlan ? "text-white" : "text-foreground";
+                const subheadingClass = isDarkPlan ? "text-white/70" : "text-muted-foreground";
+                const featureTextClass = isDarkPlan ? "text-white/90" : "text-muted-foreground";
+                const bulletClass = isDarkPlan ? "bg-white" : "bg-primary";
+                const ctaClass = isDarkPlan
+                  ? "border-white/20 bg-gradient-to-r from-[#1f3fa8] via-[#3155ff] to-[#4a6eff] text-white shadow-lg shadow-[#0d1d49]/30 hover:shadow-[#0d1d49]/45"
+                  : "border-border text-foreground hover:border-primary hover:text-primary";
+
+                return (
+                  <article
+                    key={plan.id}
+                    className={`rounded-2xl border p-6 space-y-4 transition-all duration-300 ${cardClasses}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        {plan.label && (
+                          <p className={`text-xs uppercase tracking-[0.3em] ${labelClass}`}>{plan.label} plan</p>
+                        )}
+                        <p className={`text-2xl font-bold ${headingClass}`}>{plan.name}</p>
+                      </div>
+                      <div className="text-right">
+                        {plan.price && <p className={`text-3xl font-bold ${headingClass}`}>{plan.price}</p>}
+                        <p className={`text-xs ${subheadingClass}`}>{plan.cadence}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      {plan.price && <p className={`text-3xl font-bold ${plan.dark ? "text-white" : "text-foreground"}`}>{plan.price}</p>}
-                      <p className={`text-xs ${plan.dark ? "text-blue-100" : "text-muted-foreground"}`}>{plan.cadence}</p>
-                    </div>
-                  </div>
-                  <p className={`text-sm ${plan.dark ? "text-blue-100" : "text-muted-foreground"}`}>{plan.text}</p>
-                    <ul className={`text-sm space-y-2 ${plan.dark ? "text-blue-100" : "text-muted-foreground"}`}>
+                    <p className={`text-sm ${subheadingClass}`}>{plan.text}</p>
+                    <ul className={`text-sm space-y-2 ${featureTextClass}`}>
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-primary" />
+                          <span className={`h-2 w-2 rounded-full ${bulletClass}`} />
                           <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
                     <button
                       type="button"
-                      className={`w-full rounded-2xl border py-3 text-sm font-semibold transition ${
-                        plan.dark
-                          ? "border-transparent bg-gradient-to-r from-[#1d2b65] to-[#334fff] text-white shadow-lg hover:opacity-90"
-                          : "border-border text-foreground hover:border-primary hover:text-primary"
-                      }`}
+                      className={`w-full rounded-2xl border py-3 text-sm font-semibold transition ${ctaClass}`}
                       onClick={() => {
                         handlePlanSelection(plan.id);
                       }}
                     >
                       {plan.cta}
                     </button>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
