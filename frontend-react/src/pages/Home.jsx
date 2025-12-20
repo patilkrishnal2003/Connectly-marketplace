@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
 import Footer from "../components/Footer";
@@ -28,6 +28,7 @@ export default function Home() {
   const [dealsLoading, setDealsLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingDealId, setPendingDealId] = useState(null);
+  const [pendingPlanId, setPendingPlanId] = useState(null);
   const [settings, setSettings] = useState({
     notifications: true,
     productUpdates: true,
@@ -181,11 +182,18 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!user || !pendingDealId) return;
+    if (!user || (!pendingDealId && !pendingPlanId)) return;
     setAuthModalOpen(false);
-    navigate(`/deal/${pendingDealId}`);
-    setPendingDealId(null);
-  }, [user, pendingDealId, navigate]);
+    if (pendingDealId) {
+      navigate(`/deal/${pendingDealId}`);
+      setPendingDealId(null);
+    }
+    if (pendingPlanId) {
+      const target = `${paymentGatewayBase}?planId=${encodeURIComponent(pendingPlanId)}`;
+      navigate(target);
+      setPendingPlanId(null);
+    }
+  }, [user, pendingDealId, pendingPlanId, navigate, paymentGatewayBase]);
 
   useEffect(() => {
     if (isDark) {
@@ -197,12 +205,22 @@ export default function Home() {
     }
   }, [isDark]);
 
-  async function sendPlanConfirmation(planId) {
+  const sendPlanConfirmation = useCallback((planId) => {
     if (!planId) return false;
     const target = `${paymentGatewayBase}?planId=${encodeURIComponent(planId)}`;
     navigate(target);
     return true;
-  }
+  }, [navigate, paymentGatewayBase]);
+
+  const handlePlanSelection = (planId) => {
+    if (!planId) return;
+    if (!user?.userId) {
+      setPendingPlanId(planId);
+      setAuthModalOpen(true);
+      return;
+    }
+    sendPlanConfirmation(planId);
+  };
 
   const navbarUser = user
     ? {
@@ -386,8 +404,8 @@ export default function Home() {
                           ? "border-transparent bg-gradient-to-r from-[#1d2b65] to-[#334fff] text-white shadow-lg hover:opacity-90"
                           : "border-border text-foreground hover:border-primary hover:text-primary"
                       }`}
-                      onClick={async () => {
-                        await sendPlanConfirmation(plan.id);
+                      onClick={() => {
+                        handlePlanSelection(plan.id);
                       }}
                     >
                       {plan.cta}
@@ -405,6 +423,7 @@ export default function Home() {
         onClose={() => {
           setAuthModalOpen(false);
           setPendingDealId(null);
+          setPendingPlanId(null);
         }}
         onAuthenticated={() => setAuthModalOpen(false)}
       />
