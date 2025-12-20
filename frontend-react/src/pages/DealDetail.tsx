@@ -250,6 +250,8 @@ export default function DealDetail() {
           logout();
           navigate("/");
         }}
+        onProfile={() => navigate("/my-deals")}
+        onSettings={() => navigate("/subscription-plans")}
       />
 
       <main className="container mx-auto px-4 py-8 pt-24 space-y-8">

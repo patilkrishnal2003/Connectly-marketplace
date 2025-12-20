@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -19,67 +20,91 @@ interface NavbarProps {
   };
   onLogin?: () => void;
   onLogout?: () => void;
+  onProfile?: () => void;
+  onSettings?: () => void;
 }
 
-const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout }: NavbarProps) => {
+const navLinks = [
+  { label: "Home", to: "/" },
+  { label: "Deals", to: "/#deals" },
+  { label: "Categories", to: "/#categories" },
+  { label: "About", to: "/about" }
+];
+
+const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSettings }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const avatarInitial = useMemo(() => user?.name?.charAt(0) || user?.email?.charAt(0) || "U", [user?.email, user?.name]);
+
+  const renderNavLink = (label: string, to: string, className?: string) => {
+    const isAnchor = to.includes("#") || to.startsWith("http");
+    const sharedClassName =
+      "text-sm font-semibold text-slate-800 hover:text-[#2f6bff] transition-colors";
+
+    return isAnchor ? (
+      <a key={label} href={to} className={`${sharedClassName} ${className || ""}`}>
+        {label}
+      </a>
+    ) : (
+      <Link key={label} to={to} className={`${sharedClassName} ${className || ""}`}>
+        {label}
+      </Link>
+    );
+  };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-xl border-b border-border/50" />
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <nav className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 flex justify-center">
+      <div className="relative w-full max-w-6xl">
+        <div className="absolute inset-0 rounded-full border border-border/70 bg-white/90 backdrop-blur-md shadow-[0_18px_60px_-30px_rgba(15,23,42,0.35)]" />
+        <div className="relative flex items-center h-16 px-4 sm:px-7 gap-4">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-gradient-primary flex items-center justify-center shadow-sm">
               <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">Connecttly</span>
+            <span className="text-xl font-extrabold text-slate-900 tracking-tight">CONNECTTLY</span>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#deals" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Deals
-            </a>
-            <a href="#categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Categories
-            </a>
-            <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Pricing
-            </a>
-            <a href="#partners" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Partners
-            </a>
+          <div className="hidden md:flex flex-1 items-center justify-center gap-8">
+            {navLinks.map((link) => renderNavLink(link.label, link.to))}
           </div>
 
           {/* Auth Section */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <a
+              href="https://connecttly.com"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex"
+            >
+              <Button className="rounded-full bg-[#2f6bff] hover:bg-[#2557d9] text-white shadow-[0_12px_30px_-12px_rgba(47,107,255,0.65)] px-5">
+                Connecttly.com
+              </Button>
+            </a>
             {isLoggedIn && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-secondary">
-                    <Avatar className="w-8 h-8">
+                  <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-secondary rounded-full">
+                    <Avatar className="w-9 h-9">
                       <AvatarImage src={user.avatar} />
                       <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
-                        {user.name.charAt(0)}
+                        {avatarInitial}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium">{user.name}</span>
+                    <span className="text-sm font-semibold text-slate-800">{user.name}</span>
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-card border border-border shadow-elevated">
                   <div className="px-3 py-2 border-b border-border">
-                    <p className="text-sm font-medium text-foreground">{user.name}</p>
+                    <p className="text-sm font-semibold text-foreground">{user.name}</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
-                  <DropdownMenuItem className="cursor-pointer">
+                  <DropdownMenuItem className="cursor-pointer" onClick={onProfile}>
                     <User className="w-4 h-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
+                  <DropdownMenuItem className="cursor-pointer" onClick={onSettings}>
                     <Settings className="w-4 h-4 mr-2" />
                     Settings
                   </DropdownMenuItem>
@@ -91,45 +116,54 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout }: NavbarProps) =>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <>
-                <Button variant="ghost" onClick={onLogin} className="text-sm font-medium">
-                  Sign in
-                </Button>
-                <Button onClick={onLogin} className="bg-gradient-primary hover:shadow-soft transition-all duration-300">
-                  Get Started
-                </Button>
-              </>
+              <Button variant="ghost" onClick={onLogin} className="text-sm font-semibold text-slate-800 hover:text-[#2f6bff]">
+                Sign in
+              </Button>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-secondary transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-5 h-5 text-foreground" />
-            ) : (
-              <Menu className="w-5 h-5 text-foreground" />
-            )}
-          </button>
+          {/* Mobile Actions */}
+          <div className="flex items-center gap-2 ml-auto md:hidden">
+            <a
+              href="https://connecttly.com"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex"
+            >
+              <Button size="sm" className="rounded-full bg-[#2f6bff] hover:bg-[#2557d9] text-white px-3 shadow-[0_10px_24px_-14px_rgba(47,107,255,0.7)]">
+                Site
+              </Button>
+            </a>
+            <button
+              className="p-2 rounded-full hover:bg-secondary transition-colors border border-border/60 bg-white/70"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle navigation"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5 text-foreground" />
+              ) : (
+                <Menu className="w-5 h-5 text-foreground" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-card border-b border-border shadow-elevated animate-fade-in">
+          <div className="md:hidden absolute left-0 right-0 mt-3 bg-white/95 border border-border shadow-elevated rounded-3xl overflow-hidden backdrop-blur-md">
             <div className="px-4 py-4 space-y-3">
-              <a href="#deals" className="block text-sm font-medium text-muted-foreground hover:text-foreground">
-                Deals
-              </a>
-              <a href="#categories" className="block text-sm font-medium text-muted-foreground hover:text-foreground">
-                Categories
-              </a>
-              <a href="#pricing" className="block text-sm font-medium text-muted-foreground hover:text-foreground">
-                Pricing
-              </a>
-              <a href="#partners" className="block text-sm font-medium text-muted-foreground hover:text-foreground">
-                Partners
+              {navLinks.map((link) =>
+                renderNavLink(link.label, link.to, "block text-sm font-semibold text-slate-800"),
+              )}
+              <a
+                href="https://connecttly.com"
+                target="_blank"
+                rel="noreferrer"
+                className="block"
+              >
+                <Button className="w-full justify-center rounded-full bg-[#2f6bff] hover:bg-[#2557d9] text-white">
+                  Connecttly.com
+                </Button>
               </a>
               <div className="pt-3 border-t border-border">
                 {isLoggedIn ? (
@@ -138,8 +172,8 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout }: NavbarProps) =>
                     Sign out
                   </Button>
                 ) : (
-                  <Button onClick={onLogin} className="w-full bg-gradient-primary">
-                    Get Started
+                  <Button onClick={onLogin} className="w-full rounded-full bg-gradient-primary">
+                    Sign in
                   </Button>
                 )}
               </div>
