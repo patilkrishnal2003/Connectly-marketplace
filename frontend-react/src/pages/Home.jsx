@@ -1,18 +1,13 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
 import Footer from "../components/Footer";
 import HeroSection from "../components/HeroSection";
 import StatsCard from "../components/StatsCard";
 import DealsSection from "../components/DealsSection";
 import ClaimAuthModal from "../components/ClaimAuthModal";
+import Navbar from "../components/Navbar";
 import { Sparkles, TrendingUp, Users, Layers } from "lucide-react";
-
-const getDealTimestamp = (deal) => {
-  const dateString = deal?.createdAt || deal?.expiresAt || deal?.expires_on;
-  const parsed = Date.parse(dateString || "");
-  return Number.isFinite(parsed) ? parsed : 0;
-};
 const SettingToggle = ({ label, desc, checked, onChange }) => (
   <label className="flex items-start justify-between gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-white hover:border-indigo-100">
     <div>
@@ -28,7 +23,6 @@ export default function Home() {
   const navigate = useNavigate();
   const paymentGatewayBase = import.meta.env.VITE_PAYMENT_URL || "/payment";
   const [hasSubscription, setHasSubscription] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deals, setDeals] = useState([]);
   const [dealsLoading, setDealsLoading] = useState(true);
@@ -41,7 +35,6 @@ export default function Home() {
     twoFactor: false,
     language: "en"
   });
-  const profileRef = useRef(null);
 
   const isDark = settings.darkMode;
   const pageBg = isDark ? "from-slate-950 via-slate-900 to-slate-800" : "from-[#f4f6fb] via-[#f7f7fb] to-white";
@@ -195,15 +188,6 @@ export default function Home() {
   }, [user, pendingDealId, navigate]);
 
   useEffect(() => {
-    const handleClick = (e) => {
-      if (!profileRef.current) return;
-      if (!profileRef.current.contains(e.target)) setProfileOpen(false);
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  useEffect(() => {
     if (isDark) {
       document.body.style.backgroundColor = "#0f172a";
       document.body.style.color = "#e2e8f0";
@@ -213,8 +197,6 @@ export default function Home() {
     }
   }, [isDark]);
 
-  const userInitial = (user?.name || user?.email || "U").charAt(0).toUpperCase();
-
   async function sendPlanConfirmation(planId) {
     if (!planId) return false;
     const target = `${paymentGatewayBase}?planId=${encodeURIComponent(planId)}`;
@@ -222,141 +204,64 @@ export default function Home() {
     return true;
   }
 
+  const navbarUser = user
+    ? {
+        name: user?.name || user?.email || "Member",
+        email: user?.email || "",
+        avatar: user?.avatar || user?.avatarUrl
+      }
+    : undefined;
+
   return (
     <div className={`min-h-screen bg-gradient-to-b ${pageBg} ${isDark ? "text-slate-100" : "text-slate-900"}`}>
+      <Navbar
+        isLoggedIn={!!user}
+        user={navbarUser}
+        onLogin={() => navigate("/login")}
+        onLogout={() => logout()}
+        onProfile={() => navigate("/my-deals")}
+        onSettings={() => setSettingsOpen(true)}
+      />
 
-      <nav className="flex items-center justify-between text-sm">
-        <div className="flex flex-col">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Connecttly</p>
-          <p className="text-lg font-semibold text-slate-900">Marketplace</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="https://connecttly.com/"
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full border border-white/60 bg-white/80 px-4 py-2 text-xs font-semibold tracking-wide uppercase text-slate-600 shadow-sm transition hover:-translate-y-[1px]"
-          >
-            Connecttly.com
-          </a>
-          {user ? (
-            <div className="relative" ref={profileRef}>
-              <button
-                type="button"
-                onClick={() => setProfileOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-3 py-2 text-sm text-slate-700 transition hover:bg-white"
-              >
-                <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#6b56ff] to-[#6b56ff] flex items-center justify-center font-semibold text-white uppercase">
-                  {userInitial}
-                </span>
-                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {profileOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden z-40">
-                  <div className="px-4 py-3 border-b border-slate-100">
-                    <p className="text-xs uppercase tracking-wide text-slate-500">Profile</p>
-                    <p className="text-sm font-semibold text-slate-900 truncate">{user.name || "Member"}</p>
-                    {user.email && <p className="text-xs text-slate-500 truncate">{user.email}</p>}
-                    <p className="text-[11px] text-slate-500">{user.role}</p>
-                  </div>
-                  <div className="py-2">
-                    <Link
-                      to="/my-deals"
-                      className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      My deals
-                    </Link>
-                    <Link
-                      to="/subscription-plans"
-                      className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      Subscription Plans
-                    </Link>
-                    <button
-                      type="button"
-                      className="w-full px-4 py-2 text-sm text-slate-700 text-left hover:bg-slate-50"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        setSettingsOpen(true);
-                      }}
-                    >
-                      Settings
-                    </button>
-                    {user.role === "admin" && (
-                      <Link
-                        to="/admin"
-                        className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        Admin
-                      </Link>
-                    )}
-                    <button
-                      type="button"
-                      className="w-full px-4 py-2 text-sm text-rose-700 text-left hover:bg-rose-50"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        logout();
-                      }}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link
-              to="/login"
-              className="rounded-full border border-white/60 bg-white/80 px-4 py-2 text-xs font-semibold tracking-wide uppercase text-slate-600 shadow-sm hover:-translate-y-[1px]"
-            >
-              Sign in
-            </Link>
-          )}
-        </div>
-      </nav>
+      <div className="pt-28">
+        <HeroSection isLoggedIn={!!user} userName={user?.name} onGetStarted={() => user ? navigate('/my-deals') : navigate('/subscription-plans')} onWatchDemo={() => window.open('https://connecttly.com/demo', '_blank')} />
 
-      <HeroSection isLoggedIn={!!user} userName={user?.name} onGetStarted={() => user ? navigate('/my-deals') : navigate('/subscription-plans')} onWatchDemo={() => window.open('https://connecttly.com/demo', '_blank')} />
-
-      <section className="max-w-7xl mx-auto px-6 mt-8 pb-12">
-        <div className="grid gap-6 md:grid-cols-4">
-          {heroStats.map((stat) => (
-            <StatsCard
-              key={stat.title}
-              icon={stat.icon}
-              title={stat.title}
-              value={stat.value}
-              subtitle={stat.subtitle}
-            />
-          ))}
-        </div>
-      </section>
-
-      {dealsLoading ? (
-        <DealsSection
-          loading
-          onClaimDeal={handleClaimDeal}
-          isSubscribed={hasSubscription}
-        />
-      ) : deals.length === 0 ? (
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="rounded-3xl border border-slate-200 bg-white/80 px-8 py-10 text-sm text-slate-500 shadow-lg text-center">
-              We are curating new marketplace deals for you - check back soon!
-            </div>
+        <section className="max-w-7xl mx-auto px-6 mt-8 pb-12">
+          <div className="grid gap-6 md:grid-cols-4">
+            {heroStats.map((stat) => (
+              <StatsCard
+                key={stat.title}
+                icon={stat.icon}
+                title={stat.title}
+                value={stat.value}
+                subtitle={stat.subtitle}
+              />
+            ))}
           </div>
         </section>
-      ) : (
-        <DealsSection
-          deals={deals}
-          onClaimDeal={handleClaimDeal}
-          isSubscribed={hasSubscription}
-        />
-      )}
+
+        {dealsLoading ? (
+          <DealsSection
+            loading
+            onClaimDeal={handleClaimDeal}
+            isSubscribed={hasSubscription}
+          />
+        ) : deals.length === 0 ? (
+          <section className="py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="rounded-3xl border border-slate-200 bg-white/80 px-8 py-10 text-sm text-slate-500 shadow-lg text-center">
+                We are curating new marketplace deals for you - check back soon!
+              </div>
+            </div>
+          </section>
+        ) : (
+          <DealsSection
+            deals={deals}
+            onClaimDeal={handleClaimDeal}
+            isSubscribed={hasSubscription}
+          />
+        )}
+      </div>
 
       {settingsOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center px-4">
@@ -507,5 +412,3 @@ export default function Home() {
     </div>
   );
 }
-
-
