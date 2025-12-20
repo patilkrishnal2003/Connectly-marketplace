@@ -21,21 +21,13 @@ async function seed() {
     defaults: { title: "Professional Plan", price: 399, code: "professional" }
   });
 
-  // create deals (inspired by popular startup perks)
+  // reset and create deals (inspired by popular startup perks)
+  await ServiceDeal.destroy({ where: {} });
+  await Deal.destroy({ where: {} });
   const dealsToSeed = [
     {
-      id: "deal_canva_pro",
-      title: "Canva Pro for Startups",
-      partner: "Canva",
-      type: "link",
-      link: "https://www.canva.com/",
-      locked_by_default: false,
-      tier: "standard",
-      featured: true
-    },
-    {
       id: "deal_notion",
-      title: "Notion for Startups",
+      title: "Notion",
       partner: "Notion",
       type: "link",
       link: "https://www.notion.so/startups",
@@ -44,61 +36,81 @@ async function seed() {
       featured: true
     },
     {
-      id: "deal_stripe_atlas",
-      title: "Stripe Atlas",
-      partner: "Stripe",
+      id: "deal_aws",
+      title: "AWS Activate",
+      partner: "AWS",
       type: "link",
-      link: "https://stripe.com/atlas",
+      link: "https://aws.amazon.com/activate/",
       locked_by_default: true,
       tier: "professional",
       featured: true
     },
     {
-      id: "deal_linear",
-      title: "Linear Startup Program",
-      partner: "Linear",
+      id: "deal_figma",
+      title: "Figma Professional",
+      partner: "Figma",
       type: "link",
-      link: "https://linear.app/",
-      locked_by_default: true,
+      link: "https://www.figma.com/enterprise/startups/",
+      locked_by_default: false,
       tier: "standard",
-      featured: false
+      featured: true
     },
     {
-      id: "deal_postman",
-      title: "Postman Credits",
-      partner: "Postman",
+      id: "deal_hubspot",
+      title: "HubSpot for Startups",
+      partner: "HubSpot",
       type: "link",
-      link: "https://www.postman.com/",
-      locked_by_default: true,
+      link: "https://www.hubspot.com/startups",
+      locked_by_default: false,
       tier: "standard",
-      featured: false
+      featured: true
     },
     {
-      id: "deal_miro",
-      title: "Miro Startup Offer",
-      partner: "Miro",
+      id: "deal_google_cloud",
+      title: "Google Cloud for Startups",
+      partner: "Google Cloud",
       type: "link",
-      link: "https://miro.com/",
+      link: "https://cloud.google.com/startups",
+      locked_by_default: true,
+      tier: "professional",
+      featured: true
+    },
+    {
+      id: "deal_stripe_atlas",
+      title: "Stripe Atlas",
+      partner: "Stripe",
+      type: "link",
+      link: "https://stripe.com/startups",
+      locked_by_default: true,
+      tier: "professional",
+      featured: true
+    },
+    {
+      id: "deal_slack",
+      title: "Slack for Startups",
+      partner: "Slack",
+      type: "link",
+      link: "https://slack.com/startups",
       locked_by_default: false,
       tier: "standard",
       featured: false
     },
     {
-      id: "deal_digitalocean",
-      title: "DigitalOcean Credits",
-      partner: "DigitalOcean",
+      id: "deal_mongodb",
+      title: "MongoDB Atlas",
+      partner: "MongoDB",
       type: "link",
-      link: "https://www.digitalocean.com/",
+      link: "https://www.mongodb.com/startups",
       locked_by_default: true,
-      tier: "professional",
+      tier: "standard",
       featured: false
     },
     {
-      id: "deal_mixpanel",
-      title: "Mixpanel for Startups",
-      partner: "Mixpanel",
+      id: "deal_linear",
+      title: "Linear",
+      partner: "Linear",
       type: "link",
-      link: "https://mixpanel.com/startups/",
+      link: "https://linear.app/startups",
       locked_by_default: true,
       tier: "professional",
       featured: false

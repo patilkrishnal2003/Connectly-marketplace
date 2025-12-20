@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Star,
-  Zap,
   ExternalLink,
   Calendar,
   Users,
@@ -15,30 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthContext } from "@/auth/AuthProvider";
-
-type Deal = {
-  id?: string;
-  title?: string;
-  partner?: string;
-  description?: string;
-  longDescription?: string;
-  value?: string;
-  discount?: string;
-  tier?: string;
-  coupon_code?: string;
-  link?: string;
-  requirements?: string[];
-  steps?: string[];
-  claimedCount?: number;
-  featured?: boolean;
-  rating?: number;
-  expiresAt?: string;
-  expires_on?: string;
-  expires?: string;
-  logo?: string;
-  image_url?: string;
-  isUnlocked?: boolean;
-};
+import { Deal } from "@/types/deal";
+import DealDetailCard from "@/components/DealDetailCard";
+import { derivePlanStatus, RawSubscription } from "@/utils/subscription";
 
 type ClaimStatus = {
   status: "success" | "error";
@@ -56,6 +34,10 @@ export default function DealDetail() {
   const [error, setError] = useState("");
   const [claiming, setClaiming] = useState(false);
   const [claimStatus, setClaimStatus] = useState<ClaimStatus | null>(null);
+  const [subscription, setSubscription] = useState<RawSubscription | null>(null);
+  const [planError, setPlanError] = useState("");
+  const [planChecking, setPlanChecking] = useState(false);
+  const [planModal, setPlanModal] = useState<null | "purchase" | "upgrade">(null);
 
   useEffect(() => {
     if (!dealId) return;
@@ -84,6 +66,43 @@ export default function DealDetail() {
     };
   }, [dealId, authFetch, user?.userId]);
 
+  useEffect(() => {
+    if (!user?.email) {
+      setSubscription(null);
+      setPlanChecking(false);
+      setPlanError("");
+      return;
+    }
+
+    let isMounted = true;
+    const loadSubscription = async () => {
+      try {
+        setPlanChecking(true);
+        setPlanError("");
+        const res = await authFetch("/api/auth/claim-check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user.email })
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json?.error || "subscription_check_failed");
+        if (isMounted) {
+          setSubscription(json.subscription || null);
+        }
+      } catch (err) {
+        console.error("Failed to load subscription status", err);
+        if (isMounted) setPlanError("Unable to verify your plan right now.");
+      } finally {
+        if (isMounted) setPlanChecking(false);
+      }
+    };
+
+    loadSubscription();
+    return () => {
+      isMounted = false;
+    };
+  }, [authFetch, user?.email]);
+
   const expiresLabel = useMemo(() => {
     const raw = deal?.expiresAt || deal?.expires_on || deal?.expires;
     if (!raw) return undefined;
@@ -110,6 +129,16 @@ export default function DealDetail() {
     ];
   }, [deal]);
 
+  const planStatus = useMemo(() => derivePlanStatus(subscription), [subscription]);
+
+  const requiresProfessionalPlan = useMemo(() => {
+    if (!deal) return false;
+    const tier = (deal.tier || "").toLowerCase();
+    if (tier.includes("pro")) return true;
+    const requirementText = (deal.requirements || []).join(" ").toLowerCase();
+    return requirementText.includes("professional");
+  }, [deal]);
+
   const ratingValue = useMemo(() => {
     const raw = Number(deal?.rating ?? NaN);
     if (Number.isNaN(raw)) return 4.9;
@@ -119,12 +148,33 @@ export default function DealDetail() {
   const claimedDisplay = deal?.claimedCount ? deal.claimedCount.toLocaleString() : "2,847";
   const partnerName = deal?.partner || "Connecttly";
 
+  const promptPlanModalForReason = (reason?: string) => {
+    if (!reason) return false;
+    if (reason === "plan_mismatch") {
+      setPlanModal("upgrade");
+      return true;
+    }
+    if (reason === "no_subscription") {
+      setPlanModal("purchase");
+      return true;
+    }
+    return false;
+  };
+
   const handleClaimClick = async () => {
     if (!user) {
       navigate("/login");
       return;
     }
     if (!dealId) return;
+    if (!planStatus.hasPlan) {
+      setPlanModal("purchase");
+      return;
+    }
+    if (planStatus.isStarter && requiresProfessionalPlan) {
+      setPlanModal("upgrade");
+      return;
+    }
 
     setClaiming(true);
     setClaimStatus(null);
@@ -133,6 +183,7 @@ export default function DealDetail() {
       const res = await authFetch(`/api/deals/${dealId}/claim`, { method: "POST" });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
+        promptPlanModalForReason(json?.reason);
         const message = json?.message || json?.error || "Claim could not be processed.";
         const error = new Error(message);
         (error as Error & { status?: number }).status = res.status;
@@ -169,11 +220,31 @@ export default function DealDetail() {
 
   const valueLabel = deal?.value || deal?.discount || "Premium partner benefit";
   const subtitle = deal?.description || deal?.longDescription || deal?.partner || "Exclusive Connecttly offer";
+  const planModalCopy = planModal === "upgrade"
+    ? {
+        title: "Professional access required",
+        body: "This perk is reserved for Professional members. Upgrade now to unlock it instantly.",
+        cta: "Upgrade plan"
+      }
+    : {
+        title: "Activate a plan",
+        body: "You need an active Starter or Professional plan before you can claim deals. Pick a plan tailored to your stage.",
+        cta: "Choose a plan"
+      };
+
+  const navbarUser = user
+    ? {
+        name: user?.name || user?.email || "Member",
+        email: user?.email || "",
+        avatar: user?.avatar || user?.avatarUrl
+      }
+    : undefined;
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar
         isLoggedIn={!!user}
+        user={navbarUser}
         onLogin={() => navigate("/login")}
         onLogout={() => {
           logout();
@@ -197,99 +268,14 @@ export default function DealDetail() {
           <>
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-6">
-                <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-2xl">
-                  <div className="pointer-events-none absolute -top-10 -right-24 h-52 w-52 rounded-full bg-gradient-to-br from-primary/40 to-transparent blur-3xl" />
-                  <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-                    <div className="flex-1 space-y-6">
-                      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-                        <div className="flex items-start gap-6">
-                          <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-secondary text-2xl font-bold text-foreground shadow-inner">
-                            {deal?.logo ? (
-                              <img src={deal.logo} alt={deal.partner || deal.title} className="h-16 w-16 object-contain" />
-                            ) : (
-                              <span>{(deal?.partner || deal?.title || "?").charAt(0)}</span>
-                            )}
-                          </div>
-                          <div>
-                            <div className="flex flex-wrap items-center gap-3">
-                              <h1 className="text-2xl font-bold text-foreground">{deal?.title || "Partner perk"}</h1>
-                              {(deal?.featured || deal?.tier) && (
-                                <Badge
-                                  variant="secondary"
-                                  className="border-0 bg-gradient-to-r from-primary/70 to-accent/70 text-primary-foreground"
-                                >
-                                  <Zap className="w-3 h-3 mr-1" />
-                                  {deal?.featured ? "Featured" : deal?.tier}
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground">{subtitle}</p>
-                            <div className="mt-3 flex flex-wrap gap-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Star className="h-4 w-4 text-amber-500" />
-                                {ratingDisplay} rating
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users className="h-4 w-4" />
-                                {claimedDisplay} claims
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Zap className="h-4 w-4" />
-                                {deal?.discount || "Premium benefit"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="text-sm leading-relaxed text-muted-foreground">{deal?.longDescription || deal?.description}</p>
-
-                      <div className="flex flex-wrap gap-3">
-                        <span className="rounded-full border border-border/60 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-                          {deal?.discount ? deal.discount : "Member pricing"}
-                        </span>
-                        <span className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
-                          {partnerName}
-                        </span>
-                        {deal?.tier && (
-                          <span className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
-                            {deal.tier} tier
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="w-full max-w-sm space-y-4">
-                      <div className="rounded-2xl border border-border bg-gradient-to-b from-white/70 via-white/80 to-white/80 p-6 shadow-lg">
-                        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Community review</p>
-                        <div className="mt-3 flex items-center gap-2">
-                          <span className="text-3xl font-bold text-foreground">{ratingDisplay}</span>
-                          <span className="text-sm text-muted-foreground">/5</span>
-                        </div>
-                        <div className="mt-3 flex gap-1 text-amber-500">
-                          {Array.from({ length: 5 }).map((_, index) => (
-                            <Star
-                              key={index}
-                              className={`h-4 w-4 ${index < Math.round(ratingValue) ? "text-amber-500" : "text-border/60"}`}
-                            />
-                          ))}
-                        </div>
-                        <p className="mt-2 text-xs text-muted-foreground">{claimedDisplay} member claims logged</p>
-                      </div>
-                      <div className="rounded-2xl border border-border bg-secondary/50 p-6 shadow-sm">
-                        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Deal value</p>
-                        <p className="mt-2 text-3xl font-semibold text-foreground">{valueLabel}</p>
-                        <p className="text-sm text-muted-foreground">Unlock perks for {partnerName}</p>
-                        {deal?.coupon_code && (
-                          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-background px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
-                            <span>Use code</span>
-                            <span className="text-primary">{deal.coupon_code}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {deal && (
+                  <DealDetailCard
+                    deal={deal}
+                    ratingDisplay={ratingDisplay}
+                    claimedDisplay={claimedDisplay}
+                    subtitle={subtitle}
+                  />
+                )}
 
                 <section className="bg-card rounded-2xl border border-border p-8 shadow-md">
                   <h3 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
@@ -342,6 +328,12 @@ export default function DealDetail() {
                       {claimStatus.message}
                     </p>
                   )}
+                  {planChecking && (
+                    <p className="text-xs text-center text-slate-500">Verifying your subscription...</p>
+                  )}
+                  {planError && (
+                    <p className="text-xs text-center text-rose-600">{planError}</p>
+                  )}
                   {expiresLabel && (
                     <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
@@ -381,6 +373,33 @@ export default function DealDetail() {
       </main>
 
       <Footer />
+      {planModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
+          <div className="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 text-center shadow-2xl">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Connecttly</p>
+            <h3 className="text-2xl font-semibold text-foreground">{planModalCopy.title}</h3>
+            <p className="text-sm text-muted-foreground">{planModalCopy.body}</p>
+            <div className="flex flex-col gap-3">
+              <Button
+                className="w-full rounded-2xl bg-gradient-to-r from-primary to-accent text-white"
+                onClick={() => {
+                  setPlanModal(null);
+                  navigate("/subscription-plans");
+                }}
+              >
+                {planModalCopy.cta}
+              </Button>
+              <button
+                type="button"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                onClick={() => setPlanModal(null)}
+              >
+                Maybe later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
 import BackToHomeButton from "../components/BackToHomeButton";
+import { derivePlanStatus, matchesPlan } from "@/utils/subscription";
 
 const planOptions = [
   {
@@ -35,27 +36,6 @@ const planOptions = [
     cta: "Purchase Professional"
   }
 ];
-
-function normalizePlanLabel(sub) {
-  const idText = (sub?.serviceId || sub?.service_id || "").toLowerCase();
-  const titleText = (sub?.title || "").toLowerCase();
-  if (idText.includes("pro") || titleText.includes("pro")) return "Professional";
-  if (idText.includes("starter") || idText.includes("basic") || idText.includes("standard") || titleText.includes("starter"))
-    return "Starter";
-  if (titleText) return sub.title;
-  if (idText) return sub.serviceId || sub.service_id;
-  return "";
-}
-
-function matchesPlan(sub, planId) {
-  const idText = (sub?.serviceId || sub?.service_id || "").toLowerCase();
-  const titleText = (sub?.title || "").toLowerCase();
-  if (!planId) return false;
-  const target = planId.toLowerCase();
-  if (target === "professional") return idText.includes("pro") || titleText.includes("pro");
-  if (target === "standard") return idText.includes("starter") || idText.includes("standard") || titleText.includes("starter");
-  return idText.includes(target) || titleText.includes(target);
-}
 
 export default function SubscriptionPlans() {
   const { user, authFetch } = useContext(AuthContext);
@@ -104,14 +84,7 @@ export default function SubscriptionPlans() {
     };
   }, [authFetch, user]);
 
-  const planStatus = useMemo(() => {
-    const label = normalizePlanLabel(subscription);
-    const lower = label.toLowerCase();
-    const isPro = lower.includes("pro");
-    const isStarter = lower.includes("starter") || lower.includes("standard") || lower.includes("basic");
-    const hasPlan = Boolean(label) && subscription?.status === "active";
-    return { label, isPro, isStarter, hasPlan };
-  }, [subscription]);
+  const planStatus = useMemo(() => derivePlanStatus(subscription), [subscription]);
 
   const upgradeMessage = useMemo(() => {
     if (!planStatus.hasPlan) return "Choose a plan to unlock the full marketplace without interruptions.";
@@ -205,9 +178,18 @@ export default function SubscriptionPlans() {
             <p className="text-sm uppercase tracking-wide text-slate-500">Plans</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {planOptions.map((plan) => {
-                const active = subscription && matchesPlan(subscription, plan.planId);
+                const active =
+                  planStatus.hasPlan &&
+                  (plan.planId === "standard"
+                    ? planStatus.isStarter
+                    : plan.planId === "professional"
+                    ? planStatus.isPro
+                    : matchesPlan(subscription, plan.planId));
                 const upgradeRecommended = !active && plan.planId === "professional" && planStatus.isStarter;
-                const locked = !planStatus.hasPlan || (!active && !upgradeRecommended && plan.planId === "standard" && planStatus.isPro);
+                const locked =
+                  !planStatus.hasPlan ||
+                  (!active && !upgradeRecommended && plan.planId === "standard" && planStatus.isPro);
+                const actionLabel = active ? "Plan active" : upgradeRecommended ? "Upgrade" : plan.cta;
                 return (
                   <div
                     key={plan.id}
@@ -256,7 +238,7 @@ export default function SubscriptionPlans() {
                         onClick={() => handleCheckout(plan.planId)}
                         disabled={active}
                       >
-                        {active ? "Unlocked" : upgradeRecommended ? "Upgrade" : plan.cta}
+                        {actionLabel}
                       </button>
                     </div>
                   </div>

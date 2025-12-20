@@ -82,6 +82,11 @@ async function start() {
     console.log("DB authenticated");
     await sequelize.sync({ alter: true });
 
+    // remove any existing deals and related links for a clean slate
+    await Unlock.destroy({ where: {} });
+    await ServiceDeal.destroy({ where: {} });
+    await Deal.destroy({ where: {} });
+
     // create default admin if missing (use DEFAULT_ADMIN_PASSWORD)
     const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || "Admin@2025";
     const DEFAULT_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL || "admin@connecttly.local";
@@ -125,87 +130,126 @@ async function start() {
       }
     }
 
-    // Ensure a default service and sample deals exist for quick testing
+    // Seed the marketplace with benchmark deals
     const [starterService] = await Service.findOrCreate({
-      where: { id: "service_basic" },
-      defaults: { title: "Starter Plan", price: 199 }
+      where: { id: "service_connectly_starter" },
+      defaults: { title: "Connectly Starter", price: 199 }
     });
 
-    const [deal1] = await Deal.findOrCreate({
-      where: { id: "deal_canva_30" },
-      defaults: {
-        title: "30% off Canva",
-        partner: "Canva",
-        type: "coupon",
-        coupon_code: "CANVA30DEMO",
-        link: "https://canva.com",
-        locked_by_default: true,
-        featured: true,
-        tier: "standard"
-      }
-    });
-
-    const [deal2] = await Deal.findOrCreate({
-      where: { id: "deal_figma_50" },
-      defaults: {
-        title: "50% off Figma",
-        partner: "Figma",
-        type: "coupon",
-        coupon_code: "FIGMA50DEMO",
-        link: "https://figma.com",
-        locked_by_default: true,
-        featured: false,
-        tier: "professional"
-      }
-    });
-
-    const [deal3] = await Deal.findOrCreate({
-      where: { id: "deal_notion_20" },
-      defaults: {
-        title: "20% off Notion",
+    const defaultDeals = [
+      {
+        id: "deal_notion_50",
+        title: "Notion 50% off Pro",
         partner: "Notion",
         type: "coupon",
-        coupon_code: "NOTION20",
-        link: "https://notion.so",
+        coupon_code: "NOTION50",
+        link: "https://www.notion.so/",
+        locked_by_default: true,
+        featured: true,
+        tier: "standard"
+      },
+      {
+        id: "deal_aws_100k",
+        title: "AWS $100K credits",
+        partner: "AWS",
+        type: "coupon",
+        coupon_code: "AWS100K",
+        link: "https://aws.amazon.com/",
         locked_by_default: true,
         featured: true,
         tier: "professional"
-      }
-    });
-
-    const [deal4] = await Deal.findOrCreate({
-      where: { id: "deal_loom_25" },
-      defaults: {
-        title: "25% off Loom",
-        partner: "Loom",
+      },
+      {
+        id: "deal_figma_pro",
+        title: "Figma Pro for free",
+        partner: "Figma",
         type: "coupon",
-        coupon_code: "LOOM25",
-        link: "https://www.loom.com",
+        coupon_code: "FIGMAFREE",
+        link: "https://www.figma.com/",
+        locked_by_default: true,
+        featured: true,
+        tier: "professional"
+      },
+      {
+        id: "deal_hubspot_90",
+        title: "HubSpot 90% off",
+        partner: "HubSpot",
+        type: "coupon",
+        coupon_code: "HUBSPOT90",
+        link: "https://www.hubspot.com/",
+        locked_by_default: true,
+        featured: false,
+        tier: "professional"
+      },
+      {
+        id: "deal_google_cloud_50k",
+        title: "Google Cloud $50K credits",
+        partner: "Google Cloud",
+        type: "coupon",
+        coupon_code: "GCLOUD50K",
+        link: "https://cloud.google.com/",
+        locked_by_default: true,
+        featured: false,
+        tier: "professional"
+      },
+      {
+        id: "deal_stripe_2yrs",
+        title: "Stripe free 2 years",
+        partner: "Stripe",
+        type: "coupon",
+        coupon_code: "STRIPE2YRS",
+        link: "https://stripe.com/",
+        locked_by_default: true,
+        featured: false,
+        tier: "professional"
+      },
+      {
+        id: "deal_slack_6months",
+        title: "Slack 6 months free",
+        partner: "Slack",
+        type: "coupon",
+        coupon_code: "SLACK6MO",
+        link: "https://slack.com/",
         locked_by_default: true,
         featured: false,
         tier: "standard"
-      }
-    });
-
-    const [deal5] = await Deal.findOrCreate({
-      where: { id: "deal_linear_15" },
-      defaults: {
-        title: "15% off Linear",
+      },
+      {
+        id: "deal_mongodb_25k",
+        title: "MongoDB $25K credits",
+        partner: "MongoDB",
+        type: "coupon",
+        coupon_code: "MONGO25K",
+        link: "https://www.mongodb.com/",
+        locked_by_default: true,
+        featured: false,
+        tier: "standard"
+      },
+      {
+        id: "deal_linear_pro",
+        title: "Linear Pro free",
         partner: "Linear",
         type: "coupon",
-        coupon_code: "LINEAR15",
-        link: "https://linear.app",
+        coupon_code: "LINEARPRO",
+        link: "https://linear.app/",
         locked_by_default: true,
         featured: false,
         tier: "standard"
       }
-    });
+    ];
 
-    await starterService.addDeal(deal1);
-    await starterService.addDeal(deal2);
-    await starterService.addDeal(deal3);
-    await starterService.addDeal(deal4);
-    await starterService.addDeal(deal5);
+    const createdDeals = [];
+    for (const dealData of defaultDeals) {
+      const [deal] = await Deal.findOrCreate({
+        where: { id: dealData.id },
+        defaults: dealData
+      });
+      createdDeals.push(deal);
+    }
+
+    for (const deal of createdDeals) {
+      await starterService.addDeal(deal);
+    }
 
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
   } catch (err) {

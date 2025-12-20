@@ -1,7 +1,7 @@
 ﻿require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { Op } = require("sequelize");
+const { Op, DataTypes } = require("sequelize");
 const { sequelize, User, Service } = require("./models");
 const bcrypt = require("bcrypt");
 
@@ -164,6 +164,70 @@ app.get("/confirm", async (req, res) => {
 });
 
 // START SERVER WITH RETRIES
+
+async function ensureDealColumns() {
+  const queryInterface = sequelize.getQueryInterface();
+  try {
+    const columns = await queryInterface.describeTable("deals");
+    const operations = [];
+    if (!columns.partner) {
+      operations.push(
+        queryInterface.addColumn("deals", "partner", {
+          type: DataTypes.STRING,
+          allowNull: true,
+          after: "title"
+        })
+      );
+    }
+    if (!columns.link) {
+      operations.push(
+        queryInterface.addColumn("deals", "link", {
+          type: DataTypes.STRING,
+          allowNull: true,
+          after: "coupon_code"
+        })
+      );
+    }
+    if (!columns.Logo) {
+      operations.push(
+        queryInterface.addColumn("deals", "Logo", {
+          type: DataTypes.STRING,
+          allowNull: true,
+          after: "link"
+        })
+      );
+    }
+    if (!columns.Rating) {
+      operations.push(
+        queryInterface.addColumn("deals", "Rating", {
+          type: DataTypes.DECIMAL(3, 1),
+          allowNull: true,
+          after: "tier"
+        })
+      );
+    }
+    if (!columns.deal_value) {
+      operations.push(
+        queryInterface.addColumn("deals", "deal_value", {
+          type: DataTypes.STRING,
+          allowNull: true,
+          after: "Rating"
+        })
+      );
+    }
+    if (operations.length) {
+      await Promise.all(operations);
+      console.log("Added missing deal columns:", operations.length);
+    }
+  } catch (err) {
+    if (err.code === "ER_NO_SUCH_TABLE") {
+      console.warn("Deals table missing; skipping schema patch.");
+      return;
+    }
+    console.error("ensureDealColumns failed", err);
+  }
+}
+
 async function start() {
   let attempts = 0;
   const maxAttempts = 5;
@@ -174,6 +238,8 @@ async function start() {
       console.log(`Attempt ${attempts}/${maxAttempts}: Connecting to DB...`);
       await sequelize.authenticate();
       console.log("Database connected.");
+
+      await ensureDealColumns();
 
       // Keep schema in sync with models so admin panel sees latest tables/columns.
       // Default avoids ALTER because some hosts hit "Too many keys" limits; opt-in via DB_SYNC_ALTER=true.

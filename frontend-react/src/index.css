@@ -27,6 +27,8 @@ body {
   box-shadow:
     0 10px 25px -12px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  background-image: linear-gradient(135deg, #3369fd, #5a86ff);
+  color: #fff;
 }
 
 .btn-bubble::before,
@@ -89,8 +91,8 @@ body {
 
 .btn-bubble--dark {
   color: #ffffff;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  border-color: rgba(15, 23, 42, 0.45);
+  background: linear-gradient(135deg, #1522bf, #3343ff);
+  border-color: rgba(51, 105, 253, 0.75);
 }
 
 .btn-bubble--white {
@@ -127,10 +129,10 @@ body {
     --popover-foreground: 224 71% 4%;
     
     /* Primary - Indigo */
-    --primary: 239 84% 67%;
+    --primary: 223.96 98.06% 59.61%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 239 84% 95%;
-    --primary-dark: 239 84% 55%;
+    --primary-light: 223.96 100% 78%;
+    --primary-dark: 223.96 100% 42%;
     
     /* Secondary */
     --secondary: 220 14% 96%;
@@ -141,7 +143,7 @@ body {
     --muted-foreground: 220 9% 46%;
     
     /* Accent */
-    --accent: 239 84% 67%;
+    --accent: 224 100% 63%;
     --accent-foreground: 0 0% 100%;
     
     /* Success - Emerald */
@@ -162,29 +164,29 @@ body {
     /* Border & Input */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 239 84% 67%;
+    --ring: 224 100% 63%;
     
     --radius: 0.75rem;
     
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 224 71% 4%;
-    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary: 224 100% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 239 84% 95%;
-    --sidebar-accent-foreground: 239 84% 55%;
+    --sidebar-accent: 224 100% 84%;
+    --sidebar-accent-foreground: 224 100% 43%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 239 84% 67%;
+    --sidebar-ring: 224 100% 63%;
     
     /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(280 84% 67%) 100%);
+    --gradient-primary: linear-gradient(135deg, #3369fd 0%, #5a86ff 100%);
     --gradient-surface: linear-gradient(180deg, hsl(220 20% 98%) 0%, hsl(220 20% 95%) 100%);
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(224 71% 4% / 0.05);
     --shadow-md: 0 4px 6px -1px hsl(224 71% 4% / 0.07), 0 2px 4px -2px hsl(224 71% 4% / 0.05);
     --shadow-lg: 0 10px 15px -3px hsl(224 71% 4% / 0.08), 0 4px 6px -4px hsl(224 71% 4% / 0.05);
-    --shadow-glow: 0 0 20px hsl(239 84% 67% / 0.15);
+    --shadow-glow: 0 0 25px rgba(51, 105, 253, 0.35);
   }
 
   .dark {
@@ -197,10 +199,10 @@ body {
     --popover: 224 71% 8%;
     --popover-foreground: 210 20% 98%;
     
-    --primary: 239 84% 67%;
+    --primary: 223.96 98.06% 59.61%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 239 84% 20%;
-    --primary-dark: 239 84% 75%;
+    --primary-light: 223.96 100% 78%;
+    --primary-dark: 223.96 100% 42%;
     
     --secondary: 215 28% 17%;
     --secondary-foreground: 210 20% 98%;
@@ -208,7 +210,7 @@ body {
     --muted: 215 28% 17%;
     --muted-foreground: 217 10% 64%;
     
-    --accent: 239 84% 67%;
+    --accent: 224 100% 63%;
     --accent-foreground: 0 0% 100%;
     
     --success: 160 84% 39%;
@@ -225,16 +227,16 @@ body {
     
     --border: 215 28% 17%;
     --input: 215 28% 17%;
-    --ring: 239 84% 67%;
+    --ring: 224 100% 63%;
     
     --sidebar-background: 224 71% 6%;
     --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary: 224 100% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 239 84% 20%;
-    --sidebar-accent-foreground: 239 84% 75%;
+    --sidebar-accent: 224 100% 84%;
+    --sidebar-accent-foreground: 224 100% 43%;
     --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 239 84% 67%;
+    --sidebar-ring: 224 100% 63%;
   }
 }
 
@@ -440,6 +442,18 @@ body {
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  .bg-gradient-primary {
+    background-image: var(--gradient-primary);
+  }
+
+  .shadow-soft {
+    box-shadow: 0 25px 45px rgba(15, 23, 42, 0.08), 0 10px 35px rgba(15, 23, 42, 0.12);
+  }
+
+  .shadow-elevated {
+    box-shadow: 0 35px 60px rgba(15, 23, 42, 0.25), 0 15px 30px rgba(15, 23, 42, 0.2);
   }
   
   .text-gradient {

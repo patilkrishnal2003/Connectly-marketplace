@@ -42,12 +42,17 @@ router.post("/deals", async (req, res) => {
       locked_by_default,
       featured,
       type,
-      tier
+      realm,
+      tier,
+      logo,
+      value,
+      rating
     } = req.body || {};
     if (!id || !title) return res.status(400).json({ error: "id,title required" });
 
     const normalizedTier = normalizeTier(tier);
-    const normalizedType = type ? type.toString().toLowerCase() : null;
+    const realmSource = realm !== undefined && realm !== null ? realm : type;
+    const normalizedRealm = realmSource ? realmSource.toString().trim() : null;
 
     const defaults = {
       title,
@@ -57,7 +62,10 @@ router.post("/deals", async (req, res) => {
       locked_by_default: locked_by_default !== undefined ? !!locked_by_default : true,
       featured: featured !== undefined ? !!featured : false
     };
-    if (normalizedType) defaults.type = normalizedType;
+    if (normalizedRealm) defaults.type = normalizedRealm;
+    if (logo) defaults.logo = logo;
+    if (value) defaults.value = value;
+    if (rating !== undefined && rating !== null) defaults.rating = Number(rating);
     if (normalizedTier) defaults.tier = normalizedTier;
 
     const [deal, created] = await Deal.findOrCreate({
@@ -73,7 +81,10 @@ router.post("/deals", async (req, res) => {
       };
       if (locked_by_default !== undefined) updates.locked_by_default = !!locked_by_default;
       if (featured !== undefined) updates.featured = !!featured;
-      if (normalizedType) updates.type = normalizedType;
+      if (normalizedRealm) updates.type = normalizedRealm;
+      if (logo !== undefined) updates.logo = logo || null;
+      if (value !== undefined) updates.value = value || null;
+      if (rating !== undefined && rating !== null) updates.rating = Number(rating);
       if (normalizedTier) updates.tier = normalizedTier;
       await deal.update(updates);
     }
@@ -96,7 +107,11 @@ router.put("/deals/:id", async (req, res) => {
       locked_by_default,
       featured,
       type,
-      tier
+      realm,
+      tier,
+      logo,
+      value,
+      rating
     } = req.body || {};
 
     const updates = {};
@@ -106,10 +121,14 @@ router.put("/deals/:id", async (req, res) => {
     if (link !== undefined) updates.link = link || null;
     if (locked_by_default !== undefined) updates.locked_by_default = !!locked_by_default;
     if (featured !== undefined) updates.featured = !!featured;
+    if (logo !== undefined) updates.logo = logo || null;
+    if (value !== undefined) updates.value = value || null;
+    if (rating !== undefined && rating !== null) updates.rating = Number(rating);
 
-    const normalizedType = type ? type.toString().toLowerCase() : null;
+    const realmSource = realm !== undefined && realm !== null ? realm : type;
+    const normalizedRealm = realmSource ? realmSource.toString().trim() : null;
     const normalizedTier = normalizeTier(tier);
-    if (normalizedType) updates.type = normalizedType;
+    if (normalizedRealm) updates.type = normalizedRealm;
     if (normalizedTier) updates.tier = normalizedTier;
 
     await deal.update(updates);
