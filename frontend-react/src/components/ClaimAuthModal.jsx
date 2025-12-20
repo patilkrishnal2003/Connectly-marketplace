@@ -23,10 +23,10 @@ export default function ClaimAuthModal({ isOpen, initialMode = "login", onClose,
     }
   }, [initialMode, isOpen]);
 
-  const title = mode === "login" ? "Sign in to claim deals" : "Create your account";
+  const title = mode === "login" ? "Sign in to continue" : "Create your account";
   const subtitle =
     mode === "login"
-      ? "You will be redirected back to the deal detail after logging in."
+      ? "Log in to continue your action. We'll return you right where you left off."
       : "Create a Connecttly account and unlock partner perks instantly.";
 
   const handleSubmit = async (event) => {
