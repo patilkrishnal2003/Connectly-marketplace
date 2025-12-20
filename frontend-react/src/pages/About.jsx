@@ -5,12 +5,13 @@ import BackToHomeButton from "../components/BackToHomeButton";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#f7f9ff] via-white to-[#f2f6ff]">
       {/* Header */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] text-slate-900">
-        <div className="absolute -top-10 -right-10 h-60 w-60 rounded-full bg-[#c4b5fd]/70 blur-3xl" />
-        <div className="absolute bottom-6 left-6 h-64 w-64 rounded-full bg-[#fcd34d]/70 blur-3xl" />
-        <div className="max-w-6xl mx-auto px-6 py-20">
+      <header className="relative overflow-hidden bg-gradient-hero text-slate-900">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute -top-10 -right-10 h-60 w-60 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute bottom-6 left-6 h-64 w-64 rounded-full bg-accent/15 blur-3xl" />
+        <div className="relative max-w-6xl mx-auto px-6 py-20 z-10">
           <div className="absolute top-6 right-6">
             <BackToHomeButton />
           </div>
