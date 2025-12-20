@@ -108,13 +108,13 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 animate-fade-in" style={{ animationDelay: "0.5s" }}>
             {/* Avatars */}
             <div className="flex items-center">
-              <div className="flex -space-x-3">
+              <div className="flex gap-3 sm:gap-4">
                 {brandLogos.map((brand) => (
                   <div
                     key={brand.name}
-                    className="w-10 h-10 rounded-full bg-card border-2 border-background shadow-soft flex items-center justify-center overflow-hidden"
+                    className="w-14 h-14 rounded-2xl bg-card/90 border border-border shadow-soft flex items-center justify-center overflow-hidden"
                   >
-                    <img src={brand.src} alt={`${brand.name} logo`} className="w-9 h-9 object-contain" />
+                    <img src={brand.src} alt={`${brand.name} logo`} className="w-10 h-10 object-contain" />
                   </div>
                 ))}
               </div>
