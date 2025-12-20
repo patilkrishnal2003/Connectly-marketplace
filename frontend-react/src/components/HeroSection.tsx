@@ -9,6 +9,14 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }: HeroSectionProps) => {
+  const brandLogos = [
+    { name: "Google", src: "/logos/google.svg" },
+    { name: "Figma", src: "/logos/figma.svg" },
+    { name: "Amazon", src: "/logos/amazon.svg" },
+    { name: "LinkedIn", src: "/logos/linkedin.svg" },
+    { name: "Stripe", src: "/logos/stripe.svg" },
+  ];
+
   return (
     <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
       {/* Background */}
@@ -78,7 +86,7 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up" style={{ animationDelay: "0.3s" }}>
             <Button
-              size="default"
+              size="lg"
               onClick={onGetStarted}
               className="w-full sm:w-auto bg-gradient-primary hover:shadow-glow transition-all duration-300 text-base px-6 py-4 group"
             >
@@ -86,10 +94,10 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button
-              variant="outline"
-              size="default"
+              variant="ghost"
+              size="lg"
               onClick={onWatchDemo}
-              className="w-full sm:w-auto text-base px-6 py-4 border-border hover:bg-secondary group"
+              className="w-full sm:w-auto text-base px-6 py-4 border border-border bg-card/70 text-foreground hover:bg-card/70 group"
             >
               <Play className="w-4 h-4 mr-2 text-primary group-hover:scale-110 transition-transform" />
               Watch Demo
@@ -101,14 +109,12 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
             {/* Avatars */}
             <div className="flex items-center">
               <div className="flex -space-x-3">
-                {[1, 2, 3, 4, 5].map((i) => (
+                {brandLogos.map((brand) => (
                   <div
-                    key={i}
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-background flex items-center justify-center"
+                    key={brand.name}
+                    className="w-10 h-10 rounded-full bg-card border-2 border-background shadow-soft flex items-center justify-center overflow-hidden"
                   >
-                    <span className="text-xs font-semibold text-primary">
-                      {String.fromCharCode(64 + i)}
-                    </span>
+                    <img src={brand.src} alt={`${brand.name} logo`} className="w-9 h-9 object-contain" />
                   </div>
                 ))}
               </div>
