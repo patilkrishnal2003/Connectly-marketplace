@@ -118,7 +118,7 @@ const FAQ = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden bg-gradient-hero text-slate-900">
+      <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-hero text-slate-900 md:pt-16">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/12 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/12 rounded-full blur-3xl" />
@@ -303,12 +303,12 @@ const FAQ = () => {
               </span>
             </div>
           <div className="flex items-center gap-6">
-            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms of Service
-            </a>
+            </Link>
             <Link
               to="/contact"
               className="inline-flex items-center justify-center rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground transition hover:border-slate-900 hover:text-slate-900"
