@@ -26,14 +26,17 @@ interface NavbarProps {
 
 const navLinks = [
   { label: "Home", to: "/" },
-  { label: "Deals", to: "/#deals" },
+  { label: "Deals", to: "#deals" },
   { label: "Categories", to: "/#categories" },
   { label: "About", to: "/about" }
 ];
 
 const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSettings }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const avatarInitial = useMemo(() => user?.name?.charAt(0) || user?.email?.charAt(0) || "U", [user?.email, user?.name]);
+  const avatarInitial = useMemo(
+    () => user?.name?.trim()?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U",
+    [user?.email, user?.name],
+  );
 
   const renderNavLink = (label: string, to: string, className?: string) => {
     const isAnchor = to.includes("#") || to.startsWith("http");
@@ -85,14 +88,14 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSett
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-secondary rounded-full">
-                    <Avatar className="w-9 h-9">
+                    <Avatar className="w-10 h-10">
                       <AvatarImage src={user.avatar} />
                       <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
                         {avatarInitial}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-semibold text-slate-800">{user.name}</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <span className="sr-only">{user.name}</span>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" aria-hidden />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-card border border-border shadow-elevated">
