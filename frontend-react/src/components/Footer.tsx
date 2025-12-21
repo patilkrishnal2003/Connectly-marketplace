@@ -3,10 +3,33 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   const footerLinks = {
-    Product: ["Features", "Pricing", "Partners", "Changelog", "Roadmap"],
-    Company: ["About", "Blog", "Careers", "Press", "Contact"],
-    Resources: ["Documentation", "Help Center", "FAQ", "Community", "API"],
-    Legal: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Security"],
+    Product: [
+      { label: "Features", href: "#features" },
+      { label: "Pricing", to: "/subscription-plans" },
+      { label: "Partners", href: "#partners" },
+      { label: "Changelog", href: "#" },
+      { label: "Roadmap", href: "#" },
+    ],
+    Company: [
+      { label: "About", to: "/about" },
+      { label: "Blog", href: "#" },
+      { label: "Careers", href: "#" },
+      { label: "Press", href: "#" },
+      { label: "Contact", to: "/contact" },
+    ],
+    Resources: [
+      { label: "Documentation", href: "#" },
+      { label: "Help Center", to: "/faq" },
+      { label: "FAQ", to: "/faq" },
+      { label: "Community", href: "#" },
+      { label: "API", href: "#" },
+    ],
+    Legal: [
+      { label: "Privacy Policy", to: "/privacy-policy" },
+      { label: "Terms of Service", to: "/terms" },
+      { label: "Cookie Policy", href: "#" },
+      { label: "Security", href: "#" },
+    ],
   };
 
   return (
@@ -59,27 +82,20 @@ const Footer = () => {
               <h4 className="font-semibold mb-4">{title}</h4>
               <ul className="space-y-3">
                 {links.map((link) => (
-                  <li key={link}>
-                    {link === "Privacy Policy" ? (
+                  <li key={link.label}>
+                    {link.to ? (
                       <Link
-                        to="/privacy-policy"
+                        to={link.to}
                         className="text-sm text-background/60 hover:text-background transition-colors"
                       >
-                        {link}
-                      </Link>
-                    ) : link === "FAQ" ? (
-                      <Link
-                        to="/faq"
-                        className="text-sm text-background/60 hover:text-background transition-colors"
-                      >
-                        {link}
+                        {link.label}
                       </Link>
                     ) : (
                       <a
-                        href="#"
+                        href={link.href || "#"}
                         className="text-sm text-background/60 hover:text-background transition-colors"
                       >
-                        {link}
+                        {link.label}
                       </a>
                     )}
                   </li>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { Mail, MessageCircle, Phone, ShieldCheck, Clock, MapPin, ArrowUpRight } from "lucide-react";
 import Footer from "../components/Footer";
 import BackToHomeButton from "../components/BackToHomeButton";
 
@@ -7,15 +8,67 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    message: ""
+    message: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
+  const supportChannels = [
+    {
+      title: "Email support",
+      description: "Reach our support specialists for anything related to your account or claims.",
+      action: "support@connecttly.com",
+      href: "mailto:support@connecttly.com",
+      icon: Mail,
+    },
+    {
+      title: "Partner with us",
+      description: "Share your program and we'll help you launch perks for founders in days.",
+      action: "partners@connecttly.com",
+      href: "mailto:partners@connecttly.com",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Talk to sales",
+      description: "Get a walkthrough of Professional and Enterprise perks tailored to your team.",
+      action: "sales@connecttly.com",
+      href: "mailto:sales@connecttly.com",
+      icon: Phone,
+    },
+    {
+      title: "Help Center",
+      description: "Browse answers, guides, and tips to activate perks faster.",
+      action: "Visit FAQ",
+      to: "/faq",
+      icon: MessageCircle,
+    },
+  ];
+
+  const quickLinks = [
+    {
+      title: "Explore the FAQ",
+      description: "Find answers instantly for billing, security, or getting started.",
+      to: "/faq",
+      icon: MessageCircle,
+    },
+    {
+      title: "Manage subscription",
+      description: "Update your plan or invoices in a couple of clicks.",
+      to: "/subscription-plans",
+      icon: ShieldCheck,
+    },
+    {
+      title: "View claimed deals",
+      description: "Review the perks you've unlocked and their redemption steps.",
+      to: "/my-deals",
+      icon: ArrowUpRight,
+    },
+  ];
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -23,17 +76,13 @@ export default function Contact() {
     e.preventDefault();
     setError("");
 
-    // Basic validation
     if (!formData.name || !formData.email || !formData.message) {
       setError("Please fill in all fields");
       return;
     }
 
-    // Here you would typically send the data to your backend
-    // For now, we'll just simulate a successful submission
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       setSubmitted(true);
       setFormData({ name: "", email: "", message: "" });
     } catch (err) {
@@ -43,35 +92,127 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white">
-      {/* Header */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] text-slate-900">
-        <div className="absolute -top-10 -right-10 h-56 w-56 rounded-full bg-[#c4b5fd]/70 blur-3xl" />
-        <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-[#fde68a]/70 blur-3xl" />
-        <div className="max-w-6xl mx-auto px-6 py-20">
+    <div className="min-h-screen bg-white text-slate-900">
+      <header className="relative overflow-hidden bg-gradient-hero">
+        <div className="max-w-6xl mx-auto px-6 pt-20 pb-16">
           <div className="absolute top-6 right-6">
             <BackToHomeButton />
           </div>
-          <div className="text-center space-y-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Get in Touch</p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900">Contact Us</h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Have questions about partner perks or need help with your account? We're here to help.
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Support</p>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight text-slate-900">
+              Contact Connecttly
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              We're here to help with marketplace access, billing questions, and partnership requests. Reach our team any time.
             </p>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="rounded-xl border border-border bg-white/80 px-4 py-3 shadow-sm text-left flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <Clock className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Response time</p>
+                <p className="text-sm font-semibold text-foreground">Under 1 business day</p>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border bg-white/80 px-4 py-3 shadow-sm text-left flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <MapPin className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Availability</p>
+                <p className="text-sm font-semibold text-foreground">Global, remote-first</p>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border bg-white/80 px-4 py-3 shadow-sm text-left flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Priority</p>
+                <p className="text-sm font-semibold text-foreground">Pro members first</p>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <div className="bg-white border border-slate-200 shadow-lg rounded-3xl p-8">
-            <h2 className="text-2xl font-semibold text-slate-900 mb-6">Send us a message</h2>
+      <main className="max-w-6xl mx-auto px-6 pb-16 -mt-10 space-y-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Start with email</p>
+                  <h2 className="text-2xl font-semibold text-foreground">Tell us how we can help</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Share as much detail as possible so we can route you to the right teammate and respond quickly.
+                  </p>
+                  <a
+                    href="mailto:support@connecttly.com"
+                    className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary/80 transition-colors"
+                  >
+                    support@connecttly.com
+                    <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {supportChannels.map((channel) => {
+                const Icon = channel.icon;
+                const Wrapper = channel.to ? Link : "a";
+                const wrapperProps = channel.to
+                  ? { to: channel.to }
+                  : {
+                      href: channel.href,
+                      target: channel.href?.startsWith("http") ? "_blank" : undefined,
+                      rel: channel.href?.startsWith("http") ? "noreferrer" : undefined,
+                    };
+
+                return (
+                  <Wrapper
+                    key={channel.title}
+                    {...wrapperProps}
+                    className="group rounded-2xl border border-border bg-white p-5 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col gap-3"
+                  >
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-foreground">{channel.title}</h3>
+                        <ArrowUpRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">{channel.description}</p>
+                      <p className="text-sm font-semibold text-primary">{channel.action}</p>
+                    </div>
+                  </Wrapper>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="bg-white border border-border shadow-lg rounded-3xl p-8">
+            <div className="flex items-start justify-between gap-3 mb-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Contact form</p>
+                <h2 className="text-2xl font-semibold text-foreground">Send a message</h2>
+                <p className="text-sm text-muted-foreground">We reply to every request with a real human—no bots.</p>
+              </div>
+              <div className="rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold">On duty</div>
+            </div>
 
             {submitted && (
-              <div className="mb-6 text-green-600 text-sm rounded-lg bg-green-50 border border-green-200 px-4 py-3">
-                Thank you for your message! We'll get back to you soon.
+              <div className="mb-6 text-emerald-700 text-sm rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3">
+                Thanks for reaching out. A team member will respond shortly.
               </div>
             )}
 
@@ -81,128 +222,93 @@ export default function Contact() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-slate-50"
-                  placeholder="Your full name"
-                />
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">Full name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition"
+                    placeholder="Jane Doe"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">Work email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition"
+                    placeholder="you@company.com"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-slate-50"
-                  placeholder="your.email@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Message
-                </label>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-foreground">How can we help?</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   rows={5}
-                  className="w-full border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-slate-50 resize-none"
-                  placeholder="Tell us how we can help you..."
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition resize-none"
+                  placeholder="Share details about your request, the deal you're trying to claim, or the page where you need help."
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow hover:bg-indigo-700 transition"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-primary text-primary-foreground font-semibold py-3 shadow-soft hover:shadow-lg transition"
               >
-                Send Message
+                Send message
+                <ArrowUpRight className="h-4 w-4" />
               </button>
             </form>
           </div>
-
-          {/* Contact Information */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-900 mb-6">Other ways to reach us</h2>
-
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900">Email Support</h3>
-                    <p className="text-slate-600">Get help with your account or partnership inquiries</p>
-                    <a href="mailto:support@connecttly.com" className="text-indigo-600 hover:text-indigo-700 font-medium">
-                      support@connecttly.com
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900">FAQ</h3>
-                    <p className="text-slate-600">Find answers to common questions about our marketplace</p>
-                    <Link to="/faq" className="text-indigo-600 hover:text-indigo-700 font-medium">
-                      View FAQ →
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900">Partnership Inquiries</h3>
-                    <p className="text-slate-600">Interested in becoming a partner? Let's talk</p>
-                    <a href="mailto:partners@connecttly.com" className="text-indigo-600 hover:text-indigo-700 font-medium">
-                      partners@connecttly.com
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Back to Home */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Need to go back?</h3>
-              <p className="text-slate-600 mb-4">Return to the marketplace to browse partner deals.</p>
-              <Link
-                to="/"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Marketplace
-              </Link>
-            </div>
-          </div>
         </div>
+
+        <section className="rounded-3xl border border-border bg-gradient-to-r from-primary/5 via-white to-accent/5 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Need something fast?</p>
+              <h3 className="text-xl font-semibold text-foreground">Use a quick link to get answers</h3>
+            </div>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary border border-border shadow-sm hover:border-primary"
+            >
+              Back to marketplace
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {quickLinks.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.title}
+                  to={item.to}
+                  className="group rounded-2xl border border-border bg-white/80 px-5 py-4 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-200"
+                >
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <h4 className="text-base font-semibold text-foreground mb-1">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
       </main>
+
       <Footer />
     </div>
   );
