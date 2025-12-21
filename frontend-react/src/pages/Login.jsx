@@ -26,7 +26,7 @@ export default function Login() {
       const payload = JSON.parse(atob(json.token.split(".")[1]));
       if (payload.role === "admin") navigate("/admin");
       else navigate("/");
-    } catch (err) {
+    } catch {
       setError("Network error");
     }
   }

@@ -38,7 +38,7 @@ export default function Home() {
   });
 
   const isDark = settings.darkMode;
-  const pageBg = isDark ? "from-slate-950 via-slate-900 to-slate-800" : "from-[#f4f6fb] via-[#f7f7fb] to-white";
+  const pageBg = isDark ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800" : "bg-white";
 
   useEffect(() => {
     async function fetchSubscriptionStatus() {
@@ -231,7 +231,7 @@ export default function Home() {
     : undefined;
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${pageBg} ${isDark ? "text-slate-100" : "text-slate-900"}`}>
+    <div className={`min-h-screen ${pageBg} ${isDark ? "text-slate-100" : "text-slate-900"}`}>
       <Navbar
         isLoggedIn={!!user}
         user={navbarUser}
@@ -265,9 +265,9 @@ export default function Home() {
             isSubscribed={hasSubscription}
           />
         ) : deals.length === 0 ? (
-          <section className="py-16">
+          <section className="py-16 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="rounded-3xl border border-slate-200 bg-white/80 px-8 py-10 text-sm text-slate-500 shadow-lg text-center">
+              <div className="rounded-3xl border border-slate-200 bg-white px-8 py-10 text-sm text-slate-500 shadow-lg text-center">
                 We are curating new marketplace deals for you - check back soon!
               </div>
             </div>

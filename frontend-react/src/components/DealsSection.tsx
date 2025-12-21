@@ -13,7 +13,7 @@ const skeletonCount = 6;
 const DealsSection = ({ deals = [], onClaimDeal, isSubscribed = false, loading = false }: DealsSectionProps) => {
   if (loading) {
     return (
-      <section id="deals" className="py-16 bg-background">
+      <section id="deals" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="space-y-2 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.4em] text-muted-foreground">Admin curated</p>
@@ -43,7 +43,7 @@ const DealsSection = ({ deals = [], onClaimDeal, isSubscribed = false, loading =
   }
 
   return (
-    <section id="deals" className="py-16 bg-background">
+    <section id="deals" className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>

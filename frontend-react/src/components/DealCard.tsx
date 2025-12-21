@@ -96,9 +96,9 @@ const DealCard = ({ deal, onClaim }: DealCardProps) => {
                 <span className="font-semibold text-foreground">{displayValue}</span>
               </div>
               <Button
-                size="sm"
+                size="md"
                 onClick={handleClaimClick}
-                className="group/btn bg-gradient-primary text-primary-foreground shadow-soft transition-all duration-200 hover:shadow-lg"
+                className="group/btn bg-gradient-primary text-primary-foreground shadow-soft transition-all duration-200 hover:shadow-lg rounded-xl px-5 py-2.5 min-w-[120px]"
               >
               {buttonLabel}
               <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />

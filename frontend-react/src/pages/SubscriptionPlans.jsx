@@ -11,7 +11,6 @@ const planOptions = [
     name: "Starter",
     price: "$99",
     cadence: "per month",
-    tone: "from-emerald-500/90 via-teal-500/90 to-cyan-500/90",
     highlight: "Best for early teams testing perks",
     text: "Get full access to starter-tier perks to validate what works for your company.",
     features: ["Unlock all Starter deals", "Up to $5,000 in partner value", "Email support", "Instant activation"],
@@ -23,7 +22,6 @@ const planOptions = [
     name: "Professional",
     price: "$199",
     cadence: "per month",
-    tone: "from-indigo-600/90 via-violet-600/90 to-fuchsia-500/90",
     highlight: "Premium perks + fastest support",
     text: "Unlock Professional-only perks, faster support, and early drops from new partners.",
     features: [
@@ -186,16 +184,12 @@ export default function SubscriptionPlans() {
                     ? planStatus.isPro
                     : matchesPlan(subscription, plan.planId));
                 const upgradeRecommended = !active && plan.planId === "professional" && planStatus.isStarter;
-                const locked =
-                  !planStatus.hasPlan ||
-                  (!active && !upgradeRecommended && plan.planId === "standard" && planStatus.isPro);
                 const actionLabel = active ? "Plan active" : upgradeRecommended ? "Upgrade" : plan.cta;
                 return (
                   <div
                     key={plan.id}
                     className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg hover:shadow-xl transition"
                   >
-                    <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${plan.tone}`} aria-hidden="true" />
                     <div className="relative p-6 space-y-4 h-full flex flex-col">
                       <div className="flex items-start justify-between gap-2">
                         <div>
