@@ -40,6 +40,20 @@ export default function DealDetail() {
   const [planModal, setPlanModal] = useState<null | "purchase" | "upgrade">(null);
 
   useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    const { body } = document;
+    const originalOverflow = body.style.overflow;
+
+    if (planModal) {
+      body.style.overflow = "hidden";
+    }
+
+    return () => {
+      body.style.overflow = originalOverflow;
+    };
+  }, [planModal]);
+
+  useEffect(() => {
     if (!dealId) return;
     let isMounted = true;
     const userQuery = user?.userId ? `?userId=${encodeURIComponent(user.userId)}` : "";

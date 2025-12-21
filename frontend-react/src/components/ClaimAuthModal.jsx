@@ -85,17 +85,17 @@ export default function ClaimAuthModal({ isOpen, initialMode = "login", onClose,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-      <div className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-gradient-to-b from-white via-slate-50 to-[#e9f0ff] shadow-2xl">
         <button
           type="button"
-          className="absolute right-4 top-4 text-slate-500 hover:text-slate-800"
+          className="absolute right-4 top-4 text-primary hover:text-primary-dark"
           onClick={onClose}
         >
           Close
         </button>
         <div className="px-8 py-10 space-y-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Connecttly</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-primary">Connecttly</p>
             <h2 className="text-3xl font-semibold text-slate-900">{title}</h2>
             <p className="text-sm text-slate-600">{subtitle}</p>
           </div>
@@ -116,7 +116,7 @@ export default function ClaimAuthModal({ isOpen, initialMode = "login", onClose,
                 <input
                   value={form.name}
                   onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#d9e5ff]"
                   placeholder="Your team or personal name"
                   required
                 />
@@ -127,7 +127,7 @@ export default function ClaimAuthModal({ isOpen, initialMode = "login", onClose,
               <input
                 value={form.email}
                 onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#d9e5ff]"
                 placeholder="team@startup.com"
                 type="email"
                 required
@@ -139,21 +139,21 @@ export default function ClaimAuthModal({ isOpen, initialMode = "login", onClose,
                 value={form.password}
                 onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
                 type="password"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#d9e5ff]"
                 placeholder="••••••••"
                 required
               />
             </label>
             <button
               type="submit"
-              className="w-full rounded-2xl bg-gradient-to-r from-[#5f3dc4] to-[#a855f7] px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg hover:opacity-90 disabled:opacity-50"
+              className="w-full rounded-2xl bg-gradient-to-r from-[#3369fd] via-[#4d7efc] to-[#6f9cff] px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg hover:shadow-glow hover:opacity-95 disabled:opacity-50"
               disabled={loading}
             >
               {mode === "login" ? (loading ? "Signing in..." : "Sign in") : loading ? "Creating..." : "Create account"}
             </button>
           </form>
           <div className="text-center text-sm text-slate-500">
-            <button type="button" className="font-semibold text-indigo-600 hover:text-indigo-700" onClick={toggleMode}>
+            <button type="button" className="font-semibold text-primary hover:text-primary-dark" onClick={toggleMode}>
               {memoizedModeLabel}
             </button>
           </div>
