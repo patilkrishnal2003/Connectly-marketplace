@@ -92,8 +92,8 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <header className="relative overflow-hidden bg-gradient-hero">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col overflow-x-hidden overflow-y-auto">
+      <header className="relative overflow-hidden bg-gradient-hero flex-shrink-0">
         <div className="max-w-6xl mx-auto px-6 pt-20 pb-16">
           <div className="absolute top-6 right-6">
             <BackToHomeButton />
@@ -140,7 +140,7 @@ export default function Contact() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 pb-16 -mt-10 space-y-10">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-6 pb-16 -mt-10 space-y-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-5">
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
@@ -200,7 +200,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <div className="bg-white border border-border shadow-lg rounded-3xl p-8">
+          <div className="bg-white border border-border shadow-lg rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-3 mb-6">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Contact form</p>
