@@ -96,13 +96,13 @@ const DealCard = ({ deal, onClaim }: DealCardProps) => {
                 <span className="font-semibold text-foreground">{displayValue}</span>
               </div>
               <Button
-                size="md"
+                size="sm"
                 onClick={handleClaimClick}
-                className="group/btn bg-gradient-primary text-primary-foreground shadow-soft transition-all duration-200 hover:shadow-lg rounded-xl px-5 py-2.5 min-w-[120px]"
+                className="group/btn flex items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-gradient-primary px-3 py-1.5 text-sm font-semibold leading-none text-primary-foreground shadow-soft transition-all duration-200 hover:shadow-lg"
               >
-              {buttonLabel}
-              <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />
-            </Button>
+                {buttonLabel}
+                <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />
+              </Button>
           </div>
         </div>
       </div>
@@ -130,7 +130,7 @@ export function DealCardSkeleton() {
       <div className="mt-auto border-t border-border/70 pt-4">
         <div className="flex items-center justify-between gap-4">
           <div className="h-4 w-20 rounded-full bg-slate-200" />
-          <div className="h-10 w-28 rounded-full bg-slate-200" />
+          <div className="h-8 w-28 rounded-full bg-slate-200" />
         </div>
       </div>
     </div>
