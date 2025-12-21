@@ -17,23 +17,6 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
     { name: "Stripe", src: "/logos/stripe.svg" },
   ];
 
-  const getDisplayName = () => {
-    if (!userName) return "Member";
-    const trimmed = userName.trim();
-
-    if (trimmed.includes("@")) {
-      const [beforeAt] = trimmed.split("@");
-      if (beforeAt) {
-        return beforeAt.charAt(0).toUpperCase() + beforeAt.slice(1);
-      }
-    }
-
-    return trimmed;
-  };
-
-  const displayName = getDisplayName();
-  const userInitial = displayName.charAt(0).toUpperCase();
-
   return (
     <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
       {/* Background */}
@@ -71,27 +54,13 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
             </span>
           </div>
 
-          {isLoggedIn && (
-            <div className="flex justify-center mb-4 animate-slide-up" style={{ animationDelay: "0.05s" }}>
-              <div className="inline-flex items-center gap-3 px-4 py-3 rounded-full bg-card border border-border shadow-soft">
-                <div className="w-10 h-10 rounded-full bg-gradient-primary text-primary-foreground font-semibold flex items-center justify-center">
-                  {userInitial}
-                </div>
-                <div className="text-left">
-                  <p className="text-xs text-muted-foreground">Signed in</p>
-                  <p className="text-sm font-semibold text-foreground">{displayName}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 animate-slide-up" style={{ animationDelay: "0.1s" }}>
             {isLoggedIn ? (
               <>
                 Welcome back,{" "}
                 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {displayName}
+                  {userName}
                 </span>
               </>
             ) : (
