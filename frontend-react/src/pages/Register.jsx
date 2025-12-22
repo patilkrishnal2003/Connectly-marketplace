@@ -67,9 +67,14 @@ export default function Register() {
               <p className="text-base font-semibold text-foreground">Marketplace</p>
             </div>
           </Link>
-          <Link to="/login" className="text-sm font-medium text-primary hover:text-[hsl(var(--primary-dark))]">
-            Already a member? Log in
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="btn-ghost text-sm font-medium px-3 py-2">
+              Home
+            </Link>
+            <Link to="/login" className="text-sm font-medium text-primary hover:text-[hsl(var(--primary-dark))]">
+              Already a member? Log in
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
