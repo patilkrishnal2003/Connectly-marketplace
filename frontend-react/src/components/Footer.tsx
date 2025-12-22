@@ -1,4 +1,4 @@
-import { Sparkles, Twitter, Linkedin, Github, Mail } from "lucide-react";
+import { Sparkles, Linkedin, Facebook, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -50,28 +50,36 @@ const Footer = () => {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
-              >
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
+                href="https://www.linkedin.com/company/connecttly-growth"
+                target="_blank"
+                rel="noreferrer"
                 className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
               >
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/profile.php?id=61577917688397"
+                target="_blank"
+                rel="noreferrer"
                 className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
               >
-                <Github className="w-4 h-4" />
+                <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="#"
+                href="https://instagram.com/connecttly"
+                target="_blank"
+                rel="noreferrer"
                 className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
               >
-                <Mail className="w-4 h-4" />
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a
+                href="https://youtube.com/@connecttly"
+                target="_blank"
+                rel="noreferrer"
+                className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
+              >
+                <Youtube className="w-4 h-4" />
               </a>
             </div>
           </div>

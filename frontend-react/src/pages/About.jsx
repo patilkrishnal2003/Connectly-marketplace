@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import BackToHomeButton from "../components/BackToHomeButton";
 import HeroNavbar from "../components/HeroNavbar";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const stats = [
   { label: "Partner network", value: "200+", detail: "curated SaaS & cloud providers" },
@@ -62,6 +62,7 @@ const steps = [
 export default function About() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9ff] via-white to-[#eef2ff] text-slate-900">
+      <HeroNavbar />
       {/* Header */}
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white to-primary/5" />
@@ -69,8 +70,8 @@ export default function About() {
         <div className="absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl" />
 
         <div className="relative max-w-6xl mx-auto px-6 pt-10 pb-20 lg:pb-24">
-          <div className="flex items-center justify-end">
-            <BackToHomeButton />
+          <div className="flex items-center justify-start">
+            <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "About" }]} />
           </div>
 
           <div className="mt-6 lg:mt-10 grid lg:grid-cols-2 gap-10 items-center">

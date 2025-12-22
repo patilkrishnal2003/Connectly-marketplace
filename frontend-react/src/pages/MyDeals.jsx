@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
-import BackToHomeButton from "../components/BackToHomeButton";
 import HeroNavbar from "../components/HeroNavbar";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 export default function MyDeals() {
   const { user, authFetch } = useContext(AuthContext);
@@ -36,8 +36,8 @@ export default function MyDeals() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <HeroNavbar />
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-10 space-y-6 relative">
-        <div className="absolute top-6 right-6">
-          <BackToHomeButton />
+        <div className="flex justify-start">
+          <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "My Deals" }]} />
         </div>
         <div className="flex items-center justify-between">
           <div>

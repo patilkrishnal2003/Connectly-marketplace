@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, MessageCircle, Phone, ShieldCheck, Clock, MapPin, ArrowUpRight } from "lucide-react";
 import Footer from "../components/Footer";
-import BackToHomeButton from "../components/BackToHomeButton";
+import Breadcrumbs from "../components/Breadcrumbs";
 import HeroNavbar from "../components/HeroNavbar";
 
 export default function Contact() {
@@ -97,8 +97,8 @@ export default function Contact() {
       <HeroNavbar />
       <header className="relative overflow-hidden bg-gradient-hero flex-shrink-0 pt-28 pb-16">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="absolute top-6 right-6">
-            <BackToHomeButton />
+          <div className="flex justify-start mb-6">
+            <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Contact" }]} />
           </div>
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Support</p>
@@ -108,6 +108,23 @@ export default function Contact() {
             <p className="text-lg text-muted-foreground">
               We're here to help with marketplace access, billing questions, and partnership requests. Reach our team any time.
             </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <a
+                href="https://connecttly.com/demo"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-primary text-primary-foreground px-6 py-3 text-sm font-semibold shadow-soft hover:shadow-lg transition"
+              >
+                Book a call
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
+              <a
+                href="#contact-form"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-white/90 px-6 py-3 text-sm font-semibold text-foreground shadow-sm hover:border-primary hover:text-primary transition"
+              >
+                Send a message
+              </a>
+            </div>
           </div>
 
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -202,7 +219,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <div className="bg-white border border-border shadow-lg rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
+          <div id="contact-form" className="bg-white border border-border shadow-lg rounded-3xl p-8 max-h-[90vh] overflow-y-auto scroll-mt-24">
             <div className="flex items-start justify-between gap-3 mb-6">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Contact form</p>

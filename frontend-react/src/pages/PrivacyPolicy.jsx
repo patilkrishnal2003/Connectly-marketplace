@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import BackToHomeButton from "../components/BackToHomeButton";
+import Breadcrumbs from "../components/Breadcrumbs";
 import HeroNavbar from "../components/HeroNavbar";
 
 export default function PrivacyPolicy() {
@@ -14,8 +14,8 @@ export default function PrivacyPolicy() {
         <div className="absolute -top-10 right-6 h-60 w-60 rounded-full bg-primary/15 blur-3xl" />
         <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
         <div className="relative max-w-6xl mx-auto px-6 z-10">
-          <div className="absolute top-6 right-6">
-            <BackToHomeButton />
+          <div className="flex justify-start mb-6">
+            <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Privacy Policy" }]} />
           </div>
           <div className="text-center space-y-4">
             <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Legal</p>
@@ -23,6 +23,20 @@ export default function PrivacyPolicy() {
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Your privacy is important to us. Learn how we collect, use, and protect your personal information.
             </p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-95"
+              >
+                Back to marketplace
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/90 px-6 py-3 text-sm font-semibold text-primary hover:border-primary/40 transition shadow-sm"
+              >
+                Contact support
+              </Link>
+            </div>
           </div>
         </div>
       </header>

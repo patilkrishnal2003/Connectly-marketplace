@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import BackToHomeButton from "../components/BackToHomeButton";
+import Breadcrumbs from "../components/Breadcrumbs";
 import HeroNavbar from "../components/HeroNavbar";
 
 const sections = [
@@ -47,17 +47,18 @@ const highlights = [
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-emerald-50 text-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-[#f7f9ff] via-white to-[#f2f6ff] text-slate-900">
       <HeroNavbar />
-      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] pt-28 pb-16 text-slate-900">
-        <div className="absolute -top-6 -right-6 h-56 w-56 rounded-full bg-[#c4b5fd]/60 blur-3xl" />
-        <div className="absolute bottom-0 left-8 h-72 w-72 rounded-full bg-[#fcd34d]/60 blur-3xl" />
+      <header className="relative overflow-hidden bg-gradient-hero pt-28 pb-16 text-slate-900">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute -top-10 right-10 h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute bottom-0 left-16 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
         <div className="max-w-5xl mx-auto px-6 space-y-8 text-center relative">
-          <div className="absolute -top-4 right-4">
-            <BackToHomeButton />
+          <div className="flex justify-start">
+            <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Terms & Conditions" }]} />
           </div>
           <div>
-            <p className="text-sm tracking-[0.4em] uppercase text-indigo-600">
+            <p className="text-sm tracking-[0.4em] uppercase text-primary">
               Legal
             </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
@@ -70,13 +71,13 @@ export default function Terms() {
           <div className="flex flex-col sm:flex-row sm:justify-center gap-3">
             <Link
               to="/"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-200 transition hover:opacity-95"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-95"
             >
               Back to marketplace
             </Link>
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-indigo-100 px-6 py-3 text-sm font-semibold text-indigo-700 bg-white/80 hover:bg-white transition"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/20 px-6 py-3 text-sm font-semibold text-primary bg-white/90 hover:bg-white transition shadow-sm"
             >
               Contact support
             </Link>
@@ -97,7 +98,7 @@ export default function Terms() {
             <div className="space-y-2">
               {highlights.map((item) => (
                 <div key={item} className="flex items-start gap-3">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" />
+                  <span className="mt-1 h-2 w-2 rounded-full bg-gradient-to-r from-primary to-accent" />
                   <p className="text-sm text-slate-700">{item}</p>
                 </div>
               ))}
@@ -114,7 +115,7 @@ export default function Terms() {
           ))}
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-gradient-to-r from-[#ede9fe] via-white to-slate-50 p-8">
+        <section className="rounded-3xl border border-slate-200 bg-gradient-to-r from-primary/10 via-white to-accent/10 p-8">
           <div className="flex flex-col gap-4 text-center">
             <h3 className="text-2xl font-semibold text-slate-900">Need a different agreement?</h3>
             <p className="text-slate-600">
@@ -122,7 +123,7 @@ export default function Terms() {
             </p>
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-200 transition hover:opacity-95"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:opacity-95"
             >
               Talk to legal
             </Link>
