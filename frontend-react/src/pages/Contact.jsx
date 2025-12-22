@@ -160,7 +160,7 @@ export default function Contact() {
       </header>
 
       <main className="flex-1 w-full max-w-6xl mx-auto px-6 pb-16 -mt-10 space-y-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="space-y-5">
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
               <div className="flex items-start gap-3">
@@ -219,7 +219,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <div id="contact-form" className="bg-white border border-border shadow-lg rounded-3xl p-8 max-h-[90vh] overflow-y-auto scroll-mt-24">
+          <div id="contact-form" className="bg-white border border-border shadow-lg rounded-3xl p-8 scroll-mt-24">
             <div className="flex items-start justify-between gap-3 mb-6">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Contact form</p>
