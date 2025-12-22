@@ -37,7 +37,7 @@ const DealCard = ({ deal, onClaim }: DealCardProps) => {
     return normalized.charAt(0).toUpperCase() + normalized.slice(1);
   };
   const tierLabel = formatTierLabel(deal.tier);
-  const discountLabel = deal.discount || "Limited-time offer";
+  const discountLabel = deal.discount;
   const displayDescription =
     deal.description ||
     `${brandName} provides curated credits, trial access, and flexible discounts for bold teams.`;
@@ -81,9 +81,11 @@ const DealCard = ({ deal, onClaim }: DealCardProps) => {
           </div>
 
           <div className="space-y-3">
-            <div className="inline-flex items-center rounded-full bg-gradient-to-r from-primary to-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary-foreground">
-              {discountLabel}
-            </div>
+            {discountLabel && (
+              <div className="inline-flex items-center rounded-full bg-gradient-to-r from-primary to-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary-foreground">
+                {discountLabel}
+              </div>
+            )}
             <h4 className="text-lg font-semibold text-foreground">{offerHeadline}</h4>
             <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">{displayDescription}</p>
           </div>

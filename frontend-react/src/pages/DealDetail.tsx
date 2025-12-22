@@ -324,7 +324,7 @@ export default function DealDetail() {
               </div>
 
               <aside className="lg:col-span-1 space-y-6">
-                <div className="sticky top-24 space-y-4 rounded-3xl border border-border bg-card p-6 shadow-2xl">
+                <div className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow-2xl">
                   <div className="rounded-2xl border border-border/60 bg-gradient-to-r from-primary/80 to-accent/80 p-6 text-center text-white shadow-lg">
                     <p className="text-sm uppercase tracking-[0.3em] opacity-90">Value up to</p>
                     <p className="mt-2 text-3xl font-bold">{valueLabel}</p>
