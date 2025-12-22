@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -33,11 +33,19 @@ const navLinks = [
 
 const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSettings }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const avatarInitial = useMemo(
     () => {
-      const source = (user?.name || user?.email || "User").trim();
-      const match = source.match(/[A-Za-z]/);
-      return (match?.[0] || source.charAt(0) || "U").toUpperCase();
+      const nameSource = user?.name?.trim();
+
+      if (nameSource) {
+        const firstName = nameSource.split(/\s+/).find(Boolean);
+        if (firstName) return firstName.charAt(0).toUpperCase();
+      }
+
+      const emailSource = user?.email?.trim() || "User";
+      const match = emailSource.match(/[A-Za-z]/);
+      return (match?.[0] || emailSource.charAt(0) || "U").toUpperCase();
     },
     [user?.email, user?.name]
   );
@@ -111,11 +119,12 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSett
                     <User className="w-4 h-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link to="/subscription-plans" className="flex items-center">
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Subscription plans
-                    </Link>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={() => navigate("/subscription-plans")}
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Subscription plans
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={onSettings}>
                     <Settings className="w-4 h-4 mr-2" />
