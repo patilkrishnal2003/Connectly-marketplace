@@ -241,7 +241,7 @@ export default function Home() {
         onSettings={() => setSettingsOpen(true)}
       />
 
-      <div className="pt-28">
+      <div>
         <HeroSection isLoggedIn={!!user} userName={user?.name || user?.email} onGetStarted={() => user ? navigate('/my-deals') : navigate('/subscription-plans')} onWatchDemo={() => window.open('https://connecttly.com/demo', '_blank')} />
 
         <section className="max-w-7xl mx-auto px-6 mt-8 pb-12">
