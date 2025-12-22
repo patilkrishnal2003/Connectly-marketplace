@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Mail, MessageCircle, Phone, ShieldCheck, Clock, MapPin, ArrowUpRight } from "lucide-react";
 import Footer from "../components/Footer";
 import BackToHomeButton from "../components/BackToHomeButton";
+import HeroNavbar from "../components/HeroNavbar";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -93,8 +94,9 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col overflow-x-hidden overflow-y-auto">
-      <header className="relative overflow-hidden bg-gradient-hero flex-shrink-0">
-        <div className="max-w-6xl mx-auto px-6 pt-20 pb-16">
+      <HeroNavbar />
+      <header className="relative overflow-hidden bg-gradient-hero flex-shrink-0 pt-28 pb-16">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="absolute top-6 right-6">
             <BackToHomeButton />
           </div>

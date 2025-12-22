@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronUp, Sparkles, ArrowLeft, Search, MessageCircle, Zap, Shield, CreditCard, Users } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles, Search, MessageCircle, Zap, Shield, CreditCard, Users } from "lucide-react";
 import BackToHomeButton from "../components/BackToHomeButton";
 import Footer from "../components/Footer";
+import HeroNavbar from "../components/HeroNavbar";
 
 interface FAQItem {
   question: string;
@@ -100,26 +101,10 @@ const FAQ = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 flex-shrink-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Home</span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold text-foreground">Connecttly</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <HeroNavbar />
 
       {/* Hero Section */}
-      <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-hero text-slate-900 md:pt-16">
+      <section className="relative pt-28 pb-20 overflow-hidden bg-gradient-hero text-slate-900 md:pt-32">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/12 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/12 rounded-full blur-3xl" />

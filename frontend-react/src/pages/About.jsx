@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import BackToHomeButton from "../components/BackToHomeButton";
+import HeroNavbar from "../components/HeroNavbar";
 
 const stats = [
   { label: "Partner network", value: "200+", detail: "curated SaaS & cloud providers" },

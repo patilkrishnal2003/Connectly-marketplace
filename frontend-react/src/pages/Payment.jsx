@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import BackToHomeButton from "../components/BackToHomeButton";
+import HeroNavbar from "../components/HeroNavbar";
 
 const planMeta = {
   standard: { name: "Starter", price: "$99/mo", perks: ["Starter-tier deals", "Up to $5k value", "Email support"] },
@@ -71,10 +72,11 @@ export default function Payment() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center px-4 relative">
+      <HeroNavbar />
       <div className="absolute top-6 right-6">
         <BackToHomeButton />
       </div>
-      <div className="w-full max-w-3xl bg-white border border-slate-200 rounded-3xl shadow-xl p-8 space-y-6">
+      <div className="w-full max-w-3xl bg-white border border-slate-200 rounded-3xl shadow-xl p-8 space-y-6 mt-20">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-500">Payment gateway</p>
