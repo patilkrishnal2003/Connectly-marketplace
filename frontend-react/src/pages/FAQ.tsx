@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronUp, Sparkles, Search, MessageCircle, Zap, Shield, CreditCard, Users } from "lucide-react";
-import BackToHomeButton from "../components/BackToHomeButton";
+import { ChevronDown, ChevronUp, Sparkles, Search, MessageCircle, Zap, Shield, CreditCard, Users, ArrowUpRight, PhoneCall, Mail, Globe } from "lucide-react";
+import Breadcrumbs from "../components/Breadcrumbs";
 import Footer from "../components/Footer";
 import HeroNavbar from "../components/HeroNavbar";
 
@@ -109,8 +109,8 @@ const FAQ = () => {
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/12 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/12 rounded-full blur-3xl" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-          <div className="absolute top-6 right-6">
-            <BackToHomeButton />
+          <div className="flex justify-start mb-6">
+            <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "FAQ" }]} />
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <MessageCircle className="w-4 h-4 text-primary" />
@@ -272,6 +272,66 @@ const FAQ = () => {
                   <ArrowLeft className="w-5 h-5" />
                   Back to Home
                 </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="pb-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="rounded-3xl border border-border bg-card/80 shadow-sm p-6 md:p-8">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Need to reach us fast?</p>
+                  <h3 className="text-xl font-semibold text-foreground">Choose how you want to connect</h3>
+                  <p className="text-sm text-muted-foreground">Use any of the options below—we respond quickly on every channel.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <a
+                  href="https://connecttly.com/demo"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground shadow-sm hover:border-primary hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Book a free consultation
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                </a>
+                <a
+                  href="mailto:support@connecttly.com"
+                  className="group inline-flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground shadow-sm hover:border-primary hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-primary" />
+                    support@connecttly.com
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                </a>
+                <a
+                  href="tel:+14159150025"
+                  className="group inline-flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground shadow-sm hover:border-primary hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <PhoneCall className="w-4 h-4 text-primary" />
+                    +1 (415) 915-0025
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                </a>
+                <a
+                  href="https://connecttly.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground shadow-sm hover:border-primary hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-primary" />
+                    connecttly.com
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                </a>
               </div>
             </div>
           </div>
