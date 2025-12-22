@@ -68,9 +68,14 @@ export default function Login() {
               <p className="text-base font-semibold text-foreground">Marketplace</p>
             </div>
           </Link>
-          <Link to="/register" className="text-sm font-medium text-primary hover:text-[hsl(var(--primary-dark))]">
-            New here? Create an account
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="btn-ghost text-sm font-medium px-3 py-2">
+              Home
+            </Link>
+            <Link to="/register" className="text-sm font-medium text-primary hover:text-[hsl(var(--primary-dark))]">
+              New here? Create an account
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
