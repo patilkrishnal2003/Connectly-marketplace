@@ -5,6 +5,7 @@ import App from "./App";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminPanel from "./pages/AdminPanel";
+import ScrollToTop from "./components/ScrollToTop";
 import DealDetail from "./pages/DealDetail";
 import MyDeals from "./pages/MyDeals";
 import Payment from "./pages/Payment";
@@ -39,40 +40,42 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/payment/success" element={<Payment />} />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminPanel />
-              </AdminRoute>
-            }
-          />
-          <Route path="/my-deals" element={<MyDeals />} />
-          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/changelog" element={<Changelog />} />
-          <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/press" element={<Press />} />
-          <Route path="/documentation" element={<Documentation />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/api" element={<Api />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
-          <Route path="/security" element={<Security />} />
-          <Route path="/legal" element={<Legal />} />
-          <Route path="/deal/:dealId" element={<DealDetail />} />
-          <Route path="/*" element={<App />} />
-        </Routes>
+        <ScrollToTop>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/payment/success" element={<Payment />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPanel />
+                </AdminRoute>
+              }
+            />
+            <Route path="/my-deals" element={<MyDeals />} />
+            <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/changelog" element={<Changelog />} />
+            <Route path="/roadmap" element={<Roadmap />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/press" element={<Press />} />
+            <Route path="/documentation" element={<Documentation />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/api" element={<Api />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/security" element={<Security />} />
+            <Route path="/legal" element={<Legal />} />
+            <Route path="/deal/:dealId" element={<DealDetail />} />
+            <Route path="/*" element={<App />} />
+          </Routes>
+        </ScrollToTop>
       </BrowserRouter>
     </AuthProvider>
   </React.StrictMode>
