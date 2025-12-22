@@ -121,7 +121,7 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSett
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onSelect={() => navigate("/subscription-plans")}
+                    onClick={() => navigate("/subscription-plans")}
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
                     Subscription plans
