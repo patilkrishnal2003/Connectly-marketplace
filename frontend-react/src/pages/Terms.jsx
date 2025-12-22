@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import BackToHomeButton from "../components/BackToHomeButton";
+import HeroNavbar from "../components/HeroNavbar";
 
 const sections = [
   {
@@ -47,7 +48,8 @@ const highlights = [
 export default function Terms() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-emerald-50 text-slate-900">
-      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] pt-12 pb-16 text-slate-900">
+      <HeroNavbar />
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#f8f4ff] via-[#efe6ff] to-[#f4edff] pt-28 pb-16 text-slate-900">
         <div className="absolute -top-6 -right-6 h-56 w-56 rounded-full bg-[#c4b5fd]/60 blur-3xl" />
         <div className="absolute bottom-0 left-8 h-72 w-72 rounded-full bg-[#fcd34d]/60 blur-3xl" />
         <div className="max-w-5xl mx-auto px-6 space-y-8 text-center relative">

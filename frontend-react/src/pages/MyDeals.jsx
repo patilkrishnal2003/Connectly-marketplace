@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
 import BackToHomeButton from "../components/BackToHomeButton";
+import HeroNavbar from "../components/HeroNavbar";
 
 export default function MyDeals() {
   const { user, authFetch } = useContext(AuthContext);
@@ -33,7 +34,8 @@ export default function MyDeals() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-5xl mx-auto px-6 py-10 space-y-6 relative">
+      <HeroNavbar />
+      <div className="max-w-5xl mx-auto px-6 pt-24 pb-10 space-y-6 relative">
         <div className="absolute top-6 right-6">
           <BackToHomeButton />
         </div>

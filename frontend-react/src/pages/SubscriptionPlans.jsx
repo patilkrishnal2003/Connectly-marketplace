@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../auth/AuthProvider";
 import BackToHomeButton from "../components/BackToHomeButton";
 import { derivePlanStatus, matchesPlan } from "@/utils/subscription";
+import HeroNavbar from "../components/HeroNavbar";
 
 const planOptions = [
   {
@@ -97,12 +98,13 @@ export default function SubscriptionPlans() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-slate-900">
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-emerald-800 text-white">
+      <HeroNavbar onSettings={() => {}} />
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-emerald-800 text-white pt-28">
         <div className="pointer-events-none absolute inset-0 opacity-60">
           <div className="absolute -top-24 -left-10 h-64 w-64 bg-emerald-400 rounded-full mix-blend-overlay blur-3xl"></div>
           <div className="absolute -bottom-28 -right-16 h-80 w-80 bg-indigo-500 rounded-full mix-blend-overlay blur-3xl"></div>
         </div>
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-10 space-y-6">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 pb-10 space-y-6">
           <div className="absolute top-6 right-6">
             <BackToHomeButton />
           </div>
