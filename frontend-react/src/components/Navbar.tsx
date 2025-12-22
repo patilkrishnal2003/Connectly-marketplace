@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Sparkles, ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { Menu, X, Sparkles, ChevronDown, LogOut, Settings, User, CreditCard } from "lucide-react";
 
 interface NavbarProps {
   isLoggedIn?: boolean;
@@ -34,8 +34,12 @@ const navLinks = [
 const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSettings }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const avatarInitial = useMemo(
-    () => user?.name?.trim()?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U",
-    [user?.email, user?.name],
+    () => {
+      const source = (user?.name || user?.email || "User").trim();
+      const match = source.match(/[A-Za-z]/);
+      return (match?.[0] || source.charAt(0) || "U").toUpperCase();
+    },
+    [user?.email, user?.name]
   );
 
   const renderNavLink = (label: string, to: string, className?: string) => {
@@ -90,7 +94,7 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSett
                   <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-secondary rounded-full">
                     <Avatar className="w-10 h-10">
                       <AvatarImage src={user.avatar} />
-                      <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
+                      <AvatarFallback className="bg-gradient-primary text-primary-foreground text-sm font-semibold uppercase">
                         {avatarInitial}
                       </AvatarFallback>
                     </Avatar>
@@ -106,6 +110,12 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSett
                   <DropdownMenuItem className="cursor-pointer" onClick={onProfile}>
                     <User className="w-4 h-4 mr-2" />
                     Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/subscription-plans" className="flex items-center">
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Subscription plans
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={onSettings}>
                     <Settings className="w-4 h-4 mr-2" />
