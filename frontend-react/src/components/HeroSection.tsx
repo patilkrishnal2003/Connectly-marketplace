@@ -2,13 +2,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Star, Users, Zap } from "lucide-react";
 
 interface HeroSectionProps {
-  isLoggedIn?: boolean;
-  userName?: string;
   onGetStarted?: () => void;
   onWatchDemo?: () => void;
 }
 
-const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }: HeroSectionProps) => {
+const HeroSection = ({ onGetStarted, onWatchDemo }: HeroSectionProps) => {
   const brandLogos = [
     { name: "Google", src: "/logos/google.svg" },
     { name: "Figma", src: "/logos/figma.svg" },
@@ -16,22 +14,6 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
     { name: "LinkedIn", src: "/logos/linkedin.svg" },
     { name: "Stripe", src: "/logos/stripe.svg" },
   ];
-
-  const getDisplayName = () => {
-    if (!userName) return "Member";
-    const trimmed = userName.trim();
-
-    if (trimmed.includes("@")) {
-      const [beforeAt] = trimmed.split("@");
-      if (beforeAt) {
-        return beforeAt.charAt(0).toUpperCase() + beforeAt.slice(1);
-      }
-    }
-
-    return trimmed;
-  };
-
-  const displayName = getDisplayName();
 
   return (
     <section
@@ -75,31 +57,17 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
 
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            {isLoggedIn ? (
-              <>
-                Welcome back,{" "}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {displayName}
-                </span>
-              </>
-            ) : (
-              <>
-                Unlock{" "}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Premium Perks
-                </span>
-                <br />
-                for Your Startup
-              </>
-            )}
+            Unlock{" "}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Premium Perks
+            </span>
+            <br />
+            for Your Startup
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-            {isLoggedIn
-              ? "Explore your exclusive deals and save thousands on the tools you need to grow."
-              : "Access $1M+ in exclusive deals from top SaaS providers. Join 10,000+ startups already saving."
-            }
+            Access $1M+ in exclusive deals from top SaaS providers. Join 10,000+ startups already saving.
           </p>
 
           {/* CTAs */}
@@ -109,7 +77,7 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
               onClick={onGetStarted}
               className="w-full sm:w-auto bg-gradient-primary hover:shadow-glow transition-all duration-300 text-base px-6 py-4 group"
             >
-              {isLoggedIn ? "Browse Deals" : "Get Started Free"}
+              Get Started Free
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button

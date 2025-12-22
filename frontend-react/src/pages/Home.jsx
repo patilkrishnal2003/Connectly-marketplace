@@ -242,7 +242,7 @@ export default function Home() {
       />
 
       <div>
-        <HeroSection isLoggedIn={!!user} userName={user?.name || user?.email} onGetStarted={() => user ? navigate('/my-deals') : navigate('/subscription-plans')} onWatchDemo={() => window.open('https://connecttly.com/demo', '_blank')} />
+        <HeroSection onGetStarted={() => user ? navigate('/my-deals') : navigate('/subscription-plans')} onWatchDemo={() => window.open('https://connecttly.com/demo', '_blank')} />
 
         <section className="max-w-7xl mx-auto px-6 mt-8 pb-12">
           <div className="grid gap-6 md:grid-cols-4">

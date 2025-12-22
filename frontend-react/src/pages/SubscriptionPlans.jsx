@@ -97,12 +97,12 @@ export default function SubscriptionPlans() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-100 text-slate-900">
       <HeroNavbar onSettings={() => {}} />
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-emerald-800 text-white pt-28">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[hsl(var(--primary-dark))] via-[hsl(var(--primary))] to-[#0f1f6d] text-white pt-28">
         <div className="pointer-events-none absolute inset-0 opacity-60">
-          <div className="absolute -top-24 -left-10 h-64 w-64 bg-emerald-400 rounded-full mix-blend-overlay blur-3xl"></div>
-          <div className="absolute -bottom-28 -right-16 h-80 w-80 bg-indigo-500 rounded-full mix-blend-overlay blur-3xl"></div>
+          <div className="absolute -top-24 -left-10 h-64 w-64 bg-primary rounded-full mix-blend-overlay blur-3xl"></div>
+          <div className="absolute -bottom-28 -right-16 h-80 w-80 bg-primary/80 rounded-full mix-blend-overlay blur-3xl"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-6 pb-10 space-y-6">
           <div className="flex justify-start">
@@ -202,7 +202,7 @@ export default function SubscriptionPlans() {
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             active
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                              ? "bg-primary/10 text-primary border border-primary/20"
                               : upgradeRecommended
                               ? "bg-indigo-50 text-indigo-700 border border-indigo-100"
                               : "bg-slate-50 text-slate-700 border border-slate-200"
@@ -213,7 +213,7 @@ export default function SubscriptionPlans() {
                       </div>
 
                       <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-700 inline-flex items-center gap-2 w-fit">
-                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        <span className="h-2 w-2 rounded-full bg-primary"></span>
                         {plan.highlight}
                       </div>
 
@@ -269,7 +269,7 @@ export default function SubscriptionPlans() {
               </ul>
             </div>
 
-            <div className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm space-y-3">
+            <div className="rounded-3xl border border-primary/20 bg-white p-5 shadow-sm space-y-3">
               <p className="text-sm font-semibold text-slate-900">How it works</p>
               <ol className="space-y-2 text-sm text-slate-700 list-decimal list-inside">
                 <li>Pick your plan and complete checkout in seconds.</li>
