@@ -34,7 +34,10 @@ const HeroSection = ({ isLoggedIn = false, userName, onGetStarted, onWatchDemo }
   const displayName = getDisplayName();
 
   return (
-    <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
+    <section
+      id="hero"
+      className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden scroll-mt-32"
+    >
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-hero" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />

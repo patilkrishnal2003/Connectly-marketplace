@@ -48,7 +48,7 @@ const DealCard = ({ deal, onClaim }: DealCardProps) => {
   return (
     <div className="group relative flex h-full flex-col">
       {deal.featured && (
-        <div className="absolute -top-3 left-4 flex items-center gap-1 rounded-full bg-gradient-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground shadow-soft">
+        <div className="absolute -top-3 left-4 z-10 flex items-center gap-1 rounded-full bg-gradient-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground shadow-soft pointer-events-none">
           <Zap className="h-3 w-3" />
           Featured
         </div>

@@ -25,7 +25,7 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { label: "Home", to: "/" },
+  { label: "Home", to: "/#hero" },
   { label: "Deals", to: "#deals" },
   { label: "Categories", to: "/#categories" },
   { label: "About", to: "/about" }
