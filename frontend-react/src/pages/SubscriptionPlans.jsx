@@ -97,48 +97,44 @@ export default function SubscriptionPlans() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-100 text-slate-900">
-      <HeroNavbar onSettings={() => {}} />
-      <div className="relative overflow-hidden bg-gradient-to-br from-[hsl(var(--primary-dark))] via-[hsl(var(--primary))] to-[#0f1f6d] text-white pt-28">
-        <div className="pointer-events-none absolute inset-0 opacity-60">
-          <div className="absolute -top-24 -left-10 h-64 w-64 bg-primary rounded-full mix-blend-overlay blur-3xl"></div>
-          <div className="absolute -bottom-28 -right-16 h-80 w-80 bg-primary/80 rounded-full mix-blend-overlay blur-3xl"></div>
-        </div>
-        <div className="relative z-10 max-w-6xl mx-auto px-6 pb-10 space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-[#f7f9ff] via-white to-[#eef2ff] text-slate-900 flex flex-col">
+      <HeroNavbar />
+      <header className="relative overflow-hidden bg-gradient-hero pt-28 pb-16 md:pt-32">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute -top-10 right-10 h-64 w-64 rounded-full bg-primary/12 blur-3xl" />
+        <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-accent/12 blur-3xl" />
+        <div className="relative max-w-6xl mx-auto px-6 space-y-8">
           <div className="flex justify-start">
             <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Subscription Plans" }]} />
           </div>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="space-y-2">
-              <p className="text-sm uppercase tracking-[0.22em] text-white/60">Your subscription</p>
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.35fr,auto] gap-6 items-start">
+            <div className="space-y-4">
+              <p className="text-sm uppercase tracking-[0.3em] text-primary/80">Subscription</p>
+              <h1 className="text-4xl md:text-5xl font-bold leading-tight text-slate-900">
                 {planStatus.hasPlan ? "Manage your access" : "Unlock the full marketplace"}
               </h1>
-              <p className="text-sm md:text-base text-white/80 max-w-2xl">{upgradeMessage}</p>
+              <p className="text-lg text-muted-foreground max-w-3xl">{upgradeMessage}</p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-95"
+                >
+                  Back to marketplace
+                </Link>
+                <Link
+                  to="/my-deals"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/20 bg-white/90 px-6 py-3 text-sm font-semibold text-primary shadow-sm hover:bg-white transition"
+                >
+                  View my deals
+                </Link>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                to="/"
-                className="btn-bubble btn-bubble--white text-indigo-900 px-5"
-              >
-                Back to marketplace
-              </Link>
-              <Link
-                to="/my-deals"
-                className="btn-bubble btn-bubble--ghost text-white border-white/40"
-              >
-                View my deals
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-5 space-y-2">
-              <p className="text-xs uppercase tracking-wide text-white/60">Status</p>
-              <p className="text-xl font-semibold">
+            <div className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white/90 shadow-lg p-5 space-y-2">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Status</p>
+              <p className="text-2xl font-semibold text-slate-900">
                 {loading ? "Checking..." : subscription ? `${planStatus.label} (${subscription.status})` : "No plan active"}
               </p>
-              <p className="text-sm text-white/70">
+              <p className="text-sm text-muted-foreground">
                 {subscription?.status === "active"
                   ? planStatus.isPro
                     ? "Professional perks unlocked and prioritized support."
@@ -150,23 +146,33 @@ export default function SubscriptionPlans() {
                   : "Activate a plan to unlock partner deals instantly."}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-5 space-y-2">
-              <p className="text-xs uppercase tracking-wide text-white/60">Value unlocked</p>
-              <p className="text-xl font-semibold">{planStatus.isPro ? "Premium + Starter" : planStatus.hasPlan ? "Starter tier" : "Preview only"}</p>
-              <p className="text-sm text-white/70">Use your plan to claim deals in a single click across the marketplace.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-md p-5 space-y-2 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Value unlocked</p>
+              <p className="text-xl font-semibold text-slate-900">{planStatus.isPro ? "Premium + Starter" : planStatus.hasPlan ? "Starter tier" : "Preview only"}</p>
+              <p className="text-sm text-muted-foreground">Use your plan to claim deals in a single click across the marketplace.</p>
             </div>
-            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-5 space-y-2">
-              <p className="text-xs uppercase tracking-wide text-white/60">Advice</p>
-              <p className="text-xl font-semibold">{planStatus.isPro ? "You are set" : "Upgrade recommended"}</p>
-              <p className="text-sm text-white/70">
+            <div className="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-md p-5 space-y-2 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Advice</p>
+              <p className="text-xl font-semibold text-slate-900">{planStatus.isPro ? "You are set" : "Upgrade recommended"}</p>
+              <p className="text-sm text-muted-foreground">
                 {planStatus.isPro ? "Enjoy faster access and pro-only perks." : "Move to Professional for early drops, white-glove help, and pro-only perks."}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-md p-5 space-y-2 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Support</p>
+              <p className="text-xl font-semibold text-slate-900">{planStatus.isPro ? "Priority responses" : "Standard turnaround"}</p>
+              <p className="text-sm text-muted-foreground">
+                {planStatus.isPro ? "Pro plans route to our fastest queue for activation help." : "Upgrade to jump the line and get guided onboarding for each perk."}
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-12 space-y-8">
+      <main className="max-w-6xl mx-auto px-6 py-12 space-y-8 w-full">
         {error && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm">
             {error}
