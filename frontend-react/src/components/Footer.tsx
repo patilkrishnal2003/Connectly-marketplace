@@ -7,28 +7,29 @@ const Footer = () => {
       { label: "Features", href: "#features" },
       { label: "Pricing", to: "/subscription-plans" },
       { label: "Partners", href: "#partners" },
-      { label: "Changelog", href: "#" },
-      { label: "Roadmap", href: "#" },
+      { label: "Changelog", to: "/changelog" },
+      { label: "Roadmap", to: "/roadmap" },
     ],
     Company: [
       { label: "About", to: "/about" },
-      { label: "Blog", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Press", href: "#" },
+      { label: "Blog", to: "/blog" },
+      { label: "Careers", to: "/careers" },
+      { label: "Press", to: "/press" },
       { label: "Contact", to: "/contact" },
     ],
     Resources: [
-      { label: "Documentation", href: "#" },
+      { label: "Documentation", to: "/documentation" },
       { label: "Help Center", to: "/faq" },
       { label: "FAQ", to: "/faq" },
-      { label: "Community", href: "#" },
-      { label: "API", href: "#" },
+      { label: "Community", to: "/community" },
+      { label: "API", to: "/api" },
     ],
     Legal: [
+      { label: "Legal Center", to: "/legal" },
       { label: "Privacy Policy", to: "/privacy-policy" },
       { label: "Terms of Service", to: "/terms" },
-      { label: "Cookie Policy", href: "#" },
-      { label: "Security", href: "#" },
+      { label: "Cookie Policy", to: "/cookie-policy" },
+      { label: "Security", to: "/security" },
     ],
   };
 
@@ -125,9 +126,9 @@ const Footer = () => {
             <Link to="/terms" className="text-sm text-background/60 hover:text-background transition-colors">
               Terms
             </Link>
-            <a href="#" className="text-sm text-background/60 hover:text-background transition-colors">
+            <Link to="/cookie-policy" className="text-sm text-background/60 hover:text-background transition-colors">
               Cookies
-            </a>
+            </Link>
             <Link to="/admin" className="text-sm text-background/60 hover:text-background transition-colors">
               Admin
             </Link>

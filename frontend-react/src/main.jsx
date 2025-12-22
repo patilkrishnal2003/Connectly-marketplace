@@ -14,6 +14,17 @@ import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import FAQ from "./pages/FAQ";
+import Changelog from "./pages/Changelog";
+import Roadmap from "./pages/Roadmap";
+import Blog from "./pages/Blog";
+import Careers from "./pages/Careers";
+import Press from "./pages/Press";
+import Documentation from "./pages/Documentation";
+import Community from "./pages/Community";
+import Api from "./pages/Api";
+import CookiePolicy from "./pages/CookiePolicy";
+import Security from "./pages/Security";
+import Legal from "./pages/Legal";
 import { AuthProvider, AuthContext } from "./auth/AuthProvider";
 import "./index.css";
 
@@ -48,6 +59,17 @@ createRoot(document.getElementById("root")).render(
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/changelog" element={<Changelog />} />
+          <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/press" element={<Press />} />
+          <Route path="/documentation" element={<Documentation />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/api" element={<Api />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/legal" element={<Legal />} />
           <Route path="/deal/:dealId" element={<DealDetail />} />
           <Route path="/*" element={<App />} />
         </Routes>
