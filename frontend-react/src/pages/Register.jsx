@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { Sparkles, ShieldCheck, Users, Mail, Lock } from "lucide-react";
 import { AuthContext } from "../auth/AuthProvider";
 
 export default function Register() {
@@ -9,6 +10,23 @@ export default function Register() {
   const [error, setError] = useState("");
   const { setToken } = useContext(AuthContext);
   const navigate = useNavigate();
+  const perks = [
+    {
+      title: "Curated savings",
+      desc: "Hand-picked partner perks aligned to your business stage.",
+      icon: <Sparkles className="h-5 w-5 text-primary" />
+    },
+    {
+      title: "Team ready",
+      desc: "Invite teammates and manage roles from day one.",
+      icon: <Users className="h-5 w-5 text-primary" />
+    },
+    {
+      title: "Protected access",
+      desc: "SSO-friendly authentication with encrypted sessions.",
+      icon: <ShieldCheck className="h-5 w-5 text-primary" />
+    }
+  ];
 
   async function submit(e) {
     e.preventDefault();
@@ -32,71 +50,135 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-slate-50 to-white flex items-center justify-center p-6">
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-        <div className="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-800 text-white rounded-3xl p-10 shadow-2xl space-y-6">
-          <p className="text-sm uppercase tracking-wide text-white/70">Connecttly Marketplace</p>
-          <h1 className="text-3xl font-bold leading-tight">Join the marketplace and unlock perks.</h1>
-          <p className="text-white/70 text-sm">
-            Create your account to access partner coupons and request new deals for your team.
-          </p>
-          <div className="flex flex-wrap gap-3 text-sm text-white/80">
-            <span className="px-3 py-2 rounded-xl bg-white/10 border border-white/20">Curated partner perks</span>
-            <span className="px-3 py-2 rounded-xl bg-white/10 border border-white/20">Admin-ready access</span>
-            <span className="px-3 py-2 rounded-xl bg-white/10 border border-white/20">Secure onboarding</span>
+    <div className="relative min-h-screen bg-gradient-to-br from-primary/5 via-white to-indigo-50 text-foreground">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-indigo-400/25 blur-3xl" />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-6 py-12">
+        <div className="mb-10 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold shadow-glow">
+              C
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Connecttly</p>
+              <p className="text-base font-semibold text-foreground">Marketplace</p>
+            </div>
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="btn-ghost text-sm font-medium px-3 py-2">
+              Home
+            </Link>
+            <Link to="/login" className="text-sm font-medium text-primary hover:text-[hsl(var(--primary-dark))]">
+              Already a member? Log in
+            </Link>
           </div>
         </div>
 
-        <form
-          onSubmit={submit}
-          className="bg-white border border-slate-200 shadow-lg rounded-3xl p-8 space-y-6 flex flex-col justify-center"
-        >
-          <div>
-            <h2 className="text-2xl font-semibold text-slate-900">Create account</h2>
-            <p className="text-sm text-slate-500">Start using partner deals in minutes.</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+              <Sparkles className="h-4 w-4" />
+              Get started in minutes
+            </div>
+            <div className="space-y-4">
+              <h1 className="text-4xl font-semibold leading-tight text-slate-900">Create your Connecttly account</h1>
+              <p className="text-base text-muted-foreground max-w-xl">
+                Unlock partner deals, manage your team, and track the perks that fuel your next milestones.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {perks.map((item) => (
+                <div key={item.title} className="flex items-start gap-3 rounded-xl bg-white/70 backdrop-blur border border-border p-4 shadow-sm">
+                  <div className="mt-1 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">{item.icon}</div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          {error && <div className="text-red-600 text-sm rounded-lg bg-red-50 border border-red-200 px-3 py-2">{error}</div>}
-          <div className="space-y-4">
-            <label className="block text-sm font-medium text-slate-700">
-              Name
-              <input
-                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-slate-50"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </label>
-            <label className="block text-sm font-medium text-slate-700">
-              Email
-              <input
-                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-slate-50"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                required
-              />
-            </label>
-            <label className="block text-sm font-medium text-slate-700">
-              Password
-              <input
-                type="password"
-                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-slate-50"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </label>
-          </div>
-          <button className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow hover:bg-indigo-700 transition">
-            Register
-          </button>
-          <div className="text-center text-sm text-slate-600">
-            Already have an account?{" "}
-            <Link to="/login" className="text-indigo-600 font-semibold hover:text-indigo-700">
-              Log in
-            </Link>
-          </div>
-        </form>
+
+          <form
+            onSubmit={submit}
+            className="relative bg-white/90 backdrop-blur border border-border shadow-lg shadow-primary/5 rounded-2xl p-8 space-y-6"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-900">Create account</h2>
+                <p className="text-sm text-muted-foreground">Use your work email to get personalized deals.</p>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                <ShieldCheck className="h-4 w-4" />
+                Secure signup
+              </div>
+            </div>
+
+            {error && <div className="text-red-600 text-sm rounded-lg bg-red-50 border border-red-200 px-3 py-2">{error}</div>}
+
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-foreground" htmlFor="name">
+                Full name
+                <div className="relative mt-1">
+                  <input
+                    id="name"
+                    className="admin-input ps-10"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Taylor Patel"
+                    autoComplete="name"
+                    required
+                  />
+                  <Sparkles className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+              </label>
+              <label className="block text-sm font-medium text-foreground" htmlFor="email">
+                Work email
+                <div className="relative mt-1">
+                  <input
+                    id="email"
+                    className="admin-input ps-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    placeholder="you@company.com"
+                    autoComplete="email"
+                    required
+                  />
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+              </label>
+              <label className="block text-sm font-medium text-foreground" htmlFor="password">
+                Password
+                <div className="relative mt-1">
+                  <input
+                    id="password"
+                    type="password"
+                    className="admin-input ps-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    required
+                  />
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+              </label>
+            </div>
+
+            <button className="btn-primary w-full py-3 text-base font-semibold">Create account</button>
+
+            <div className="text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link to="/login" className="text-primary font-semibold hover:text-[hsl(var(--primary-dark))]">
+                Log in instead
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
