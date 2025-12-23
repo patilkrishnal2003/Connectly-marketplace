@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, MessageCircle, Phone, ShieldCheck, Clock, MapPin, ArrowUpRight } from "lucide-react";
 import Footer from "../components/Footer";
@@ -98,6 +98,58 @@ export default function Contact() {
     });
   };
 
+  const ensureCalendlyAssets = useCallback(() => {
+    if (typeof window === "undefined") {
+      return Promise.reject(new Error("Calendly requires a browser environment"));
+    }
+
+    if (!document.querySelector('link[data-calendly="stylesheet"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://assets.calendly.com/assets/external/widget.css";
+      link.dataset.calendly = "stylesheet";
+      document.head.appendChild(link);
+    }
+
+    if (window.Calendly) {
+      return Promise.resolve(window.Calendly);
+    }
+
+    const existingScript = document.querySelector('script[data-calendly="widget"]');
+    if (existingScript) {
+      return new Promise((resolve, reject) => {
+        existingScript.addEventListener("load", () => resolve(window.Calendly));
+        existingScript.addEventListener("error", () => reject(new Error("Failed to load Calendly")));
+      });
+    }
+
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://assets.calendly.com/assets/external/widget.js";
+      script.async = true;
+      script.dataset.calendly = "widget";
+      script.onload = () => resolve(window.Calendly);
+      script.onerror = () => reject(new Error("Failed to load Calendly"));
+      document.body.appendChild(script);
+    });
+  }, []);
+
+  const handleBookCall = useCallback(() => {
+    const calendlyUrl = "https://calendly.com/connecttly/demo";
+
+    ensureCalendlyAssets()
+      .then((Calendly) => {
+        if (Calendly?.initPopupWidget) {
+          Calendly.initPopupWidget({ url: calendlyUrl });
+        } else {
+          window.open(calendlyUrl, "_blank", "noopener,noreferrer");
+        }
+      })
+      .catch(() => {
+        window.open(calendlyUrl, "_blank", "noopener,noreferrer");
+      });
+  }, [ensureCalendlyAssets]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -134,15 +186,14 @@ export default function Contact() {
               We're here to help with marketplace access, billing questions, and partnership requests. Reach our team any time.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              <a
-                href="https://connecttly.com/demo"
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={handleBookCall}
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-primary text-primary-foreground px-6 py-3 text-sm font-semibold shadow-soft hover:shadow-lg transition"
               >
                 Book a call
                 <ArrowUpRight className="h-4 w-4" />
-              </a>
+              </button>
               <a
                 href="#contact-form"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-white/90 px-6 py-3 text-sm font-semibold text-foreground shadow-sm hover:border-primary hover:text-primary transition"
