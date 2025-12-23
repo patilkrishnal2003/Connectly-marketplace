@@ -484,52 +484,6 @@ export default function Home() {
         </section>
       )}
 
-      <section className="max-w-6xl mx-auto px-6 pb-16">
-        <div className="relative overflow-hidden rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-purple-50 p-8 md:p-12 shadow-[0_20px_70px_rgba(99,102,241,0.18)]">
-          <div className="grid gap-8 md:grid-cols-2 md:items-center">
-            <div className="space-y-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">Marketplace</p>
-              <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 leading-tight">
-                Claim the perks that move your roadmap forward
-              </h2>
-              <p className="text-base text-slate-600 max-w-2xl">
-                Explore curated deals, activate partner benefits, and keep your team funded with always-on savings.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-700"
-                  onClick={() => (user ? navigate("/my-deals") : navigate("/subscription-plans"))}
-                >
-                  Start saving
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:border-indigo-200 hover:text-indigo-700 bg-white"
-                  onClick={() => navigate("/about")}
-                >
-                  Learn more
-                </button>
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {ctaHighlights.map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl bg-white/70 border border-slate-100 p-4 shadow-[0_10px_30px_rgba(15,23,42,0.05)] backdrop-blur"
-                >
-                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                  <p className="mt-1 text-xs text-slate-600">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="pointer-events-none absolute -top-12 -right-12 h-48 w-48 rounded-full bg-indigo-200/50 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-10 -left-6 h-40 w-40 rounded-full bg-purple-200/50 blur-3xl" />
-        </div>
-      </section>
-
       <ClaimAuthModal
         isOpen={authModalOpen}
         initialMode="login"
