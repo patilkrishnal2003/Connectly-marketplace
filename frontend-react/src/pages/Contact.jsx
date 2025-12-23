@@ -66,6 +66,31 @@ export default function Contact() {
     },
   ];
 
+  const contactDetails = [
+    {
+      title: "Email",
+      detail: "info@connecttly.com",
+      href: "mailto:info@connecttly.com",
+      icon: Mail,
+    },
+    {
+      title: "Phone / WhatsApp",
+      detail: "+91 7905212348",
+      href: "tel:+917905212348",
+      icon: Phone,
+    },
+    {
+      title: "Hours",
+      detail: "Mon–Fri, 10:00–18:00 IST",
+      icon: Clock,
+    },
+    {
+      title: "Address (INDIA)",
+      detail: "Blr10-Vaishnavi, Signature No. 78/9, Bellandur, Bangalore, Bangalore South",
+      icon: MapPin,
+    },
+  ];
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -161,65 +186,10 @@ export default function Contact() {
 
       <main className="flex-1 w-full max-w-6xl mx-auto px-6 pb-16 -mt-10 space-y-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="space-y-5">
-            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Start with email</p>
-                  <h2 className="text-2xl font-semibold text-foreground">Tell us how we can help</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Share as much detail as possible so we can route you to the right teammate and respond quickly.
-                  </p>
-                  <a
-                    href="mailto:support@connecttly.com"
-                    className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary/80 transition-colors"
-                  >
-                    support@connecttly.com
-                    <ArrowUpRight className="h-4 w-4" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {supportChannels.map((channel) => {
-                const Icon = channel.icon;
-                const Wrapper = channel.to ? Link : "a";
-                const wrapperProps = channel.to
-                  ? { to: channel.to }
-                  : {
-                      href: channel.href,
-                      target: channel.href?.startsWith("http") ? "_blank" : undefined,
-                      rel: channel.href?.startsWith("http") ? "noreferrer" : undefined,
-                    };
-
-                return (
-                  <Wrapper
-                    key={channel.title}
-                    {...wrapperProps}
-                    className="group rounded-2xl border border-border bg-white p-5 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col gap-3"
-                  >
-                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-semibold text-foreground">{channel.title}</h3>
-                        <ArrowUpRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                      <p className="text-sm text-muted-foreground">{channel.description}</p>
-                      <p className="text-sm font-semibold text-primary">{channel.action}</p>
-                    </div>
-                  </Wrapper>
-                );
-              })}
-            </div>
-          </div>
-
-          <div id="contact-form" className="bg-white border border-border shadow-lg rounded-3xl p-8 scroll-mt-24">
+          <div
+            id="contact-form"
+            className="order-1 bg-white border border-border shadow-lg rounded-3xl p-8 scroll-mt-24 lg:order-none"
+          >
             <div className="flex items-start justify-between gap-3 mb-6">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Contact form</p>
@@ -287,6 +257,109 @@ export default function Contact() {
                 <ArrowUpRight className="h-4 w-4" />
               </button>
             </form>
+          </div>
+
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-[#f6f1e5] p-8 shadow-md lg:sticky lg:top-28">
+            <div className="absolute -left-10 top-0 h-full w-12 bg-gradient-to-r from-[#ece4d2] to-transparent" aria-hidden />
+            <div className="absolute -right-10 top-0 h-full w-12 bg-gradient-to-l from-[#ece4d2] to-transparent" aria-hidden />
+            <div className="space-y-4 relative">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Contact details</p>
+                <h2 className="text-3xl font-bold text-slate-900">Prefer a direct line? We've got you covered.</h2>
+              </div>
+
+              <div className="space-y-4">
+                {contactDetails.map((detail, index) => {
+                  const Icon = detail.icon;
+                  return (
+                    <div
+                      key={detail.title}
+                      className="rounded-2xl bg-white border border-border/60 p-5 shadow-sm flex flex-col gap-4"
+                    >
+                      <div className="flex gap-4 items-start">
+                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-soft">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h3 className="text-lg font-semibold text-foreground">{detail.title}</h3>
+                          {detail.href ? (
+                            <a
+                              href={detail.href}
+                              className="text-base text-muted-foreground hover:text-primary transition-colors font-medium"
+                            >
+                              {detail.detail}
+                            </a>
+                          ) : (
+                            <p className="text-base text-muted-foreground font-medium">{detail.detail}</p>
+                          )}
+                        </div>
+                      </div>
+                      {index < contactDetails.length - 1 && (
+                        <div className="h-px w-full bg-border/60" aria-hidden />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
+                <Mail className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Start with email</p>
+                <h2 className="text-2xl font-semibold text-foreground">Tell us how we can help</h2>
+                <p className="text-sm text-muted-foreground">
+                  Share as much detail as possible so we can route you to the right teammate and respond quickly.
+                </p>
+                <a
+                  href="mailto:support@connecttly.com"
+                  className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary/80 transition-colors"
+                >
+                  support@connecttly.com
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {supportChannels.map((channel) => {
+              const Icon = channel.icon;
+              const Wrapper = channel.to ? Link : "a";
+              const wrapperProps = channel.to
+                ? { to: channel.to }
+                : {
+                    href: channel.href,
+                    target: channel.href?.startsWith("http") ? "_blank" : undefined,
+                    rel: channel.href?.startsWith("http") ? "noreferrer" : undefined,
+                  };
+
+              return (
+                <Wrapper
+                  key={channel.title}
+                  {...wrapperProps}
+                  className="group rounded-2xl border border-border bg-white p-5 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col gap-3"
+                >
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-foreground">{channel.title}</h3>
+                      <ArrowUpRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">{channel.description}</p>
+                    <p className="text-sm font-semibold text-primary">{channel.action}</p>
+                  </div>
+                </Wrapper>
+              );
+            })}
           </div>
         </div>
 
