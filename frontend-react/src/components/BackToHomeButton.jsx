@@ -1,7 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 export default function BackToHomeButton({ className = "" }) {
+  const { pathname } = useLocation();
+
+  if (pathname === "/about") return null;
+
   return (
     <Link
       to="/"
