@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,18 +36,15 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSett
   const navigate = useNavigate();
   const avatarInitial = useMemo(
     () => {
-      const nameSource = user?.name?.trim();
+      const trimmedName = user?.name?.trim();
 
-      if (nameSource) {
-        const firstName = nameSource.split(/\s+/).find(Boolean);
-        if (firstName) return firstName.charAt(0).toUpperCase();
+      if (trimmedName) {
+        return trimmedName.charAt(0).toUpperCase();
       }
 
-      const emailSource = user?.email?.trim() || "User";
-      const match = emailSource.match(/[A-Za-z]/);
-      return (match?.[0] || emailSource.charAt(0) || "U").toUpperCase();
+      return "U";
     },
-    [user?.email, user?.name]
+    [user?.name]
   );
 
   const renderNavLink = (label: string, to: string, className?: string) => {
@@ -101,8 +98,7 @@ const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSett
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-secondary rounded-full">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={user.avatar} />
-                      <AvatarFallback className="bg-gradient-primary text-primary-foreground text-sm font-semibold uppercase">
+                      <AvatarFallback className="bg-gradient-primary text-primary-foreground text-base font-bold uppercase">
                         {avatarInitial}
                       </AvatarFallback>
                     </Avatar>
