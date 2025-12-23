@@ -99,9 +99,9 @@ const HeroSection = ({ onGetStarted, onWatchDemo }: HeroSectionProps) => {
                 {brandLogos.map((brand) => (
                   <div
                     key={brand.name}
-                    className="w-14 h-14 rounded-2xl bg-card/90 border border-border shadow-soft flex items-center justify-center overflow-hidden"
+                    className="w-12 h-12 rounded-xl bg-white border border-border shadow-soft flex items-center justify-center"
                   >
-                    <img src={brand.src} alt={`${brand.name} logo`} className="w-10 h-10 object-contain" />
+                    <img src={brand.src} alt={`${brand.name} logo`} className="h-8 w-8 object-contain" />
                   </div>
                 ))}
               </div>
