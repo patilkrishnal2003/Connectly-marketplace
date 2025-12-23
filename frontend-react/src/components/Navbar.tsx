@@ -26,9 +26,9 @@ interface NavbarProps {
 
 const navLinks = [
   { label: "Home", to: "/#hero" },
-  { label: "Deals", to: "/#deals" },
-  { label: "Categories", to: "/#categories" },
-  { label: "About", to: "/about" }
+  { label: "About", to: "/about" },
+  { label: "Deal", to: "/#deals" },
+  { label: "Contact", to: "/contact" },
 ];
 
 const Navbar = ({ isLoggedIn = false, user, onLogin, onLogout, onProfile, onSettings }: NavbarProps) => {
