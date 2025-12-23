@@ -101,8 +101,8 @@ export default function About() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-primary/20 bg-white/80 text-primary font-semibold hover:border-primary/40 transition"
                 >
                   View our vision
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5h8" />
+                  <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" d="M13 5l7 7-7 7M5 5h8" />
                   </svg>
                 </a>
               </div>
@@ -322,8 +322,8 @@ export default function About() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-primary/20 bg-white text-primary font-semibold hover:border-primary/40 transition"
             >
               Talk to our team
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5h8" />
+              <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" d="M13 5l7 7-7 7M5 5h8" />
               </svg>
             </a>
           </div>
