@@ -259,9 +259,9 @@ export default function Contact() {
             </form>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-[#f6f1e5] p-8 shadow-md lg:sticky lg:top-28">
-            <div className="absolute -left-10 top-0 h-full w-12 bg-gradient-to-r from-[#ece4d2] to-transparent" aria-hidden />
-            <div className="absolute -right-10 top-0 h-full w-12 bg-gradient-to-l from-[#ece4d2] to-transparent" aria-hidden />
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-white p-8 shadow-md lg:sticky lg:top-28">
+            <div className="absolute -left-10 top-0 h-full w-12 bg-gradient-to-r from-white to-transparent" aria-hidden />
+            <div className="absolute -right-10 top-0 h-full w-12 bg-gradient-to-l from-white to-transparent" aria-hidden />
             <div className="space-y-4 relative">
               <div>
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Contact details</p>
