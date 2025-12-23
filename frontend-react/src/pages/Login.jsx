@@ -45,9 +45,17 @@ export default function Login() {
               <p className="text-sm font-semibold text-foreground">Marketplace</p>
             </div>
           </Link>
-          <Link to="/register" className="text-sm font-medium text-primary hover:text-[hsl(var(--primary-dark))]">
-            Create account
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="text-sm font-medium text-foreground border border-border rounded-lg px-3 py-2 hover:border-primary/50 hover:text-primary"
+            >
+              Home
+            </Link>
+            <Link to="/register" className="text-sm font-medium text-primary hover:text-[hsl(var(--primary-dark))]">
+              Create account
+            </Link>
+          </div>
         </header>
 
         <div className="bg-white border border-border rounded-2xl shadow-sm p-8 space-y-6">
