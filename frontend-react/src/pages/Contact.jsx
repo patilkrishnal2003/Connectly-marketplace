@@ -9,6 +9,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
@@ -154,7 +155,7 @@ export default function Contact() {
     e.preventDefault();
     setError("");
 
-    if (!formData.name || !formData.email || !formData.message) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.message) {
       setError("Please fill in all fields");
       return;
     }
@@ -162,7 +163,7 @@ export default function Contact() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setSubmitted(true);
-      setFormData({ name: "", email: "", message: "" });
+      setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
       console.error("Contact form submission error:", err);
       setError("Failed to send message. Please try again.");
@@ -284,6 +285,17 @@ export default function Contact() {
                     onChange={handleChange}
                     className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition"
                     placeholder="you@company.com"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <label className="block text-sm font-medium text-foreground">Phone number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition"
+                    placeholder="+1 (555) 000-1234"
                   />
                 </div>
               </div>
